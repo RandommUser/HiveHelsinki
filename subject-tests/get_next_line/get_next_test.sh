@@ -6,18 +6,23 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/13 16:55:49 by phakakos          #+#    #+#              #
-#    Updated: 2019/11/15 17:09:03 by phakakos         ###   ########.fr        #
+#    Updated: 2019/11/15 18:02:22 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
+# Simple test script for the get_next_line project in 42 cursus (old)
+# Does tests set in the evaluation.
+# Creates it's own files, only this file needed to start
+# Created by phakakos @ Hive Helsinki, 2019
+
 clear
-echo "Initializing... Please wait"
-
-#MAKELIB=make -C libft/ fclean && make -C libft/
-#COMPG=clang -Wall -Wextra -Werror -I libft/includes -o get_next_line.o -c get_next_line.c
-#COMPM=clang -Wall -Wextra -Werror -I libft/includes -o main.o -c main.c
-#COMPF=clang -Wall -Wextra -Werror main.o get_next_line.o -I libft/includes -L libft -lft
-
+# FIND REQUIRED FILES
+if [[ ! -f get_next_line.c ]]
+then echo "No get_next_line.c found. Exiting..."; exit
+elif [[ ! -f get_next_line.h ]]
+then echo "No get_next_line.h found. Exiting..."; exit
+	else echo "Initializing...";
+fi
 
 TESTER=test_ngl
 TESTFILE=input.ph
@@ -70,9 +75,22 @@ change_buffer(){
 	compile_main
 }
 
-#TEST STARTS HERE
+# STARTS HERE
+echo "Main.c and previously made files by this test will be removed. Ctrl+C if you do not wish to continue"
+continue_press
+if [[ -f main.c ]]
+then rm main.c
+fi
+if [[ -f $TESTFILE ]]
+then rm $TESTFILE
+fi
+if [[ -f $TESTER ]]
+then rm $TESTER
+fi
 clear
 echo "Welcome to the Get_next_line tester by phakakos"; echo ''
+
+# NORM CHECK
 echo "...Checking norm..."
 echo ''
 	if [[ $NORM == "" ]]
@@ -82,6 +100,8 @@ echo ''
 	echo "$NORME"
 	fi
 echo ''
+
+# AUTHOR FILE CHECK
 echo "~~~Checking author file~~~"
 echo ''
 if [ -f "author" ]
@@ -95,9 +115,10 @@ then
 	done < $file
 else	echo "no author file"
 fi
-echo "\n"
 continue_press
 clear
+
+# MAKE LIBFT.A
 if [[ -d libft ]]
 then make_libft
 else 
@@ -111,46 +132,59 @@ clear
 make_main
 change_buffer
 echo ''
+
+#START TESTS
 echo "Initiating test file, name $TESTFILE"
 echo '' > $TESTFILE
 echo "Starting tests."
 continue_press
 clear
+
+# BUFF SIZE 8 TESTS PART 1
 echo "Buffer size $BUFF_S, one line, length 8 characters"
 echo $FILE8 > $TESTFILE
 ./$TESTER $TESTFILE
-echo ''
 continue_press
+
 echo $FILE8 >> $TESTFILE
 echo "Buffer size $BUFF_S, two lines, length 8 characters"
 ./$TESTER $TESTFILE
-echo ''
 continue_press
+
 echo "Buffer size $BUFF_S, reading from input"
 echo "$FILE8\n$FILE8" | ./$TESTER
 continue_press
 clear
+
+# BUFF SIZE 8 TESTS PART 2
 echo "$FILE4" > $TESTFILE
 echo "Buffer size $BUFF_S, one line, length 4 characters"
 ./$TESTER $TESTFILE
 continue_press
+
 echo "$FILE4" >> $TESTFILE
 echo "Buffer size $BUFF_S, two lines, length 4 characters"
 ./$TESTER $TESTFILE
 continue_press
+
 echo "Buffer size $BUFF_S, reading from input"
 echo "$FILE4\n$FILE4" | ./$TESTER
 continue_press
 clear
+
+# BUFFER SIZE 8 TESTS PART 3
 echo "$FILE16" > $TESTFILE
 echo "Buffer size $BUFF_S, one line, length 16 characters"
 ./$TESTER $TESTFILE
 continue_press
+
 echo "$FILE16" >> $TESTFILE
 echo "Buffer size $BUFF_S, two lines, length 16 characters"
 ./$TESTER $TESTFILE
 continue_press
 clear
+
+# BUFFER SIZE 8, MISC TESTS
 echo "$FILE4" > $TESTFILE
 echo "$FILE8" >> $TESTFILE
 echo "$FILE16" >> $TESTFILE
@@ -159,10 +193,12 @@ echo "$FILE4" >> $TESTFILE
 echo "Buffer size $BUFF_S, multiple lines, random length, empty lines"
 ./$TESTER $TESTFILE
 continue_press
+
 printf %s "No endings here" > $TESTFILE
 echo "Buffer size $BUFF_S, no linebreaks"
 ./$TESTER $TESTFILE
 continue_press
+
 echo "$DANCE" > $TESTFILE
 echo "Buffer size $BUFF_S, now this file will be a bit.... Oh... OH! OH GODS WHAT IS THAT THING????"
 continue_press
@@ -176,12 +212,13 @@ echo "recompiling"
 compile_main
 continue_press
 clear
+
 echo "How about a bad file descriptor?"
 ./$TESTER your.mom
 continue_press
-
-#BUFFER SIZE TESTING
 clear
+
+# BUFFFER SIZE TESTING
 BUFF_S=1
 echo "Setting buffer size to 1"
 change_buffer
@@ -193,6 +230,7 @@ echo "$FILE16\n$FILE16\n$FILE16" > $TESTFILE
 ./$TESTER $TESTFILE
 continue_press
 clear
+
 echo "Setting buffer to size 32"
 BUFF_S=32
 change_buffer
@@ -202,6 +240,7 @@ echo "Buffer size $BUFF_S"
 ./$TESTER $TESTFILE
 continue_press
 clear
+
 echo "Setting buffer to size 9999"
 BUFF_S=9999
 change_buffer
@@ -211,6 +250,7 @@ echo "Buffer size $BUFF_S"
 ./$TESTER $TESTFILE
 continue_press
 clear
+
 echo "Setting buffer to size 100 000 000"
 BUFF_S=100000000
 change_buffer
@@ -219,6 +259,8 @@ clear
 echo "Buffer size $BUFF_S"
 ./$TESTER $TESTFILE
 continue_press
+
+# END OF TEST
 echo "We are done here. Good job if you passed!"
 continue_press
 clear
