@@ -291,10 +291,12 @@ clear
 sed -i '' 's/fd=0;/while(1)\{;\}/' main.c
 compile_main
 echo "Leak testing"
+echo ''; echo''
+echo "Open another terminal view and run leaks test_gnl"
 ./$TESTER $TESTFILE
 continue_press
 
-# END OF TEST
+# END OF TEST (YOU SHOULD NOT GET TO THIS POINT)
 echo "We are done here. Good job if you passed!"
 continue_press
 clear
