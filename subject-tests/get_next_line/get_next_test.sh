@@ -13,6 +13,7 @@
 # Simple test script for the get_next_line project in 42 cursus (old)
 # Does tests set in the evaluation.
 # Creates it's own files, only this file needed to start
+# SHOULD BE PLACED ON THE ROOT OF PROJECT FOLDER
 # Created by phakakos @ Hive Helsinki, 2019
 
 # VARIABLE DECLARATIONS
@@ -38,9 +39,9 @@ test_init(){
 clear
 # FIND REQUIRED FILES
 if [[ ! -f get_next_line.c ]]
-then echo "No get_next_line.c found. Exiting..."; exit
+then echo "No get_next_line.c found. Place me in the subject folder. Exiting..."; exit
 elif [[ ! -f get_next_line.h ]]
-then echo "No get_next_line.h found. Exiting..."; exit
+then echo "No get_next_line.h found. Place me in the subject folder. Exiting..."; exit
 	else echo "Initializing...";
 fi
 
