@@ -6,7 +6,7 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/12 18:10:52 by phakakos          #+#    #+#              #
-#    Updated: 2019/11/15 17:43:23 by phakakos         ###   ########.fr        #
+#    Updated: 2019/11/17 16:28:17 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -41,7 +41,7 @@ elif [ -d "libft" ] ; then
 	while true
 	do
 		if [[ $lib == "y" ]]
-		then rm -r libft; cp -r ~/.libft .; mv .libft libft; echo ">Copied to current folder"; break
+		then make -C ~/.libft fclean; rm -r libft; cp -r ~/.libft .; mv .libft libft; echo ">Copied to current folder"; break
 		elif [[ $lib == "n" ]]
 		then echo "No re-copy"; break
 		else read -p "(y/n) " lib
@@ -53,7 +53,7 @@ else
 	while true
 	do
 		if [[ $lib == "y" ]]
-		then cp -r ~/.libft .; mv .libft libft; echo ">Copied library to current folder"; break
+		then make -C ~/.libft fclean; cp -r ~/.libft .; mv .libft libft; echo ">Copied library to current folder"; break
 		elif [[ $lib == "n" ]]
 		then echo "Skipping"; echo ''; break
 		else read -p "(y/n) " lib
