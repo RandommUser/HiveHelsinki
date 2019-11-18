@@ -6,7 +6,7 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/13 16:55:49 by phakakos          #+#    #+#              #
-#    Updated: 2019/11/18 15:47:58 by phakakos         ###   ########.fr        #
+#    Updated: 2019/11/18 17:10:16 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -68,11 +68,11 @@ compile_main(){
 }
 
 make_main(){
-	echo "#include \"get_next_line.h\"\n#include <sys/types.h>\n#include <sys/types.h>\n#include <fcntl.h>\n#include <stdio.h>\n" > main.c
-	echo "static int	opensesame(char *name)\n{\nreturn (open(name, O_RDONLY));\n}\n" >> main.c
-	echo "static void	read_all(int fd)\n{\nchar *output;\nint rtn;\noutput = NULL;\nwhile ((rtn = get_next_line(fd, &output)) > 0)\n{\nprintf(\"'%d' | '%s'\\\n\", rtn, output);\nfree(output);\n\n}\nprintf(\"last return '%d' | '%s'\\\n\", rtn, output);\n}\n" >> main.c
-	echo "int	main(int argc, char **argv){int fd;\nprintf(\"\\\n\\\n\");\n
-if (argc == 1)\nread_all(0);\nif (argc == 2)\n{\nfd = opensesame(argv[1]);\nread_all(fd);\nclose(fd);\n}\nfd=0;\nreturn (0);\n}" >> main.c
+	echo "#include \"get_next_line.h\"\n#include <sys/types.h>\n#include <sys/types.h>\n#include <fcntl.h>\n#include <stdio.h>\n#include <unistd.h>\n" > main.c
+	echo "static int	opensesame(char *name)\n{\n\treturn (open(name, O_RDONLY));\n}\n" >> main.c
+	echo "static void	read_all(int fd)\n{\n\tchar *output;\n\tint rtn;\n\toutput = NULL;\n\twhile ((rtn = get_next_line(fd, &output)) > 0)\n\t{\n\t\tprintf(\"'%d' | '%s'\\\n\", rtn, output);\n\tfree(output);\n\t}\n\tprintf(\"last return '%d' | '%s'\\\n\", rtn, output);\n}\n" >> main.c
+	echo "int	main(int argc, char **argv)\n{\n\tint fd;\n\tprintf(\"\\\n\\\n\");\n
+\tif (argc == 1)\n\t\tread_all(0);\n\tif (argc == 2)\n\t{\n\t\tfd = opensesame(argv[1]);\n\t\tread_all(fd);\n\t\tclose(fd);\n\t}\n\tfd=0;\n\treturn (0);\n}" >> main.c
 }
 
 change_buffer(){
