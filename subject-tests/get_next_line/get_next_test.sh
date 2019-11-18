@@ -6,7 +6,7 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/13 16:55:49 by phakakos          #+#    #+#              #
-#    Updated: 2019/11/15 21:39:21 by phakakos         ###   ########.fr        #
+#    Updated: 2019/11/18 14:48:04 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -79,6 +79,14 @@ change_buffer(){
 	sed -i '' "s/#.define BUFF_SIZE.*/# define BUFF_SIZE $BUFF_S/" get_next_line.h
 	compile_main
 }
+
+do_test(){
+echo ''
+cat -e $TESTFILE
+./$TESTER $TESTFILE
+continue_press
+}
+
 
 run_test(){
 test_init
@@ -156,13 +164,11 @@ clear
 # BUFF SIZE 8 TESTS PART 1
 echo "Buffer size $BUFF_S, one line, length 8 characters"
 echo $FILE8 > $TESTFILE
-./$TESTER $TESTFILE
-continue_press
+do_test
 
 echo $FILE8 >> $TESTFILE
 echo "Buffer size $BUFF_S, two lines, length 8 characters"
-./$TESTER $TESTFILE
-continue_press
+do_test
 
 echo "Buffer size $BUFF_S, reading from input"
 echo "$FILE8\n$FILE8" | ./$TESTER
@@ -172,13 +178,11 @@ clear
 # BUFF SIZE 8 TESTS PART 2
 echo "$FILE4" > $TESTFILE
 echo "Buffer size $BUFF_S, one line, length 4 characters"
-./$TESTER $TESTFILE
-continue_press
+do_test
 
 echo "$FILE4" >> $TESTFILE
 echo "Buffer size $BUFF_S, two lines, length 4 characters"
-./$TESTER $TESTFILE
-continue_press
+do_test
 
 echo "Buffer size $BUFF_S, reading from input"
 echo "$FILE4\n$FILE4" | ./$TESTER
@@ -188,13 +192,14 @@ clear
 # BUFFER SIZE 8 TESTS PART 3
 echo "$FILE16" > $TESTFILE
 echo "Buffer size $BUFF_S, one line, length 16 characters"
-./$TESTER $TESTFILE
-continue_press
+do_test
 
 echo "$FILE16" >> $TESTFILE
 echo "Buffer size $BUFF_S, two lines, length 16 characters"
-./$TESTER $TESTFILE
-continue_press
+do_test
+
+echo "Buffer size $BUFF_S, reading from input"
+.echo "$FILE16\n$FILE16" | ./$TESTER
 clear
 
 # BUFFER SIZE 8, MISC TESTS
@@ -204,13 +209,11 @@ echo "$FILE16" >> $TESTFILE
 echo "$FILELINES" >> $TESTFILE
 echo "$FILE4" >> $TESTFILE
 echo "Buffer size $BUFF_S, multiple lines, random length, empty lines"
-./$TESTER $TESTFILE
-continue_press
+do_test
 
 printf %s "No endings here" > $TESTFILE
 echo "Buffer size $BUFF_S, no linebreaks"
-./$TESTER $TESTFILE
-continue_press
+do_test
 
 echo "$DANCE" > $TESTFILE
 echo "Buffer size $BUFF_S, now this file will be a bit.... Oh... OH! OH GODS WHAT IS THAT THING????"
@@ -229,7 +232,7 @@ echo "recompiling"
 compile_main
 continue_press
 echo "How about a bad file descriptor?"
-./$TESTER your.mom
+./$TESTER cake_is_a.lie
 continue_press
 clear
 
@@ -242,8 +245,7 @@ continue_press
 clear
 echo "Buffer size $BUFF_S"
 echo "$FILE16\n$FILE16\n$FILE16" > $TESTFILE
-./$TESTER $TESTFILE
-continue_press
+do_test
 clear
 
 echo "Setting buffer to size 32"
@@ -252,8 +254,7 @@ change_buffer
 continue_press
 clear
 echo "Buffer size $BUFF_S"
-./$TESTER $TESTFILE
-continue_press
+do_test
 clear
 
 echo "Setting buffer to size 9999"
@@ -262,8 +263,7 @@ change_buffer
 continue_press
 clear
 echo "Buffer size $BUFF_S"
-./$TESTER $TESTFILE
-continue_press
+do_test
 clear
 
 echo "Setting buffer to size 100 000 000"
@@ -272,8 +272,7 @@ change_buffer
 continue_press
 clear
 echo "Buffer size $BUFF_S"
-./$TESTER $TESTFILE
-continue_press
+do_test
 
 # LONG LINE TEST
 echo "Setting buffer to 32"
@@ -283,8 +282,7 @@ echo "$IPSUM" > $TESTFILE
 continue_press
 clear
 echo "Buffer size $BUFF_S, long line test"
-./$TESTER $TESTFILE
-continue_press
+do_test
 echo ''
 
 clear
@@ -294,8 +292,7 @@ compile_main
 echo "Leak testing"
 echo ''; echo''
 echo "Open another terminal view and run leaks test_gnl"
-./$TESTER $TESTFILE
-continue_press
+do_test
 
 # END OF TEST (YOU SHOULD NOT GET TO THIS POINT)
 echo "We are done here. Good job if you passed!"
