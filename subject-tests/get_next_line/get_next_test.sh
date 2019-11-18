@@ -6,7 +6,7 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/13 16:55:49 by phakakos          #+#    #+#              #
-#    Updated: 2019/11/18 14:48:04 by phakakos         ###   ########.fr        #
+#    Updated: 2019/11/18 15:47:58 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -70,7 +70,7 @@ compile_main(){
 make_main(){
 	echo "#include \"get_next_line.h\"\n#include <sys/types.h>\n#include <sys/types.h>\n#include <fcntl.h>\n#include <stdio.h>\n" > main.c
 	echo "static int	opensesame(char *name)\n{\nreturn (open(name, O_RDONLY));\n}\n" >> main.c
-	echo "static void	read_all(int fd)\n{\nchar *output;\nint rtn;\noutput = NULL;\nwhile ((rtn = get_next_line(fd, &output)) > 0)\n{\nprintf(\"'%d' | '%s'\\\n\", rtn, output);\nfree(output);\noutput = NULL;\n}\nprintf(\"last return '%d' | '%s'\\\n\", rtn, output);\n}\n" >> main.c
+	echo "static void	read_all(int fd)\n{\nchar *output;\nint rtn;\noutput = NULL;\nwhile ((rtn = get_next_line(fd, &output)) > 0)\n{\nprintf(\"'%d' | '%s'\\\n\", rtn, output);\nfree(output);\n\n}\nprintf(\"last return '%d' | '%s'\\\n\", rtn, output);\n}\n" >> main.c
 	echo "int	main(int argc, char **argv){int fd;\nprintf(\"\\\n\\\n\");\n
 if (argc == 1)\nread_all(0);\nif (argc == 2)\n{\nfd = opensesame(argv[1]);\nread_all(fd);\nclose(fd);\n}\nfd=0;\nreturn (0);\n}" >> main.c
 }
@@ -282,7 +282,8 @@ echo "$IPSUM" > $TESTFILE
 continue_press
 clear
 echo "Buffer size $BUFF_S, long line test"
-do_test
+./$TESTER $TESTFILE
+continue_press
 echo ''
 
 clear
@@ -291,8 +292,8 @@ sed -i '' 's/fd=0;/while(1)\{;\}/' main.c
 compile_main
 echo "Leak testing"
 echo ''; echo''
-echo "Open another terminal view and run leaks test_gnl"
-do_test
+echo "Open another terminal view and run leaks test_gnl\n"
+./$TESTER $TESTFILE
 
 # END OF TEST (YOU SHOULD NOT GET TO THIS POINT)
 echo "We are done here. Good job if you passed!"
