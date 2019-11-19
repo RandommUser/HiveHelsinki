@@ -6,7 +6,7 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/13 16:55:49 by phakakos          #+#    #+#              #
-#    Updated: 2019/11/18 17:10:16 by phakakos         ###   ########.fr        #
+#    Updated: 2019/11/19 17:54:15 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -226,7 +226,7 @@ clear
 echo "Testing with invalid file (open returns -1)"
 ./$TESTER aaaaaaaaaaaaaaaaaa
 continue_press
-sed 's/fd\[1\] = opensesame(argv\[1\])/fd\[1\] = 42/' main.c
+sed -i '' 's/fd\[1\] = opensesame(argv\[1\])/fd\[1\] = 42/' main.c
 clear
 echo "recompiling"
 compile_main
@@ -234,6 +234,17 @@ continue_press
 echo "How about a bad file descriptor?"
 ./$TESTER cake_is_a.lie
 continue_press
+clear
+
+make_main
+sed -i '' 's/&output/NULL/' main.c
+echo "recompiling"
+compile_main
+clear
+echo "What if you pass **line as NULL?"
+./$TESTER $TESTFILE
+continue_press
+make_main
 clear
 
 # BUFFFER SIZE TESTING
