@@ -6,7 +6,7 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/25 13:26:41 by phakakos          #+#    #+#              #
-#    Updated: 2019/11/25 17:43:47 by phakakos         ###   ########.fr        #
+#    Updated: 2019/11/25 19:05:30 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -203,7 +203,6 @@ echo ''
 [ $X -ge 0 ] && { echo "X $X"; }
 [ $Y -ge 0 ] && { echo "Y $Y"; }
 [ $Z -ge 0 ] && { echo "Z $Z"; }
-
 }
 
 cont_press(){
@@ -219,6 +218,13 @@ cont_press
 clear
 }
 
+test_input(){
+./$TESTER $TESTFILE > $TESTOUT
+check_output
+cont_press
+clear
+}
+
 run_test(){
 echo "Welcome to the Fillit tester."; echo ''
 if [[ -z "author" ]]
@@ -230,7 +236,7 @@ makefile=make_test
 if [[ makefile -lt 1 ]]
 	then echo "Makefile is wrong, exiting"; exit
 	else
-		make re; make clean
+		make re; make clean; clean
 fi
 if [[ -z "$PROG" ]]
 then echo "could not find compiled program, exiting"; exit
@@ -309,6 +315,66 @@ echo "...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#
 echo "...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#" >> $TESTFILE
 test_err
 
-echo "Why are you here?"
+
+# SOLVABLE INPUT TEST
+# singles
+echo "Testing with valid input, single block"
+echo "...#\n...#\n...#\n...#" > $TESTFILE
+test_input
+
+echo "....\n....\n..##\n..##" > $TESTFILE
+test_input
+
+echo "#...\n#...\n##..\n...." > $TESTFILE
+test_input
+
+echo "....\n.#..\n##..\n#..." > $TESTFILE
+test_input
+
+# doubles
+echo "Testing with valid input, two blocks"
+echo "##..\n##..\n....\n....\n\n##..\n##..\n....\n...." > $TESTFILE
+test_input
+
+echo "...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#" > $TESTFILE
+test_input
+
+echo "####\n....\n....\n....\n\n...#\n...#\n...#\n...#" > $TESTFILE
+test_input
+
+echo "....\n....\n...#\n.###\n\n####\n....\n....\n...." > $TESTFILE
+test_input
+
+
+echo "Why are you here? Just to suffer?"
 }
 run_test
+
+   ____
+ /___ /|
+|    | |
+|____|/
+
+   ____
+ /___ /|
+|    | |
+|----|/|
+|    | |
+|____|/|
+|    | |
+|____|/
+
+   ____ ____
+ /___ /___ /|
+|    |    | |
+|____|____|/
+|    | |____
+|____|/___ /|
+|    |    | |
+|____|____|/
+|    | |
+|____|/|
+|    | |
+|____|/
+
+
