@@ -6,7 +6,7 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/13 16:55:49 by phakakos          #+#    #+#              #
-#    Updated: 2019/11/19 17:54:15 by phakakos         ###   ########.fr        #
+#    Updated: 2019/11/26 17:44:42 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -49,6 +49,7 @@ NORM=$(norminette *.c *.h | grep "Error\|Warning")
 }
 
 continue_press(){
+	read -t 1 -s -r -n 10000 discard 
 	read -n 1 -s -r -p "Press anything to continue..."
 	echo "\n"
 }
