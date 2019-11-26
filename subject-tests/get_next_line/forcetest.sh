@@ -6,12 +6,12 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/26 18:51:35 by phakakos          #+#    #+#              #
-#    Updated: 2019/11/26 21:00:09 by phakakos         ###   ########.fr        #
+#    Updated: 2019/11/26 21:04:51 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 # Test to go through different BUFF_SIZEs from x to y
-# Made by phakakos @ Hive Helsink, 2019
+# Made by phakakos @ Hive Helsinki, 2019
 
 
 START=1  # Configure the starting buff size
@@ -64,6 +64,15 @@ echo "Buff size $BUFF_S diff: $CHECK" >> $DIFFERENCE
 }
 
 force_test(){
+clear
+# FIND REQUIRED FILES
+if [[ ! -f get_next_line.c ]]
+then echo "No get_next_line.c found. Place me in the subject folder. Exiting..."; exit
+elif [[ ! -f get_next_line.h ]]
+then echo "No get_next_line.h found. Place me in the subject folder. Exiting..."; exit
+	else echo "Initializing...";
+fi
+
 if [[ -f "$DIFFERENCE" ]]
 then rm $DIFFERENCE
 fi
