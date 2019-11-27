@@ -6,7 +6,7 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/25 13:26:41 by phakakos          #+#    #+#              #
-#    Updated: 2019/11/27 12:36:05 by phakakos         ###   ########.fr        #
+#    Updated: 2019/11/27 13:35:26 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -227,8 +227,10 @@ clear
 }
 
 run_test(){
+echo "   ____ ____        ____                                ____             ____\n /___ /___ /|     /___ /|                              |\ ___\          |\ ___\\n|    |    | |    |    | |        ___       ___         | |    |     ___ | |    |___\n|____|____|/     |____|/       /___ /|    |\ ___\       \|____|    |\ ___\|____| ___\ \n|    | |____        ____      |    | |    | |    |       ____      | |    |    |    |\n|____|/___ /|     /___ /|     |____|/|    |\|____|     |\ ___\      \|____|____|____|\n|    |    | |    |    | |     |    | |    | |    |     | |    |         | |    |\n|____|____|/     |____|/|     |____|/|    |\|____|     |\|____|         |\|____|\n|    | |         |    | |     |    | |    | |    |     | |    |         | |    |\n|____|/|         |____|/|     |____|/|    |\|____|     |\|____|         |\|____|\n|    | |         |    | |     |    | |    | |    |     | |    |         | |    |\n|____|/          |____|/      |____|/      \|____|      \|____|          \|____|\n"
+
 echo "Welcome to the Fillit tester."; echo ''
-if [[ -z "author" ]]
+if [[ ! -f "author" ]]
 then echo "No author file found, exiting."; exit
 else
 	cat -e author
@@ -239,7 +241,7 @@ if [[ makefile -lt 1 ]]
 	else
 		make re; make clean; clean
 fi
-if [[ -z "$PROG" ]]
+if [[ ! -f "$PROG" ]]
 then echo "could not find compiled program, exiting"; exit
 else
 	echo "Initializing done. Next tests"; cont_press; clear
