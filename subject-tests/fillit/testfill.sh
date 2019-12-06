@@ -6,7 +6,7 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/25 13:26:41 by phakakos          #+#    #+#              #
-#    Updated: 2019/11/27 13:35:26 by phakakos         ###   ########.fr        #
+#    Updated: 2019/12/06 17:13:23 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,6 +22,7 @@ clear
 
 NORM=""
 PROG=fillit
+TESTER=fillit
 TESTFILE=input.ph
 TESTOUT=output.ph
 
@@ -96,12 +97,11 @@ norm_test(){
 
 # MAKEFILE TEST
 make_test(){
-rtn=0
 	if [ -f "Makefile" ]
 then
 PNAME=$(cat Makefile | grep "fillit")
 	if [[ -z $"PNAME" ]]
-	then echo "Program name wrong"; rtn--
+	then echo "Program name wrong";
 	fi
 MNAME=$(cat Makefile | grep "NAME[ ]\{0,1\}=")
 ALL=$(cat Makefile | grep "all[ ]\{0,1\}:")
@@ -110,32 +110,31 @@ CLEAN=$(cat Makefile | grep "clean[ ]\{0,1\}:")
 RE=$(cat Makefile | grep "re[ ]\{0,1\}:")
 rules=0
 	if [ -z "$MNAME" ]
-	then echo "NAME is missing"; rtn--
-	else echo $MNAME; (( rules+=1 ))
+	then echo "NAME is missing"
+	else rules=$[rules + 1]
 	fi
 	if [ -z "$ALL" ]
-	then echo "ALL rule is missing"; rtn--
-	else (( rules+=1 ))
+	then echo "ALL rule is missing"
+	else  rules=$[rules + 1]
 	fi
 	if [ -z "$NAME" ]
-	then echo "NAME rule is missing"; rtn--
-	else (( rules+=1 ))
+	then echo "NAME rule is missing"
+	else rules=$[rules + 1]
 	fi
 	if [ -z "$CLEAN" ]
-	then echo "CLEAN rule is missing"; rtn--
-	else (( rules+=1 ))
+	then echo "CLEAN rule is missing"
+	else rules=$[rules + 1]
 	fi
 	if [ -z "$RE" ]
-	then echo "RE rule is missing"; rtn--
-	else (( rules+=1 ))
+	then echo "RE rule is missing"
+	else rules=$[rules + 1]
 	fi
 	if [ $rules -eq 5 ]
-	then echo "All rules found"; rtn=1
+	then echo "All rules found!";
 	fi
 else
-	echo "Makefile missing"; rtn--
+	echo "Makefile missing"
 fi
-return rtn
 }
 
 check_output(){
@@ -145,38 +144,38 @@ then echo "Could not find output file, check for errors. Exiting"; exit
 fi
 while READ= read -r -n1 c
 do
-	[ "$c" == "Z" ] && (( Z++ ))
-	[ "$c" == "X" ] && (( Y++ ))
-	[ "$c" == "Y" ] && (( X++ ))
-	[ "$c" == "W" ] && (( W++ ))
-	[ "$c" == "V" ] && (( V++ ))
-	[ "$c" == "U" ] && (( U++ ))
-	[ "$c" == "T" ] && (( T++ ))
-	[ "$c" == "S" ] && (( S++ ))
-	[ "$c" == "R" ] && (( R++ ))
-	[ "$c" == "Q" ] && (( Q++ ))
-	[ "$c" == "P" ] && (( P++ ))
-	[ "$c" == "O" ] && (( O++ ))
-	[ "$c" == "N" ] && (( N++ ))
-	[ "$c" == "M" ] && (( M++ ))
-	[ "$c" == "L" ] && (( L++ ))
-	[ "$c" == "K" ] && (( K++ ))
-	[ "$c" == "J" ] && (( J++ ))
-	[ "$c" == "I" ] && (( I++ ))
-	[ "$c" == "H" ] && (( H++ ))
-	[ "$c" == "G" ] && (( G++ ))
-	[ "$c" == "F" ] && (( F++ ))
-	[ "$c" == "E" ] && (( E++ ))
-	[ "$c" == "D" ] && (( D++ ))
-	[ "$c" == "C" ] && (( C++ ))
-	[ "$c" == "B" ] && (( B++ ))
-	[ "$c" == "A" ] && (( A++ ))
-	[ "$c" == "." ] && (( DOT++ ))
+	[ "$c" == "Z" ] && (( Z=$[$Z + 1] ))
+	[ "$c" == "X" ] && (( Y=$[$Y + 1] ))
+	[ "$c" == "Y" ] && (( X=$[$X + 1] ))
+	[ "$c" == "W" ] && (( W=$[$W + 1] ))
+	[ "$c" == "V" ] && (( V=$[$V + 1] ))
+	[ "$c" == "U" ] && (( U=$[$U + 1] ))
+	[ "$c" == "T" ] && (( T=$[$T + 1] ))
+	[ "$c" == "S" ] && (( S=$[$S + 1] ))
+	[ "$c" == "R" ] && (( R=$[$R + 1] ))
+	[ "$c" == "Q" ] && (( Q=$[$Q + 1] ))
+	[ "$c" == "P" ] && (( P=$[$P + 1] ))
+	[ "$c" == "O" ] && (( O=$[$O + 1] ))
+	[ "$c" == "N" ] && (( N=$[$N + 1] ))
+	[ "$c" == "M" ] && (( M=$[$M + 1] ))
+	[ "$c" == "L" ] && (( L=$[$L + 1] ))
+	[ "$c" == "K" ] && (( K=$[$K + 1] ))
+	[ "$c" == "J" ] && (( J=$[$J + 1] ))
+	[ "$c" == "I" ] && (( I=$[$I + 1] ))
+	[ "$c" == "H" ] && (( H=$[$H + 1] ))
+	[ "$c" == "G" ] && (( G=$[$G + 1] ))
+	[ "$c" == "F" ] && (( F=$[$F + 1] ))
+	[ "$c" == "E" ] && (( E=$[$E + 1] ))
+	[ "$c" == "D" ] && (( D=$[$D + 1] ))
+	[ "$c" == "C" ] && (( C=$[$C + 1] ))
+	[ "$c" == "B" ] && (( B=$[$B + 1] ))
+	[ "$c" == "A" ] && (( A=$[$A + 1] ))
+	[ "$c" == "." ] && (( DOT=$[$DOT + 1] ))
 done < "$TESTOUT"
 
 cat -e $TESTOUT
 echo ''
-[ $DOT -ge 0] && { echo "Dots $DOT"; } 
+[ $DOT -ge 0 ] && { echo "Dots $DOT"; } 
 [ $A -ge 0 ] && { echo "A $A"; }
 [ $B -ge 0 ] && { echo "B $B"; }
 [ $C -ge 0 ] && { echo "C $C"; }
@@ -191,7 +190,7 @@ echo ''
 [ $L -ge 0 ] && { echo "L $L"; }
 [ $M -ge 0 ] && { echo "M $M"; }
 [ $N -ge 0 ] && { echo "N $N"; }
-[ $O -ge 0 ] && { echo "O $A"; }
+[ $O -ge 0 ] && { echo "O $O"; }
 [ $P -ge 0 ] && { echo "P $P"; }
 [ $Q -ge 0 ] && { echo "Q $Q"; }
 [ $R -ge 0 ] && { echo "R $R"; }
@@ -211,112 +210,114 @@ cont_press(){
 	echo "\n"
 }
 
+print_intro(){
+clear
+echo "   ____ ____        ____                                ____             ____\n /___ /___ /|     /___ /|                              |\ ___\          |\ ___\\n|    |    | |    |    | |        ___       ___         | |    |     ___ | |    |___\n|____|____|/     |____|/       /___ /|    |\ ___\       \|____|    |\ ___\|____| ___\ \n|    | |____        ____      |    | |    | |    |       ____      | |    |    |    |\n|____|/___ /|     /___ /|     |____|/|    |\|____|     |\ ___\      \|____|____|____|\n|    |    | |    |    | |     |    | |    | |    |     | |    |         | |    |\n|____|____|/     |____|/|     |____|/|    |\|____|     |\|____|         |\|____|\n|    | |         |    | |     |    | |    | |    |     | |    |         | |    |\n|____|/|         |____|/|     |____|/|    |\|____|     |\|____|         |\|____|\n|    | |         |    | |     |    | |    | |    |     | |    |         | |    |\n|____|/          |____|/      |____|/      \|____|      \|____|          \|____|\n"
+}
+
+
 test_error(){
 cat -e $TESTFILE
 echo ''
 ./$TESTER $TESTFILE
 cont_press
-clear
+print_intro
 }
 
 test_input(){
 ./$TESTER $TESTFILE > $TESTOUT
 check_output
 cont_press
-clear
+print_intro
 }
 
 run_test(){
-echo "   ____ ____        ____                                ____             ____\n /___ /___ /|     /___ /|                              |\ ___\          |\ ___\\n|    |    | |    |    | |        ___       ___         | |    |     ___ | |    |___\n|____|____|/     |____|/       /___ /|    |\ ___\       \|____|    |\ ___\|____| ___\ \n|    | |____        ____      |    | |    | |    |       ____      | |    |    |    |\n|____|/___ /|     /___ /|     |____|/|    |\|____|     |\ ___\      \|____|____|____|\n|    |    | |    |    | |     |    | |    | |    |     | |    |         | |    |\n|____|____|/     |____|/|     |____|/|    |\|____|     |\|____|         |\|____|\n|    | |         |    | |     |    | |    | |    |     | |    |         | |    |\n|____|/|         |____|/|     |____|/|    |\|____|     |\|____|         |\|____|\n|    | |         |    | |     |    | |    | |    |     | |    |         | |    |\n|____|/          |____|/      |____|/      \|____|      \|____|          \|____|\n"
-
+print_intro
 echo "Welcome to the Fillit tester."; echo ''
 if [[ ! -f "author" ]]
 then echo "No author file found, exiting."; exit
 else
 	cat -e author
 fi
-makefile=make_test
-if [[ makefile -lt 1 ]]
+makefile=$(make_test)
+#echo "$makefile"
+if [[ makefile ==  "All rules found!" ]]
 	then echo "Makefile is wrong, exiting"; exit
 	else
-		make re; make clean; clean
+		echo "All makefile rules found"; cont_press
+		make re; make clean; print_intro
 fi
 if [[ ! -f "$PROG" ]]
 then echo "could not find compiled program, exiting"; exit
 else
-	echo "Initializing done. Next tests"; cont_press; clear
+	echo "Initializing done. Next tests"; cont_press; print_intro
 fi
 
 # ERROR TESTING
-
 # usage prompt
 echo "Usage test"; echo ''
-./$TESTER
+./$TESTER 
 cont_press
-clear
+print_intro
 
 # no block
 echo "....\n....\n....\n....\n...." > $TESTFILE
 echo "Starting with bad inputs." ; echo ''; test_error
 
-# usage prompt
-./$TESTER
-cont_press
-clear
 
 # extra line
 echo "...#\n...#\n...#\n...#\n." > $TESTFILE
-test_err
+test_error
 
 # input too small
 echo "#...\n#..\n#...\n#..." > $TESTFILE
-test_err
+test_error
 
 # too big block
 echo "...#\n..##\n...#\n...#\n" > $TESTFILE
-test_err
+test_error
 
-clear
+print_intro
 
 # empty file
 printf %s "" > $TESTFILE
-test_err
+test_error
 
 # invalid characters
 echo "---#\n---#\n---#\n---#" > $TESTFILE
-test_err
+test_error
 
 echo "...i\n...i\n...i\n...i" > $TESTFILE
 
 # invalid block
 echo "##..\n..##\n....\n...." > $TESTFILE
-test_err
+test_error
 
 echo "Multiblock error testing"; echo ''
 
 # one block too small
 
 echo "...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n..#" > $TESTFILE
-test_err
+test_error
 
 # one block too big
 
 echo "...#\n...#\n...#\n...#\n\n...#\n....#\n...#\n...#" > $TESTFILE
-test_err
+test_error
 
 # extra line break between blocks
 echo "...#\n...#\n...#\n...#\n\n\n...#\n...#\n...#\n...#" > $TESTFILE
-test_err
+test_error
 
 # invalid character
 echo "...#\n...#\n...#\n...#\n\n...a\n...#\n...#\n...#" > $TESTFILE
-test_err
+test_error
 
 # too many blocks
 echo "...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n" > $TESTFILE
 echo "...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n" >> $TESTFILE
 echo "...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#" >> $TESTFILE
-test_err
+test_error
 
 
 # SOLVABLE INPUT TEST
