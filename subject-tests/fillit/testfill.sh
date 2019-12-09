@@ -6,7 +6,7 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/25 13:26:41 by phakakos          #+#    #+#              #
-#    Updated: 2019/12/06 17:15:15 by phakakos         ###   ########.fr        #
+#    Updated: 2019/12/09 16:54:35 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -176,32 +176,32 @@ done < "$TESTOUT"
 cat -e $TESTOUT
 echo ''
 [ $DOT -ge 0 ] && { echo "Dots $DOT"; } 
-[ $A -ge 0 ] && { echo "A $A"; }
-[ $B -ge 0 ] && { echo "B $B"; }
-[ $C -ge 0 ] && { echo "C $C"; }
-[ $D -ge 0 ] && { echo "D $D"; }
-[ $E -ge 0 ] && { echo "E $E"; }
-[ $F -ge 0 ] && { echo "F $F"; }
-[ $G -ge 0 ] && { echo "G $G"; }
-[ $H -ge 0 ] && { echo "H $H"; }
-[ $I -ge 0 ] && { echo "I $I"; }
-[ $J -ge 0 ] && { echo "J $J"; }
-[ $K -ge 0 ] && { echo "K $K"; }
-[ $L -ge 0 ] && { echo "L $L"; }
-[ $M -ge 0 ] && { echo "M $M"; }
-[ $N -ge 0 ] && { echo "N $N"; }
-[ $O -ge 0 ] && { echo "O $O"; }
-[ $P -ge 0 ] && { echo "P $P"; }
-[ $Q -ge 0 ] && { echo "Q $Q"; }
-[ $R -ge 0 ] && { echo "R $R"; }
-[ $S -ge 0 ] && { echo "S $S"; }
-[ $T -ge 0 ] && { echo "T $T"; }
-[ $U -ge 0 ] && { echo "U $U"; }
-[ $V -ge 0 ] && { echo "V $V"; }
-[ $W -ge 0 ] && { echo "W $W"; }
-[ $X -ge 0 ] && { echo "X $X"; }
-[ $Y -ge 0 ] && { echo "Y $Y"; }
-[ $Z -ge 0 ] && { echo "Z $Z"; }
+[ $A -gt 0 ] && { echo "A $A"; }
+[ $B -gt 0 ] && { echo "B $B"; }
+[ $C -gt 0 ] && { echo "C $C"; }
+[ $D -gt 0 ] && { echo "D $D"; }
+[ $E -gt 0 ] && { echo "E $E"; }
+[ $F -gt 0 ] && { echo "F $F"; }
+[ $G -gt 0 ] && { echo "G $G"; }
+[ $H -gt 0 ] && { echo "H $H"; }
+[ $I -gt 0 ] && { echo "I $I"; }
+[ $J -gt 0 ] && { echo "J $J"; }
+[ $K -gt 0 ] && { echo "K $K"; }
+[ $L -gt 0 ] && { echo "L $L"; }
+[ $M -gt 0 ] && { echo "M $M"; }
+[ $N -gt 0 ] && { echo "N $N"; }
+[ $O -gt 0 ] && { echo "O $O"; }
+[ $P -gt 0 ] && { echo "P $P"; }
+[ $Q -gt 0 ] && { echo "Q $Q"; }
+[ $R -gt 0 ] && { echo "R $R"; }
+[ $S -gt 0 ] && { echo "S $S"; }
+[ $T -gt 0 ] && { echo "T $T"; }
+[ $U -gt 0 ] && { echo "U $U"; }
+[ $V -gt 0 ] && { echo "V $V"; }
+[ $W -gt 0 ] && { echo "W $W"; }
+[ $X -gt 0 ] && { echo "X $X"; }
+[ $Y -gt 0 ] && { echo "Y $Y"; }
+[ $Z -gt 0 ] && { echo "Z $Z"; }
 }
 
 cont_press(){
@@ -219,13 +219,22 @@ echo "   ____ ____        ____                                ____             _
 test_error(){
 cat -e $TESTFILE
 echo ''
+printf %s "output: "
 ./$TESTER $TESTFILE
 cont_press
 print_intro
 }
 
 test_input(){
+echo "output:";
 ./$TESTER $TESTFILE > $TESTOUT
+check_output
+cont_press
+print_intro
+}
+
+test_speed(){
+time ./$TESTER $TESTFILE > $TESTOUT
 check_output
 cont_press
 print_intro
@@ -258,6 +267,8 @@ fi
 echo "Usage test"; echo ''
 ./$TESTER 
 cont_press
+./$TESTER hello world
+cont_press
 print_intro
 
 # no block
@@ -274,12 +285,20 @@ echo "#...\n#..\n#...\n#..." > $TESTFILE
 test_error
 
 # too big block
-echo "...#\n..##\n...#\n...#\n" > $TESTFILE
+echo "...#\n..##\n...#\n...#" > $TESTFILE
+test_error
+# valid block and then more hashes
+echo "...#\n...#\n..##\n...#" > $TESTFILE
 test_error
 
-print_intro
+# no linebreak finish
+echo "This can work (no linebreak at the end)"
+echo "...#\n...#\n...#" > $TESTFILE
+printf %s "...#" >> $TESTFILE
+test_error
 
 # empty file
+echo "(Empty file)"
 printf %s "" > $TESTFILE
 test_error
 
@@ -293,16 +312,25 @@ echo "...i\n...i\n...i\n...i" > $TESTFILE
 echo "##..\n..##\n....\n...." > $TESTFILE
 test_error
 
+# invalid block, blocks "connected" in string
+echo "..##\n##..\n....\n...." > $TESTFILE
+test_error
+
 echo "Multiblock error testing"; echo ''
 
 # one block too small
-
 echo "...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n..#" > $TESTFILE
 test_error
 
-# one block too big
+# one line too small
+echo "...#\n...#\n...#\n...#\n\n....\n####\n...." > $TESTFILE
+test_error
 
+# one block too big
 echo "...#\n...#\n...#\n...#\n\n...#\n....#\n...#\n...#" > $TESTFILE
+test_error
+
+echo "...#\n...#\n...#\n...#\n\n...#\n...#\n..##\n...#" > $TESTFILE
 test_error
 
 # extra line break between blocks
@@ -323,16 +351,61 @@ test_error
 # SOLVABLE INPUT TEST
 # singles
 echo "Testing with valid input, single block"
-echo "...#\n...#\n...#\n...#" > $TESTFILE
+echo "...#\n...#\n...#\n...#" > $TESTFILE # I block
 test_input
 
-echo "....\n....\n..##\n..##" > $TESTFILE
+echo "....\n....\n####\n...." > $TESTFILE # I block flat
 test_input
 
-echo "#...\n#...\n##..\n...." > $TESTFILE
+echo "....\n....\n..##\n..##" > $TESTFILE # square
 test_input
 
-echo "....\n.#..\n##..\n#..." > $TESTFILE
+echo "#...\n#...\n##..\n...." > $TESTFILE # L
+test_input
+
+echo "....\n..#.\n..#.\n.##." > $TESTFILE # L reverse
+test_input
+
+echo "...#\n.###\n....\n...." > $TESTFILE # L down
+test_input
+
+echo "....\n....\n.#..\n.###" > $TESTFILE # L down reverse
+test_input
+
+echo ".##.\n..#.\n..#.\n...." > $TESTFILE # L upsidedown
+test_input
+
+echo "....\n..##\n..#.\n..#." > $TESTFILE # L upsidedown reverse
+test_input
+
+echo "....\n....\n..#.\n###." > $TESTFILE # L r-down
+test_input
+
+echo "....\n.###\n...#\n...." > $TESTFILE # L r-down reverse
+test_input
+
+echo "....\n.#..\n##..\n#..." > $TESTFILE # S down
+test_input
+
+echo ".#..\n.##.\n..#.\n...." > $TESTFILE # S down reverse
+test_input
+
+echo "....\n....\n.##.\n..##" > $TESTFILE # S flat reverse
+test_input
+
+echo ".##.\n##..\n....\n...." > $TESTFILE # S flat
+test_input
+
+echo "###.\n.#..\n....\n...." > $TESTFILE # T 1
+test_input
+
+echo "....\n..#.\n.###\n...." > $TESTFILE # T 2
+test_input
+
+echo "....\n...#\n..##\n...#" > $TESTFILE # T 3
+test_input
+
+echo "....\n....\n###.\n.#.." > $TESTFILE # T 4
 test_input
 
 # doubles
@@ -348,6 +421,12 @@ test_input
 
 echo "....\n....\n...#\n.###\n\n####\n....\n....\n...." > $TESTFILE
 test_input
+
+
+echo "Speed test, evaluation test"
+echo "...#\n...#\n...#\n...#\n\n....\n....\n....\n####\n\n.###\n...#\n....\n....\n\n....\n..##\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n....\n##..\n.##.\n\n##..\n.#..\n.#..\n...." > $TESTFILE
+test_speed
+
 
 
 echo "Why are you here? Just to suffer?"
