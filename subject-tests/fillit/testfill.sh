@@ -6,7 +6,7 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/25 13:26:41 by phakakos          #+#    #+#              #
-#    Updated: 2019/12/10 16:30:11 by phakakos         ###   ########.fr        #
+#    Updated: 2019/12/11 19:50:21 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -226,6 +226,7 @@ print_intro
 }
 
 test_input(){
+cat -e $TESTFILE
 echo "output:";
 ./$TESTER $TESTFILE > $TESTOUT
 check_output
@@ -272,7 +273,7 @@ cont_press
 print_intro
 
 # no block
-echo "....\n....\n....\n....\n...." > $TESTFILE
+echo "....\n....\n....\n...." > $TESTFILE
 echo "Starting with bad inputs." ; echo ''; test_error
 
 echo "####\n####\n####\n####" > $TESTFILE
@@ -424,6 +425,8 @@ test_input
 echo "....\n....\n...#\n.###\n\n####\n....\n....\n...." > $TESTFILE
 test_input
 
+echo "....\n##..\n.#..\n.#..\n\n....\n####\n....\n....\n\n#...\n###.\n....\n....\n\n....\n##..\n.##.\n...." > $TESTFILE
+test_input
 
 echo "Speed test, evaluation test"
 echo "...#\n...#\n...#\n...#\n\n....\n....\n....\n####\n\n.###\n...#\n....\n....\n\n....\n..##\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n....\n##..\n.##.\n\n##..\n.#..\n.#..\n...." > $TESTFILE
