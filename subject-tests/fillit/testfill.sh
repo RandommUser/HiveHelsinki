@@ -6,7 +6,7 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/25 13:26:41 by phakakos          #+#    #+#              #
-#    Updated: 2019/12/12 13:50:38 by phakakos         ###   ########.fr        #
+#    Updated: 2019/12/12 14:15:32 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -290,6 +290,7 @@ test_error
 # too big block
 echo "...#\n..##\n...#\n...#" > $TESTFILE
 test_error
+
 # valid block and then more hashes
 echo "...#\n...#\n..##\n...#" > $TESTFILE
 test_error
@@ -304,6 +305,12 @@ test_error
 echo "(Empty file)"
 printf %s "" > $TESTFILE
 test_error
+
+echo "Invalid file"
+TEMP=$TESTFILE
+TESTFILE=my.future
+test_error
+TESTFILE=$TEMP
 
 # invalid characters
 echo "---#\n---#\n---#\n---#" > $TESTFILE
@@ -432,6 +439,9 @@ echo "#...\n#...\n#...\n#...\n\n...#\n...#\n...#\n...#\n\n.#..\n.#..\n.#..\n.#..
 test_input
 
 echo "####\n....\n....\n....\n\n....\n####\n....\n....\n\n....\n....\n####\n....\n\n....\n....\n....\n####" > $TESTFILE
+test_input
+
+echo "....\n....\n.###\n..#.\n\n....\n#...\n##..\n#...\n\n...#\n.###\n....\n...." > $TESTFILE
 test_input
 
 echo "....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n...." > $TESTFILE
