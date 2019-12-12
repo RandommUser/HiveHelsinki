@@ -6,7 +6,7 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/25 13:26:41 by phakakos          #+#    #+#              #
-#    Updated: 2019/12/11 19:50:21 by phakakos         ###   ########.fr        #
+#    Updated: 2019/12/12 13:50:38 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -227,7 +227,7 @@ print_intro
 
 test_input(){
 cat -e $TESTFILE
-echo "output:";
+echo "\noutput:";
 ./$TESTER $TESTFILE > $TESTOUT
 check_output
 cont_press
@@ -428,11 +428,21 @@ test_input
 echo "....\n##..\n.#..\n.#..\n\n....\n####\n....\n....\n\n#...\n###.\n....\n....\n\n....\n##..\n.##.\n...." > $TESTFILE
 test_input
 
+echo "#...\n#...\n#...\n#...\n\n...#\n...#\n...#\n...#\n\n.#..\n.#..\n.#..\n.#..\n\n..#.\n..#.\n..#.\n..#." > $TESTFILE
+test_input
+
+echo "####\n....\n....\n....\n\n....\n####\n....\n....\n\n....\n....\n####\n....\n\n....\n....\n....\n####" > $TESTFILE
+test_input
+
+echo "....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n...." > $TESTFILE
+test_input
+
 echo "Speed test, evaluation test"
 echo "...#\n...#\n...#\n...#\n\n....\n....\n....\n####\n\n.###\n...#\n....\n....\n\n....\n..##\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n....\n##..\n.##.\n\n##..\n.#..\n.#..\n...." > $TESTFILE
 test_speed
 
-
+echo "....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n...." > $TESTFILE
+test_speed
 
 echo "Why are you here? Just to suffer?"
 }
