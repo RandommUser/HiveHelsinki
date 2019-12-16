@@ -6,7 +6,7 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/25 13:26:41 by phakakos          #+#    #+#              #
-#    Updated: 2019/12/12 14:15:32 by phakakos         ###   ########.fr        #
+#    Updated: 2019/12/16 09:41:21 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -265,33 +265,46 @@ fi
 
 # ERROR TESTING
 # usage prompt
-echo "Usage test"; echo ''
+echo "Usage test"; echo ''; echo "No params"; echo ''
 ./$TESTER 
 cont_press
+echo "Too many params"; echo ''
 ./$TESTER hello world
 cont_press
 print_intro
 
-# no block
-echo "....\n....\n....\n...." > $TESTFILE
-echo "Starting with bad inputs." ; echo ''; test_error
+echo "Starting with bad inputs"; echo ''
 
+# no block
+echo "No hashes"
+echo "....\n....\n....\n...." > $TESTFILE
+test_error
+
+echo "All hashes"
 echo "####\n####\n####\n####" > $TESTFILE
 test_error
 
+echo "Too many line breaks"
+echo "...#\n...#\n...#\n...#\n" > $TESTFILE
+test_error
+
 # extra line
+echo "Too many lines"
 echo "...#\n...#\n...#\n...#\n." > $TESTFILE
 test_error
 
 # input too small
+echo "Line too thin"
 echo "#...\n#..\n#...\n#..." > $TESTFILE
 test_error
 
 # too big block
+echo "Line too thick"
 echo "...#\n..##\n...#\n...#" > $TESTFILE
 test_error
 
 # valid block and then more hashes
+echo "One too many hashes"
 echo "...#\n...#\n..##\n...#" > $TESTFILE
 test_error
 
@@ -313,12 +326,16 @@ test_error
 TESTFILE=$TEMP
 
 # invalid characters
+echo "Wrong empty character"
 echo "---#\n---#\n---#\n---#" > $TESTFILE
 test_error
 
+echo "Wrong block character"
 echo "...i\n...i\n...i\n...i" > $TESTFILE
+test_error
 
 # invalid block
+echo "Not valid tetrimino"
 echo "##..\n..##\n....\n...." > $TESTFILE
 test_error
 
@@ -329,29 +346,36 @@ test_error
 echo "Multiblock error testing"; echo ''
 
 # one block too small
+echo "One block too small"
 echo "...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n..#" > $TESTFILE
 test_error
 
 # one line too small
+echo "One line too small"
 echo "...#\n...#\n...#\n...#\n\n....\n####\n...." > $TESTFILE
 test_error
 
 # one block too big
+echo "One line too big"
 echo "...#\n...#\n...#\n...#\n\n...#\n....#\n...#\n...#" > $TESTFILE
 test_error
 
+echo "Too many hashes"
 echo "...#\n...#\n...#\n...#\n\n...#\n...#\n..##\n...#" > $TESTFILE
 test_error
 
 # extra line break between blocks
+echo "Too many line breaks"
 echo "...#\n...#\n...#\n...#\n\n\n...#\n...#\n...#\n...#" > $TESTFILE
 test_error
 
 # invalid character
+echo "Invalid character"
 echo "...#\n...#\n...#\n...#\n\n...a\n...#\n...#\n...#" > $TESTFILE
 test_error
 
 # too many blocks
+echo "Too many blocks"
 echo "...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n" > $TESTFILE
 echo "...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n" >> $TESTFILE
 echo "...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#\n\n...#\n...#\n...#\n...#" >> $TESTFILE
@@ -451,6 +475,7 @@ echo "Speed test, evaluation test"
 echo "...#\n...#\n...#\n...#\n\n....\n....\n....\n####\n\n.###\n...#\n....\n....\n\n....\n..##\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n....\n##..\n.##.\n\n##..\n.#..\n.#..\n...." > $TESTFILE
 test_speed
 
+echo "Speed test, 25 * squares"
 echo "....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n....\n\n....\n.##.\n.##.\n...." > $TESTFILE
 test_speed
 
