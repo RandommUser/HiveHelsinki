@@ -6,16 +6,19 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/12 18:10:52 by phakakos          #+#    #+#              #
-#    Updated: 2019/11/17 16:28:17 by phakakos         ###   ########.fr        #
+#    Updated: 2020/02/10 14:48:21 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 # Script designed to be used when starting a project.
-# Should be placed in the root and can be called with ~./project_init.sh
+# Should be placed in the root and can be called with ~./project_init.shi
+# or added as an alias
 # Made by phakakos @ Hive Helsinki, 2019
 
 PWD=$(pwd)
-LIBD=$(diff --brief libft ~/.libft)
+# change to your own libft folder 
+LIBFT=~/42/HiveHelsinki/libft
+LIBD=$(diff --brief libft $LIBFT)
 
 clear
 echo "current folder is '$PWD'"
@@ -31,17 +34,18 @@ do
 	else read -p "(y/n) " aut
 	fi
 done
+
 # Do you want to export your libft folder. Checks if you already have the folder and if it is up-to-date
 # Copies library from '.libft' folder in the same folder as the script.
 if ([[ $LIBD == "" ]] && [ -d "libft" ]); then
 	echo "Libft up to date $LIBD"
 elif [ -d "libft" ] ; then
-	echo "Libft already in the folder. Do you want to refresh it?"
+	echo "Libft already exists. Do you want to refresh it?"
 	read -p "(y/n) " lib
 	while true
 	do
 		if [[ $lib == "y" ]]
-		then make -C ~/.libft fclean; rm -r libft; cp -r ~/.libft .; mv .libft libft; echo ">Copied to current folder"; break
+		then make -C $LIBFT fclean; rm -r libft; cp -r $LIBFT .; echo ">Copied to current folder"; break
 		elif [[ $lib == "n" ]]
 		then echo "No re-copy"; break
 		else read -p "(y/n) " lib
@@ -53,7 +57,7 @@ else
 	while true
 	do
 		if [[ $lib == "y" ]]
-		then make -C ~/.libft fclean; cp -r ~/.libft .; mv .libft libft; echo ">Copied library to current folder"; break
+		then make -C $LIBFT fclean; cp -r $LIBFT .; echo ">Copied library to current folder"; break
 		elif [[ $lib == "n" ]]
 		then echo "Skipping"; echo ''; break
 		else read -p "(y/n) " lib
