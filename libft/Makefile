@@ -6,7 +6,7 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/01 19:32:09 by phakakos          #+#    #+#              #
-#    Updated: 2019/12/09 13:25:43 by phakakos         ###   ########.fr        #
+#    Updated: 2020/02/10 18:26:32 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -26,7 +26,7 @@ SRCS = ft_abs.c ft_atoi.c ft_bzero.c ft_isalnum.c ft_isalpha.c ft_isascii.c \
 	   ft_strlen.c ft_strmap.c ft_strmapi.c ft_strncat.c ft_strncmp.c ft_strncpy.c \
 	   ft_strnequ.c ft_strnew.c ft_strnstr.c ft_strrchr.c ft_strsplit.c ft_strstr.c \
 	   ft_strsub.c ft_strtrim.c ft_tolower.c ft_toupper.c ft_strclen.c ft_hxdm.c \
-	   ft_strrclen.c ft_putadd.c ft_hxdlen.c get_next_line.c ft_strarrdel.c
+	   ft_strrclen.c ft_putadd.c ft_hxdlen.c get_next_line.c ft_strarrdel.c ft_rgb.c
 BIGO = ft_abs.o ft_atoi.o ft_bzero.o ft_isalnum.o ft_isalpha.o ft_isascii.o \
 	   ft_isdigit.o ft_islower.o ft_isprint.o ft_isspace.o ft_isupper.o \
 	   ft_iswspace.o ft_itoa.o ft_lstadd.o ft_lstdel.o ft_lstdelone.o \
@@ -40,7 +40,7 @@ BIGO = ft_abs.o ft_atoi.o ft_bzero.o ft_isalnum.o ft_isalpha.o ft_isascii.o \
 	   ft_strncat.o ft_strncmp.o ft_strncpy.o ft_strnequ.o ft_strnew.o ft_strnstr.o \
 	   ft_strrchr.o ft_strsplit.o ft_strstr.o ft_strsub.o ft_strtrim.o ft_tolower.o \
 	   ft_toupper.o ft_strclen.o ft_hxdm.o ft_strrclen.o ft_putadd.o ft_hxdlen.o \
-	   get_next_line.o ft_strarrdel.o
+	   get_next_line.o ft_strarrdel.o ft_rgb.o
 
 all : $(NAME)
 

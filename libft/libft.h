@@ -6,7 +6,7 @@
 /*   By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/17 16:53:28 by phakakos          #+#    #+#             */
-/*   Updated: 2019/12/09 13:26:20 by phakakos         ###   ########.fr       */
+/*   Updated: 2020/02/10 18:27:27 by phakakos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,5 +106,7 @@ int				ft_iswspace(char c);
 int				ft_strequ(char const *s1, char const *s2);
 int				ft_strnequ(char const *s1, char const *s2, size_t n);
 int				get_next_line(const int fd, char **line);
+int				rgb_color(unsigned int red, unsigned int green,
+				unsigned int blue);
 
 #endif
