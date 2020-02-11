@@ -6,7 +6,7 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/01 19:32:09 by phakakos          #+#    #+#              #
-#    Updated: 2020/02/11 12:35:15 by phakakos         ###   ########.fr        #
+#    Updated: 2020/02/11 12:37:51 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -36,6 +36,8 @@ $(NAME) :
 		gcc $(FLAGS) $(INC) $(SRCS) -c
 		ar rc $(NAME) $(BIGO)
 		ranlib $(NAME)
+
+mclean: $(NAME) clean
 
 clean :
 		rm -f $(BIGO)
