@@ -6,7 +6,7 @@
 /*   By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/17 16:53:28 by phakakos          #+#    #+#             */
-/*   Updated: 2020/02/10 18:27:27 by phakakos         ###   ########.fr       */
+/*   Updated: 2020/02/11 12:15:20 by phakakos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,6 @@ int				ft_toupper(int c);
 int				ft_tolower(int c);
 int				ft_sizeofchar(int c);
 int				ft_sizeofint(int c);
-long			ft_abs(long c);
 int				ft_isupper(int c);
 int				ft_islower(int c);
 int				ft_skipempty(char *str);
@@ -108,5 +107,8 @@ int				ft_strnequ(char const *s1, char const *s2, size_t n);
 int				get_next_line(const int fd, char **line);
 int				rgb_color(unsigned int red, unsigned int green,
 				unsigned int blue);
+
+long			ft_chrcount(char *str, char c);
+long			ft_abs(long c);
 
 #endif
