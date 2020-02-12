@@ -6,7 +6,7 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/07/25 17:01:25 by phakakos          #+#    #+#              #
-#    Updated: 2020/02/10 14:31:02 by phakakos         ###   ########.fr        #
+#    Updated: 2020/02/12 14:57:56 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,7 @@ echo "Initializing"
 
 
 U="$USER"
-GIT=".git"
+GIT=$(git status | grep "fatal")
 NORM=$(norminette | grep "Error\|Warning" | grep -v "valid")
 
 clear
@@ -32,7 +32,7 @@ echo ''
 # Print out git status if in a git root
 echo "---git status---"
 echo ''
-if [ -d $GIT ]
+if [[  $GIT == "" ]]
 then git status -s -u
 else
    	echo "Not in a  git folder"
