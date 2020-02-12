@@ -6,7 +6,7 @@
 /*   By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/17 16:53:28 by phakakos          #+#    #+#             */
-/*   Updated: 2020/02/12 14:50:47 by phakakos         ###   ########.fr       */
+/*   Updated: 2020/02/12 17:23:57 by phakakos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,5 +113,9 @@ int				rgb_color(unsigned int red, unsigned int green,
 
 long			ft_chrcount(char *str, char c);
 long			ft_abs(long c);
+long			atoi_conv(char c, int base);
+long			ft_atoi_base(char *str, int base);
+long			ft_power_to(long num, int power);
+long			ft_power_base(long num, int power, int base);
 
 #endif
