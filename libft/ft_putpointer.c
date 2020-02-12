@@ -1,35 +1,43 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_hxdlen.c                                        :+:      :+:    :+:   */
+/*   ft_putpointer.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/11/17 15:42:29 by phakakos          #+#    #+#             */
-/*   Updated: 2019/11/17 16:11:31 by phakakos         ###   ########.fr       */
+/*   Created: 2020/02/12 14:42:16 by phakakos          #+#    #+#             */
+/*   Updated: 2020/02/12 14:50:08 by phakakos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
+#include <unistd.h>
 
-size_t	ft_hxdlen(long n)
+static void	writepoint(long n, size_t len)
 {
+	char	rtn[len + 2];
 	size_t	i;
 
-	i = 0;
-	if (n == 0)
-		return (1);
-	if (n < 0)
-	{
-		if (n < -9223372036854775807)
-			return (17);
-		n = ft_abs(n);
-		i++;
-	}
+	len += 2;
+	i = len - 1;
+	ft_memset(rtn, '0', len);
+	rtn[0] = '0';
+	rtn[1] = 'x';
 	while (n > 0)
 	{
+		rtn[i] = base_conv(n, 16);
 		n = n / 16;
-		i++;
+		i--;
 	}
-	return (i);
+	write(1, rtn, len);
+}
+
+void		ft_putpointer(void *p)
+{
+	void	*start;
+	long	place;
+
+	start = NULL;
+	place = p - start;
+	writepoint(place, ft_baselen(place, 16));
 }

@@ -6,7 +6,7 @@
 /*   By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/17 16:53:28 by phakakos          #+#    #+#             */
-/*   Updated: 2020/02/11 12:15:20 by phakakos         ###   ########.fr       */
+/*   Updated: 2020/02/12 14:50:47 by phakakos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ void			ft_lstdelone(t_list **alst, void (*del)(void *, size_t));
 void			ft_lstdel(t_list **alst, void (*del)(void *, size_t));
 void			ft_lstadd(t_list **alst, t_list *new);
 void			ft_lstiter(t_list *lst, void (*f)(t_list *elem));
-void			ft_putadd(void *p);
+void			ft_putpointer(void *p);
 void			ft_strarrdel(char **strarr);
 
 void			*ft_memset(void *b, int c, size_t len);
@@ -57,7 +57,7 @@ size_t			ft_nbrlen(long n);
 size_t			ft_strlcat(char *dst, const char *src, size_t dstsize);
 size_t			ft_strclen(const char *s, char c);
 size_t			ft_strrclen(const char *s, char c);
-size_t			ft_hxdlen(long n);
+size_t			ft_baselen(long value, int base);
 
 t_list			*ft_lstnew(void const *content, size_t content_size);
 t_list			*ft_lstmap(t_list *lst, t_list *(*f)(t_list *elem));
@@ -82,7 +82,10 @@ char			*ft_strsub(char const *s, unsigned int start, size_t len);
 char			*ft_strjoin(char const *s1, char const *s2);
 char			*ft_strtrim(char const *s);
 char			*ft_itoa(int n);
+char			*ft_itoa_base(long value, int base);
 char			*ft_hxdm(long n);
+
+char			base_conv(long value, int base);
 
 int				ft_memcmp(const void *s1, const void *s2, size_t n);
 int				ft_strcmp(const char *s1, const char *s2);

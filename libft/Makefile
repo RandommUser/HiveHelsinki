@@ -6,7 +6,7 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/01 19:32:09 by phakakos          #+#    #+#              #
-#    Updated: 2020/02/11 12:37:51 by phakakos         ###   ########.fr        #
+#    Updated: 2020/02/12 14:52:51 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,9 +25,9 @@ SRCS = ft_abs.c ft_atoi.c ft_bzero.c ft_isalnum.c ft_isalpha.c ft_isascii.c \
 	   ft_strequ.c ft_striter.c ft_striteri.c ft_strjoin.c ft_strlcat.c \
 	   ft_strlen.c ft_strmap.c ft_strmapi.c ft_strncat.c ft_strncmp.c ft_strncpy.c \
 	   ft_strnequ.c ft_strnew.c ft_strnstr.c ft_strrchr.c ft_strsplit.c ft_strstr.c \
-	   ft_strsub.c ft_strtrim.c ft_tolower.c ft_toupper.c ft_strclen.c ft_hxdm.c \
-	   ft_strrclen.c ft_putadd.c ft_hxdlen.c get_next_line.c ft_strarrdel.c ft_rgb.c \
-	   ft_chrcount.c
+	   ft_strsub.c ft_strtrim.c ft_tolower.c ft_toupper.c ft_strclen.c \
+	   ft_strrclen.c ft_putpointer.c get_next_line.c ft_strarrdel.c ft_rgb.c \
+	   ft_chrcount.c ft_itoa_base.c
 BIGO := $(SRCS:.c=.o)
 
 all : $(NAME)
@@ -37,7 +37,7 @@ $(NAME) :
 		ar rc $(NAME) $(BIGO)
 		ranlib $(NAME)
 
-mclean: $(NAME) clean
+mclean: fclean all clean
 
 clean :
 		rm -f $(BIGO)
