@@ -6,13 +6,13 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/02/14 13:52:58 by phakakos          #+#    #+#              #
-#    Updated: 2020/02/14 20:14:55 by phakakos         ###   ########.fr        #
+#    Updated: 2020/02/14 20:18:19 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 # Script to create a Makefile
 # Auto solves .c, .a and folders into right categories
-# Made by phakakos, Hive Helsink 2020
+# Made by phakakos, Hive Helsinki 2020
 
 
 # Set the names of the different variables in the Makefile
