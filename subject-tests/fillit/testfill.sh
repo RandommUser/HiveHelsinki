@@ -6,7 +6,7 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/25 13:26:41 by phakakos          #+#    #+#              #
-#    Updated: 2019/12/16 09:41:21 by phakakos         ###   ########.fr        #
+#    Updated: 2020/02/14 13:02:52 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -87,7 +87,7 @@ DOT=0
 
 # DO NORM TEST
 norm_test(){
-	NORM=$(norminette | grep "Error\|Warning")
+	NORM=$(norminette | grep "Error\|Warning" | grep -v "valid")
 	if [[ $NORM == "" ]]
 	then echo "No norm errors";
 	else

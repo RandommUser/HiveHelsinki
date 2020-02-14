@@ -6,7 +6,7 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/13 16:55:49 by phakakos          #+#    #+#              #
-#    Updated: 2019/11/26 17:44:42 by phakakos         ###   ########.fr        #
+#    Updated: 2020/02/14 13:02:05 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -45,7 +45,7 @@ then echo "No get_next_line.h found. Place me in the subject folder. Exiting..."
 	else echo "Initializing...";
 fi
 
-NORM=$(norminette *.c *.h | grep "Error\|Warning")
+NORM=$(norminette | grep "Error\|Warning" | grep -v "valid")
 }
 
 continue_press(){
@@ -117,9 +117,7 @@ echo "...Checking norm..."
 echo ''
 	if [[ $NORM == "" ]]
 	then echo "No norm errors";
-	else 
-		NORME=$(norminette *.c *.h)	
-	echo "$NORME"
+	else norminette
 	fi
 echo ''
 
