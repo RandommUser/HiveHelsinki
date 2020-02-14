@@ -6,7 +6,7 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/02/14 13:52:58 by phakakos          #+#    #+#              #
-#    Updated: 2020/02/14 20:18:19 by phakakos         ###   ########.fr        #
+#    Updated: 2020/02/14 20:19:03 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -35,7 +35,7 @@ EMAKE=""						# make commands to compile libraries
 print_make(){
 # move old makefile to Makefile1
 if [[ -f Makefile ]]
-then mv Makefile Makefile1
+then mv Makefile Makefile1; echo "Renamed old Makefile"
 fi
 
 echo "NAME=$NAME" > Makefile
