@@ -6,7 +6,7 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/12 18:10:52 by phakakos          #+#    #+#              #
-#    Updated: 2020/02/10 14:48:21 by phakakos         ###   ########.fr        #
+#    Updated: 2020/02/14 13:14:38 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,6 +20,8 @@ PWD=$(pwd)
 LIBFT=~/42/HiveHelsinki/libft
 LIBD=$(diff --brief libft $LIBFT)
 
+
+main(){
 clear
 echo "current folder is '$PWD'"
 # Do you want to create an author file? Default value is just your username. WILL OVERWRITE EXISTING FILES
@@ -65,3 +67,20 @@ else
 	done
 fi
 echo "Exiting"
+}
+
+# Flags to select author file or library individually
+if [[ $1 == "-a" ]]
+then echo "$USER" > author; echo ">Author edited"
+elif [[ $1 == "-l" ]]
+then make -C $LIBFT fclean;
+	if [[ -d "libft" ]]
+	then rm -r libft;
+	fi
+	cp -r $LIBFT .
+	echo ">Copied $LIBFT to current folder"
+elif [[ $1 != "" ]]
+	then echo "usage 'project_init.sh [-a (author file)| -l (library)]"
+else
+	main
+fi
