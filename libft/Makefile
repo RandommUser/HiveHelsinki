@@ -6,7 +6,7 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/01 19:32:09 by phakakos          #+#    #+#              #
-#    Updated: 2020/02/12 16:22:38 by phakakos         ###   ########.fr        #
+#    Updated: 2020/02/17 17:55:54 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -38,7 +38,7 @@ $(NAME) :
 		ranlib $(NAME)
 
 mclean: fclean all clean
-
+		make clean
 clean :
 		rm -f $(BIGO)
 
