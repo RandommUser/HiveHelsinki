@@ -6,7 +6,7 @@
 /*   By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/17 16:53:28 by phakakos          #+#    #+#             */
-/*   Updated: 2020/02/12 17:23:57 by phakakos         ###   ########.fr       */
+/*   Updated: 2020/02/19 18:52:30 by phakakos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,13 @@ typedef struct	s_list
 	size_t			content_size;
 	struct s_list	*next;
 }				t_list;
+
+typedef struct	s_rgb
+{
+	int	red;
+	int	green;
+	int	blue;
+}				t_rgb;
 
 void			ft_memdel(void **ap);
 void			ft_bzero(void *s, size_t n);
@@ -61,6 +68,9 @@ size_t			ft_baselen(long value, int base);
 
 t_list			*ft_lstnew(void const *content, size_t content_size);
 t_list			*ft_lstmap(t_list *lst, t_list *(*f)(t_list *elem));
+
+t_rgb			rgb_conv(int color);
+t_rgb			rgb_calc(t_rgb color1, t_rgb color2, char type);
 
 char			**ft_strsplit(char const *s, char c);
 
@@ -110,6 +120,7 @@ int				ft_strnequ(char const *s1, char const *s2, size_t n);
 int				get_next_line(const int fd, char **line);
 int				rgb_color(unsigned int red, unsigned int green,
 				unsigned int blue);
+int				trgb_conv(t_rgb color);
 
 long			ft_chrcount(char *str, char c);
 long			ft_abs(long c);

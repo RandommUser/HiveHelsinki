@@ -6,7 +6,7 @@
 /*   By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/10 17:26:08 by phakakos          #+#    #+#             */
-/*   Updated: 2020/02/10 18:28:46 by phakakos         ###   ########.fr       */
+/*   Updated: 2020/02/19 20:06:27 by phakakos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,46 @@ static int		floor(long num)
 		return (num % 256);
 	else
 		return (num);
+}
+
+t_rgb			rgb_conv(int color)
+{
+	t_rgb	rtn;
+
+	rtn.blue = color % 16;
+	color = color / 16;
+	rtn.blue = rtn.blue + color % 16 * 16;
+	color = color / 16;
+	rtn.green = color % 16;
+	color = color / 16;
+	rtn.green = rtn.green + color % 16 * 16;
+	color = color / 16;
+	rtn.red = color % 16;
+	color = color / 16;
+	rtn.red = rtn.red + color % 16 * 16;
+	return (rtn);
+}
+
+t_rgb			rgb_calc(t_rgb color1, t_rgb color2, char type)
+{
+	if (type == '+')
+	{
+		color1.red += color2.red;
+		color1.green += color2.green;
+		color1.blue += color2.blue;
+	}
+	else if (type == '-')
+	{
+		color1.red -= color2.red;
+		color1.green -= color2.green;
+		color1.blue -= color2.blue;
+	}
+	return (color1);
+}
+
+int				trgb_conv(t_rgb color)
+{
+	return (rgb_color(color.red, color.green, color.blue));
 }
 
 int				rgb_color(unsigned int red, unsigned int green,
