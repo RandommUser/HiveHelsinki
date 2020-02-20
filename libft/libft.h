@@ -6,7 +6,7 @@
 /*   By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/17 16:53:28 by phakakos          #+#    #+#             */
-/*   Updated: 2020/02/19 18:52:30 by phakakos         ###   ########.fr       */
+/*   Updated: 2020/02/20 16:03:28 by phakakos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,6 +121,15 @@ int				get_next_line(const int fd, char **line);
 int				rgb_color(unsigned int red, unsigned int green,
 				unsigned int blue);
 int				trgb_conv(t_rgb color);
+
+int				ft_isnumpad(int key);
+int				ft_isfunckey(int key);
+int				ft_isnavkey(int key);
+int				ft_iscontkey(int key);
+int				ft_isnumkey(int key);
+int				ft_isalphakey(int key);
+int				ft_ismisckey(int key);
+int				ft_iskey(int key);
 
 long			ft_chrcount(char *str, char c);
 long			ft_abs(long c);
