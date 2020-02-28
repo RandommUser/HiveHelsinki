@@ -6,7 +6,7 @@
 /*   By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/17 16:53:28 by phakakos          #+#    #+#             */
-/*   Updated: 2020/02/28 15:53:49 by phakakos         ###   ########.fr       */
+/*   Updated: 2020/02/28 19:42:44 by phakakos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,8 @@ void			ft_putpointer(void *p);
 void			ft_strarrdel(char **strarr);
 void			ft_strlower(char **str);
 void			ft_strupper(char **str);
+void			ft_strrep(char **str, char c, char n);
+void			ft_strnrep(char **str, char c, char n, size_t len);
 
 void			*ft_memset(void *b, int c, size_t len);
 void			*ft_memcpy(void *dst, const void *src, size_t n);

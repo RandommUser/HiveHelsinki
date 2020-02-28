@@ -6,13 +6,40 @@
 /*   By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/05 16:44:27 by phakakos          #+#    #+#             */
-/*   Updated: 2019/12/04 12:28:31 by phakakos         ###   ########.fr       */
+/*   Updated: 2020/02/28 19:57:08 by phakakos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 #include <stdlib.h>
 #include <unistd.h>
+
+static char	*final_fix(char *str)
+{
+	size_t	i;
+
+	i = 0;
+	while (str[i])
+	{
+		if (str[i] == -1)
+			str[i] = '\0';
+		i++;
+	}
+	return (str);
+}
+
+static void	strnrep(char *str, char c, int n, size_t len)
+{
+	size_t	i;
+
+	i = 0;
+	while (i < len)
+	{
+		if (str[i] == c)
+			str[i] = n;
+		i++;
+	}
+}
 
 static int	return_handle(int exit, char **line, char **files)
 {
@@ -36,7 +63,7 @@ static int	return_handle(int exit, char **line, char **files)
 		if (*files != rtn)
 			free(*files);
 		*files = temp;
-		*line = rtn;
+		*line = final_fix(rtn);
 	}
 	else
 		free(rtn);
@@ -56,6 +83,7 @@ int			get_next_line(const int fd, char **line)
 	while (fd >= 0 && fd <= FD_LIMIT && !ft_strchr(files[fd], '\n') && \
 			(len = read(fd, &text, BUFF_SIZE)) > 0)
 	{
+		strnrep(text, '\0', -1, len - 1);
 		text[len] = '\0';
 		if (!(temp = ft_strjoin(files[fd], text)))
 			return (return_handle(-1, line, NULL));
