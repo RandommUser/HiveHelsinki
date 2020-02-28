@@ -6,7 +6,7 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/01 19:32:09 by phakakos          #+#    #+#              #
-#    Updated: 2020/02/20 16:06:19 by phakakos         ###   ########.fr        #
+#    Updated: 2020/02/28 16:27:36 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,7 +28,7 @@ SRCS = ft_abs.c ft_atoi.c ft_bzero.c ft_isalnum.c ft_isalpha.c ft_isascii.c \
 	   ft_strsub.c ft_strtrim.c ft_tolower.c ft_toupper.c ft_strclen.c \
 	   ft_strrclen.c ft_putpointer.c get_next_line.c ft_strarrdel.c ft_rgb.c \
 	   ft_chrcount.c ft_itoa_base.c ft_atoi_base.c ft_power_to.c ft_keys.c \
-	   ft_keys2.c
+	   ft_keys2.c ft_strnchr.c
 BIGO := $(SRCS:.c=.o)
 
 all : $(NAME)

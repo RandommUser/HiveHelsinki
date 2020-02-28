@@ -1,36 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_toupper.c                                       :+:      :+:    :+:   */
+/*   ft_strnchr.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/10/21 14:40:45 by phakakos          #+#    #+#             */
-/*   Updated: 2020/02/28 15:28:33 by phakakos         ###   ########.fr       */
+/*   Created: 2020/02/28 15:52:35 by phakakos          #+#    #+#             */
+/*   Updated: 2020/02/28 16:29:03 by phakakos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-int		ft_toupper(int c)
-{
-	if (ft_islower(c))
-		return (c - 32);
-	else
-		return (c);
-}
-
-void	ft_strupper(char **str)
+char	*ft_strnchr(const char *s, int c, size_t len)
 {
 	size_t	i;
+	char	*ss;
 
-	if (!str)
-		return ;
+	if (!s)
+		return (NULL);
 	i = 0;
-	while (*str[i])
+	ss = (char *)s;
+	while (i < len)
 	{
-		if (ft_islower(*str[i]))
-			*str[i] = ft_toupper(*str[i]);
+		if (s[i] == c)
+			return (ss + ft_sizeofchar(i));
 		i++;
 	}
+	return (NULL);
 }
