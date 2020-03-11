@@ -6,7 +6,7 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/03/11 19:39:53 by phakakos          #+#    #+#              #
-#    Updated: 2020/03/11 20:12:44 by phakakos         ###   ########.fr        #
+#    Updated: 2020/03/11 20:16:31 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -41,5 +41,7 @@ do
 	then git add $arg/*; continue
 	elif [[ $arg == "-p" ]]
 	then git push; continue
+	else
+	echo "input '$arg' was not valid file/folder/flag";
 	fi
 done
