@@ -60,13 +60,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	if ($_POST["q33"] != "")
 		$_SESSION["q33"] = $_POST["q33"];
 	if ($_POST["name"] != "")
-		$_SESSION["name"] = $_POST["name"];
-	// SPECIAL COMMANDS
-	if ($_POST["command"] == "reset")
-		session_unset();
-	if ($_POST["command"] == "submit")
-		unset($_SESSION["submit"]);
-#	session_write_close();
+		$_SESSION["name"] = htmlspecialchars($_POST["name"]);
 }
 #echo session_id();
 #echo '<br>';
@@ -78,6 +72,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <?php
 if (!isset($_SESSION["start"]))
 {
+	echo 'Click on the button to start the quiz. You will get scored based on correct answers and time spent.<br>';
+	echo 'There are 20 timed questions and a couple statistical questions that are not timed<br><br>';
 	echo '<form method="post" action"' . htmlspecialchars($_SERVER["PHP_SELF"]) . '">';
 	echo '<input class="send" name="GO" type="submit" value="Start">';
 	echo '</form>';
@@ -108,11 +104,6 @@ else
 }
 ?>
 
-</form>
-<br><br><br>
-<form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
-<input type="text" name="command">
-<input type="submit" name="submit" value="Submit">
 </form>
 </div>
 <?php include 'footer.php'; ?>
