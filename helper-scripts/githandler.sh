@@ -6,11 +6,13 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/03/11 19:39:53 by phakakos          #+#    #+#              #
-#    Updated: 2020/03/11 20:16:31 by phakakos         ###   ########.fr        #
+#    Updated: 2020/03/11 20:24:21 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 # Shell script to handle multiple git commands in a single line
+# does not edit commit message for already committed files
+# can handle multiple different different adds, commits and pushes
 # Made by phakakos @ Hive Helsinki, 2020
 
 
@@ -24,7 +26,7 @@ fi
 }
 
 if [[ $1 == "" ]]
-then echo "usage githandler.sh (files) [-m ("'"'"commit message"'"'")] [-p (push)]"; exit
+then echo "usage githandler.sh (files to add) [-m ("'"'"commit message"'"'")] [-p (push)]"; exit
 fi
 
 mess="no";
