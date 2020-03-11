@@ -6,7 +6,7 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/03/11 19:39:53 by phakakos          #+#    #+#              #
-#    Updated: 2020/03/11 20:24:21 by phakakos         ###   ########.fr        #
+#    Updated: 2020/03/11 20:26:07 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,7 +28,7 @@ fi
 if [[ $1 == "" ]]
 then echo "usage githandler.sh (files to add) [-m ("'"'"commit message"'"'")] [-p (push)]"; exit
 fi
-
+gitcheck;
 mess="no";
 
 for arg in "$@"
