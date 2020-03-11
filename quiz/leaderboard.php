@@ -58,7 +58,7 @@ while ($thisCi < $lastCi)
 			unset($cleanInd[$deli]);
 			$deli = -1;
 		}
-		if ($cleanPl[$currCi][0]['name'] == $cleanPl[$thisCi][0]['name'] || (isset($cleanPl[$currCi][0]['addr']) && isset($cleanPl[$thisCi][0]['addr']) && $cleanPl[$currCi][0]['addr'] == $cleanPl[$thisCi][0]['addr']))
+		if ($cleanPl[$currCi][0]['name'] == $cleanPl[$thisCi][0]['name'] || (isset($cleanPl[$currCi][0]['address']) && isset($cleanPl[$thisCi][0]['address']) && $cleanPl[$currCi][0]['address'] == $cleanPl[$thisCi][0]['address']))
 		{
 			if ($cleanPl[$thisCi][0]['points'] < $cleanPl[$currCi][0]['points'])
 			{

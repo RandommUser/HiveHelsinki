@@ -152,7 +152,7 @@ echo '! Check out the <a href="leaderboard.php" title="Leaderboard">leaderboard<
 	{
 		$submitDay = date("Y-m-d", $_SESSION["end"]);
 		$timeTaken = $_SESSION["end"] - $_SESSION["start"];
-		$addr = filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP)
+		$addr = filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP);
 		$answer = array("name"=>$_SESSION["name"], "team"=>$_SESSION["q31"], "branch"=>$_SESSION["q32"], "place"=>$_SESSION["q33"], "points"=>$points, "correct"=>$correct, "time"=>$timeTaken, "submitted"=>$submitDay, "address"=>$addr);
 		$json = fopen("leaderboard.json", "a");
 		fwrite($json, json_encode($answer));
