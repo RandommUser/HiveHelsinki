@@ -1,6 +1,5 @@
 body {
 	margin: 0px;
-	counter-reset: place;
 }
 
 form {
@@ -110,7 +109,7 @@ div#question span input[type="radio"] {
 	height: 100%;
 	-webkit-appearance: none;
 	cursor: pointer;
-	margin: 0;
+	margin: 0 25px;
 	padding: 0;
 	left: 0;
 	transition: border-bottom .5s;
@@ -156,19 +155,20 @@ input.send {
 	transition: margin .1s;
 }
 
-div#leaderboard {
+div#leaderboard, div#coalitions, div#branches, div#locations, div#data {
 	width: 80%;
 	margin: 50px auto;
+	counter-reset: place;
 }
 
-div#leaderboard span.score span.name:before {
+div#leaderboard span.score span.name:before, div#coalitions span.score span.name:before {
 	counter-increment: place;
 	content: counter(place) ". ";
 	display: inline-block;
 	width: 50px;
 }
 
-div#leaderboard span.score {
+div#leaderboard span.score, div#coalitions span.score, div#branches span.score, div#locations span.score{
 	display: flex;
 	justify-content: space-between;
 	width: 80%;
@@ -195,4 +195,11 @@ div#leaderboard span.score:nth-of-type(3) {
 	font-size: 25px;
 	line-height: 25px;
 	color: chocolate;
+}
+
+span.finalScore {
+	display: block;
+	margin: 20px 0;
+	font-size: 30px;
+	line-height: 30px;
 }
