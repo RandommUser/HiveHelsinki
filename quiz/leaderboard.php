@@ -2,31 +2,103 @@
 <?php include 'top.php';?>
 <?php include 'questions.php';?>
 <?php
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+
+# READING SCORES FROM JSON FILE
 $players = array();
 $playerFile = fopen("leaderboard.json", "r");
-$line == "";
+$line = "";
 while (!feof($playerFile)) {
 $currC = fgetc($playerFile);
-	if ($currC == chr(0x0A))
+	if ($currC == chr(0x0A)) # END OF LINE FOUND, END OF ARRAY
 	{
 		array_push($players, array(json_decode($line, true)));
 		$line = "";
 	}
-	else
+	else # ADD TO THE CURRENT STRING
 		$line = $line . $currC;
 }
-fclose($file);
-$playersSaved = $players;
+fclose($playerFile);
 
-
+# MAKE INDEX ARRAY FOR ALL PLAYERS
 $arrInd = array(0);
 $curr = 1;
-while ($curr < count($players))
+while ($curr <= count($players))
 {
 	array_push($arrInd, $curr);
 	$curr++;
 }
-array_push($arrInd, $curr);
+
+# REMOVE DUPLICATE SUBMISSION BASED ON NAME AND IP ADDRESS
+
+$cleanInd = $arrInd;
+$cleanPl = $players;
+$lastCi = end($cleanInd);
+reset($cleanPl);
+$thisCi = reset($cleanInd);
+
+$players = array();
+$arrInd = array(0);
+$curr = 1;
+
+while ($thisCi < $lastCi)
+{
+	$deli = -1;
+	$currCi = next($cleanInd);
+	$continueP = $thisCi;
+	while ($currCi < $lastCi)
+	{
+		if ($deli != -1)
+		{
+			unset($cleanPl[$deli]);
+			unset($cleanInd[$deli]);
+			$deli = -1;
+		}
+		if ($cleanPl[$currCi][0]['name'] == $cleanPl[$thisCi][0]['name'] || (isset($cleanPl[$currCi][0]['addr']) && isset($cleanPl[$thisCi][0]['addr']) && $cleanPl[$currCi][0]['addr'] == $cleanPl[$thisCi][0]['addr']))
+		{
+			if ($cleanPl[$thisCi][0]['points'] < $cleanPl[$currCi][0]['points'])
+			{
+				$deli = $thisCi;
+				$thisCi = $currCi;
+			}
+			else
+			{
+				$deli = $currCi;
+			}
+		}
+		$currCi = next($cleanInd);
+
+	}
+	if ($deli != -1)
+	{
+		unset($cleanPl[$deli]);
+		unset($cleanInd[$deli]);
+	}
+	array_push($players, $cleanPl[$thisCi]);
+	array_push($arrInd, $curr);
+	if ($continueP != $thisCi)
+	{
+		unset($cleanPl[$thisCi]);
+		unset($cleanInd[$thisCi]);
+	}
+	$curr++;
+	$lastCi = end($cleanInd);
+	$nextCi = reset($cleanInd);
+	while($nextCi <= $continueP && $nextCi < $lastCi)
+		$nextCi = next($cleanInd);
+	$thisCi = $nextCi;
+}
+
+$playersSaved = $players;
+
+
+
+# SORT AND DISPLAY SCORES
+
 echo '<div id="leaderboard">
 <h1 class="title">Leaderboard</h1>';
 
@@ -70,8 +142,12 @@ $L3 = 0;
 $L4 = 0;
 
 $totalP = 0;
+$totalT = 0;
 $aveP = 0;
+$aveT = 0;
 $i = 0;
+
+# CALCULATE DATA
 
 while ($i < count($playersSaved))
 {
@@ -85,6 +161,7 @@ while ($i < count($playersSaved))
 		$G4 += $playersSaved[$i][0]['points'];
 
 	$totalP += $playersSaved[$i][0]['points'];
+	$totalT += $playersSaved[$i][0]['time'];
 
 	if ($playersSaved[$i][0]['branch'] == $qa32_1)
 		$B1++;
@@ -106,6 +183,7 @@ while ($i < count($playersSaved))
 	$i++;
 }
 $aveP = $totalP / $i;
+$aveT = $totalT / $i;
 
 
 $coalitions = array();
@@ -132,6 +210,8 @@ $spotsCoa = $arraySpot;
 $spotsBran = $arraySpot;
 $spotsPla = $arraySpot;
 
+# SORT AND DISPLAY GROUP TOTAL SCORES
+
 echo '<div id="coalitions">';
 echo '<h1 class="coa">Coalition leaderboard</h1>';
 while (count($coalitions) > 0)
@@ -153,10 +233,9 @@ while (count($coalitions) > 0)
 	echo '<span class="score"><span class="name">' . $bestCoa['Name'] . '</span><span class="points">' . $bestCoa['points'] . '</span></span>';
 	unset($coalitions[$bestCoai]);
 	unset($spotsCoa[$bestCoai]);
-	echo '<br>';
-#	echo '<br>' . count($coalitions);
 }
 
+# SORT AND DISPLAY COUNT
 
 echo '</div>';
 echo '<div id="branches">';
@@ -178,7 +257,6 @@ while (count($branches) > 0)
 		}
 	}
 	echo '<span class="score"><span class="name">' . $bestBran['Name'] . '</span><span class="points">' . $bestBran['amount'] . '</span></span>';
-	echo '<br>';
 	unset($branches[$bestBrani]);
 	unset($spotsBran[$bestBrani]);
 }
@@ -203,27 +281,19 @@ while (count($places) > 0)
 		}
 	}
 	echo '<span class="score"><span class="name">' . $bestPla['Name'] . '</span><span class="points">' . $bestPla['amount'] . '</span></span>';
-	echo '<br>';
 	unset($places[$bestPlai]);
 	unset($spotsPla[$bestPlai]);
 }
 echo '</div>';
 
-#echo '<span class="score"><span class="name">' . $qa33_1 . '</span><span class="points">' . $Fora . '</span></span>';
+# DISPLAY STATISTICS
 
-
-
-
-
-#echo 'Fora ' . $Fora . '<br>Guard ' . $Guard . '<br>Builders ' . $Build . '<br>Bocal ' . $Bocal . '<br><br>';
-#echo 'PhP ' . $PHP . '<br>Shell ' . $Shell . '<br>Algorithm ' . $Algo . '<br>Graphics ' . $Grap . '<br><br>';
-#echo 'C1 ' . $C1 . '<br>C2 ' . $C2 . '<br>C3 ' . $C3 . '<br>Home ' . $Home . '<br><br>';
-
-
-
+echo '<div id="data">';
+echo '<h2>Statistics</h2>';
 echo 'Total points = ' . $totalP . '<br>';
-echo 'Average points = ' . $aveP;
-echo '</div>';
+echo 'Average points = ' . floor($aveP) . '<br>';
+echo 'Average time taken = ' . floor($aveT) . ' seconds<br>';
+echo '</div></div>';
 
 ?>
 
