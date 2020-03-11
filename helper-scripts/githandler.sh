@@ -6,7 +6,7 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/03/11 19:39:53 by phakakos          #+#    #+#              #
-#    Updated: 2020/03/11 20:12:17 by phakakos         ###   ########.fr        #
+#    Updated: 2020/03/11 20:12:44 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -31,7 +31,6 @@ mess="no";
 
 for arg in "$@"
 do
-	echo "read line $arg";
 	if [[ $mess == "yes" ]]
 	then git commit -m "$arg"; mess="no"; continue
 	elif [[ $arg == "-m" ]]
