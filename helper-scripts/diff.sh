@@ -24,7 +24,7 @@ test_line()
 }
 
 if [[ -z $1 ]]
-then echo "usage: sh diff.sh 'file'"; exit
+then echo "usage: sh $0 'file'"; exit
 elif [[ ! -f $1 ]]
 then echo "File does not exist"; exit
 fi

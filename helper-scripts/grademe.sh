@@ -144,5 +144,5 @@ then start; makefile; rules; exit;
 elif [[ $1 == "-a" ]]
 then init; gitcheck; auth; norm; auth; makefile; rules; exit;
 else
-	echo "usage 'grademe.sh' [ -a (all) | -g (git status) | -n (norminette) | -m (makefile rules) | -r (makefile functions) | -u (author file) ]"; exit;
+	echo "usage $0 [ -a (all) | -g (git status) | -n (norminette) | -m (makefile rules) | -r (makefile functions) | -u (author file) ]"; exit;
 fi

@@ -26,7 +26,7 @@ fi
 }
 
 if [[ $1 == "" ]]
-then echo "usage githandler.sh (files to add) [-m ("'"'"commit message"'"'")] [-p (push)]"; exit
+then echo "usage $0 (files to add) [-m ("'"'"commit message"'"'")] [-p (push)]"; exit
 fi
 gitcheck;
 mess="no";
