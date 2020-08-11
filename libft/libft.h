@@ -30,6 +30,43 @@ typedef struct	s_rgb
 	int	blue;
 }				t_rgb;
 
+typedef	struct	s_vec2
+{
+	float	vec[2];
+}				t_vec2;
+
+typedef	struct	s_mat2
+{
+	float	**mat;
+}				t_mat2;
+
+typedef	struct	s_matn
+{
+	float	**mat;
+}				t_matn;
+
+typedef	struct	s_vecn
+{
+	float	*vecn;
+}				t_vecn;
+
+
+void    		vecn_put(t_vecn *vecn, size_t n);
+void    		matn_put(t_matn *matn, size_t n);
+
+
+t_vecn  		*vecn_ini(size_t n);
+t_vecn  		*vecn_cpy(float *vecn, size_t n);
+
+t_mat2  		*mat2_rota(double theta);
+t_mat2  		*mat2_flip(void);
+t_vec2  		*mat2_vec(t_mat2 *mat2, t_vec2 *vec2);
+
+t_matn  		*matn_cpy(float **src, size_t n);
+t_matn  		*matn_ini(size_t n);
+void    		matn_scale_cha(t_matn *matn, float s, size_t n);
+t_matn  		*matn_scale_ini(float s, size_t n);
+
 void			ft_memdel(void **ap);
 void			ft_bzero(void *s, size_t n);
 void			ft_strdel(char **as);
