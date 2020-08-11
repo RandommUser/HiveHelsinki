@@ -80,7 +80,7 @@ then make -C $LIBFT fclean;
 	cp -r $LIBFT .
 	echo ">Copied $LIBFT to current folder"
 elif [[ $1 != "" ]]
-	then echo "usage 'project_init.sh [-a (author file)| -l (library)]"
+	then echo "usage $0 [-a (author file)| -l (library)]"
 else
 	main
 fi
