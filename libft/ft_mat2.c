@@ -13,6 +13,7 @@
 #include "libft.h"
 #include <math.h>
 
+//counter-clockwise
 t_mat2  *mat2_rota(double theta)
 {
     t_mat2  *rota;
@@ -21,8 +22,8 @@ t_mat2  *mat2_rota(double theta)
 
     if (!(rota = (t_mat2*)matn_ini(2)))
         return (NULL);
-    sint = sin(theta);
-    cost = cos(theta);
+    sint = sin(theta * (3.14159265 / 180));
+    cost = cos(theta * (3.14159265 / 180));
     rota->mat[0][0] = cost;
     rota->mat[0][1] = -(sint);
     rota->mat[1][0] = sint;
