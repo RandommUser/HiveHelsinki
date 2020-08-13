@@ -35,6 +35,11 @@ typedef	struct	s_vec2
 	float	*vec;
 }				t_vec2;
 
+typedef	struct	s_vec4
+{
+	float	vec[4];
+}				t_vec4;
+
 typedef	struct	s_mat2
 {
 	float	**mat;
@@ -42,8 +47,9 @@ typedef	struct	s_mat2
 
 typedef	struct	s_mat4
 {
-	float	**mat;
+	float	mat[4][4];
 }				t_mat4;
+
 
 typedef	struct	s_matn
 {
@@ -58,19 +64,28 @@ typedef	struct	s_vecn
 // debug only
 void    		vecn_put(t_vecn *vecn, size_t n);
 void    		matn_put(t_matn *matn, size_t n);
-
-
-t_vecn  		*vecn_ini(size_t n);
-t_vecn  		*vecn_cpy(float *vecn, size_t n);
+void    		mat4_put(t_mat4 mat4);
+void    		vec4_put(t_vec4 vec);
+//
 
 t_mat2  		*mat2_rota(double theta);
 t_mat2  		*mat2_flip(void);
 t_vec2  		*mat2_vec(t_mat2 *mat2, t_vec2 *vec2);
 
-t_mat4  		*mat4_rotz(double theta);
-t_mat4  		*mat4_roty(double theta);
-t_mat4  		*mat4_rotx(double theta);
-t_mat4  		*mat4_trans(float *s);
+
+t_vec4  		vec4_ini(float in[4]);
+t_vecn  		*vecn_ini(size_t n);
+t_vecn  		*vecn_cpy(float *vecn, size_t n);
+
+t_mat4  		mat4_rotz(double theta);
+t_mat4  		mat4_roty(double theta);
+t_mat4  		mat4_rotx(double theta);
+t_mat4  		mat4_trans(float s[3]);
+t_mat4  		mat4_scales(float s[4]);
+t_mat4  		mat4_ini(void);
+t_mat4  		mat4_iden(void);
+t_mat4  		mat4_mat4(t_mat4 mat1, t_mat4 mat2);
+t_vec4  		mat4_vec4(t_mat4 mat4, t_vec4 vec4);
 
 t_matn  		*matn_cpy(float *src, size_t n);
 t_matn  		*matn_ini(size_t n);
@@ -81,6 +96,7 @@ t_matn  		*matn_scale_ini(float s, size_t n);
 t_matn  		*matn_scale_sini(float *s, size_t n);
 t_matn  		*matn_matn(t_matn *mat1, t_matn *mat2, size_t n);
 t_vecn  		*matn_vecn(t_matn *mat, t_vecn *vec, size_t n);
+void    		*matn_free(t_matn *matn, size_t n);
 
 
 void			ft_memdel(void **ap);
