@@ -1,36 +1,39 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_toupper.c                                       :+:      :+:    :+:   */
+/*   ft_vec4.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/10/21 14:40:45 by phakakos          #+#    #+#             */
-/*   Updated: 2020/02/28 15:28:33 by phakakos         ###   ########.fr       */
+/*   Created: 2020/08/13 14:26:10 by phakakos          #+#    #+#             */
+/*   Updated: 2020/08/13 14:26:12 by phakakos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-int		ft_toupper(int c)
+#include <stdio.h>
+void    vec4_put(t_vec4 vec)
 {
-	if (ft_islower(c))
-		return (c - 32);
-	else
-		return (c);
+    size_t  i;
+    size_t  n;
+
+    n = 4;
+    i = -1;
+    while (++i < n)
+        printf("[%f]", vec.vec[i]);
+    printf("\n");
 }
 
-void	ft_strupper(char **str)
+t_vec4  vec4_ini(float in[4])
 {
-	size_t	i;
+    t_vec4  ret;
+    size_t  i;
+    size_t  n;
 
-	if (!str)
-		return ;
-	i = 0;
-	while (*str[i])
-	{
-		if (ft_islower(*str[i]))
-			*str[i] = ft_toupper(*str[i]);
-		i++;
-	}
+    i = -1;
+    n = 4;
+    while (++i < n)
+        ret.vec[i] = in[i];
+    return (ret);
 }
