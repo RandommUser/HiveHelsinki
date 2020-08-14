@@ -6,7 +6,7 @@
 /*   By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:18:35 by phakakos          #+#    #+#             */
-/*   Updated: 2020/02/20 19:04:50 by phakakos         ###   ########.fr       */
+/*   Updated: 2020/06/02 15:02:38 by phakakos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include "mlx.h"
 # include "libft.h"
+
 # include <unistd.h>
 # include <stdio.h>
 # include <math.h>
@@ -28,28 +29,34 @@
 # define AR_DW 125
 # define AR_LF 123
 # define AR_RG 124
+# define K_W 13
+# define K_A 0
+# define K_S 1
+# define K_D 2
 
 # define COLOR_SPLIT ','
-# define WIDTH 50
+# define WIDTH 10
 # define START_X 150
 # define START_Y 150
 # define FOV_DEF 100
-# define ZOOM_DEF 50
+# define ZOOM_DEF 1
 # define MODE_DEF 1
 # define MODE_COLOR 1
 # define DEF_COLOR 0x888888
 # define H_MOD 0.2
 # define W_MOD 1
-# define ROTA_X 0
-# define ROTA_Y 0
-# define ROTA_Z 0
+# define ROTA_X -100
+# define ROTA_Y -90
+# define ROTA_Z -170
+# define ROTA_W 1
 # define ROTA_STEP 10
+
+# define ERR_MEMORY 4
 
 typedef struct		s_point
 {
-	int				x;
-	int				y;
-	int				z;
+	// x, y, z, w
+	t_vec4			loc;
 	struct s_point	*top;
 	struct s_point	*left;
 	struct s_point	*right;
@@ -59,24 +66,32 @@ typedef struct		s_point
 
  typedef struct		s_coord
 {
-	int	x;
-	int y;
+	float	x;
+	float	y;
 }					t_coord;
 
 typedef struct		s_loca
 {
 	t_rgb	color;
-	int		x;
-	int		y;
-	int		z;
+	// x, y, z, w
+	t_vec4	loc;
 }					t_loca;
 
 typedef	struct		s_map
 {
+	t_coord	size;
 	t_point	*start;
-	float	w_mod;
 	float	h_mod;
-	t_coord	pos;
+	t_mat4	origin;
+	float	zoom;
+	int		mode;
+	int		color;
+	// x, y, z, w angles
+	t_vec4	rot;
+	t_mat4	rotx;
+	t_mat4	roty;
+	t_mat4	rotz;
+	t_mat4	rotw;
 }					t_map;
 
 typedef struct		s_mlx
@@ -87,10 +102,6 @@ typedef struct		s_mlx
 	int		height;
 	int		width;
 	int		fov;
-	float	zoom;
-	int		mode;
-	int		color;
-	t_loca	rota;
 	t_map	*map;
 }					t_mlx;
 
@@ -98,16 +109,18 @@ int					map_reader(t_mlx *mlx, char *file, t_map **map);
 
 t_coord				coords(int x, int y);
 
-t_loca				map_point(int x, int y, int z, int color);
-t_loca				point_loca(t_point *point, t_map *map);
-t_loca				rota_x(t_loca point, t_mlx *mlx);
+t_loca				map_point(t_vec4 vec, int color);
+t_loca				point_loca(t_point *point, t_map *map, t_mat4 trans);
 
 t_point				*point_conv(t_point *start, char **str, int y);
 t_point				*find_point(t_point *curr, int x, int y);
+
+t_mat4				map_matrix(t_map *map);
 
 void				print_point(t_point *start, int x, int y);
 void				draw_map(t_map *map, t_mlx *window);
 void				draw_line1(t_mlx *mlx, t_loca start, t_loca end);
 void				settings_reset(t_map *map, t_mlx *mlx);
+void				map_size(t_map **map);
 
 #endif

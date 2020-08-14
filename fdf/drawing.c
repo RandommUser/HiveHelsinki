@@ -6,7 +6,7 @@
 /*   By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/19 15:53:04 by phakakos          #+#    #+#             */
-/*   Updated: 2020/02/20 19:49:34 by phakakos         ###   ########.fr       */
+/*   Updated: 2020/06/03 18:22:59 by phakakos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,15 +17,15 @@ t_rgb	color_flow(t_loca start, t_loca diff, t_loca curr, t_loca end)
 	t_rgb	rtn;
 	float	prog;
 
-	if (ft_abs(diff.x) > ft_abs(diff.y))
+	if (ft_abs(diff.loc.vec[0]) > ft_abs(diff.loc.vec[1]))
 	{
-		prog = ft_abs(curr.x - end.x);
-		prog = prog == 0 ? 0 : 1 - prog / ft_abs(diff.x);
+		prog = ft_abs(curr.loc.vec[0] - end.loc.vec[0]);
+		prog = prog == 0 ? 0 : 1 - prog / ft_abs(diff.loc.vec[0]);
 	}
 	else
 	{
-		prog = ft_abs(curr.y - end.y);
-		prog = prog == 0 ? 0 : 1 - prog / ft_abs(diff.y);;
+		prog = ft_abs(curr.loc.vec[1] - end.loc.vec[1]);
+		prog = prog == 0 ? 0 : 1 - prog / ft_abs(diff.loc.vec[1]);
 	}
 	rtn.red = (1 - prog) * start.color.red + end.color.red * prog;
 	rtn.green = (1 - prog) * start.color.green + end.color.green * prog;
@@ -35,41 +35,71 @@ t_rgb	color_flow(t_loca start, t_loca diff, t_loca curr, t_loca end)
 	return (rtn);
 }
 
+void	draw_spot(t_mlx *mlx, t_loca curr)
+{
+	double	pi;
+	int		z;
+	double	i;
+	int		x;
+	int		y;
+   
+	pi = 3.1415926535;
+	z = 1;
+	while (z++ < mlx->map->zoom)
+	{
+		i = 0;
+		while (i < 360)
+		{
+			x = z * cos(i * pi / 180);
+			y = z * sin(i * pi / 180);
+			if (x % 1 == 0 && y % 1 == 0)
+				mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, curr.loc.vec[0] + x, curr.loc.vec[1] + y, trgb_conv(curr.color));
+		//	i += 0.1;
+			i += 30;
+		}
+	}
+	mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, curr.loc.vec[0], curr.loc.vec[1], trgb_conv(curr.color));
+}
+
 void	draw_line1(t_mlx *mlx, t_loca start, t_loca end)
 {
 	t_loca	diff;
 	t_loca	curr;
 
-	if (start.x == -1 || end.x == -1)
+	if (start.loc.vec[0] == -1 || end.loc.vec[0] == -1)
 		return ;
-	curr.x = start.x;
-	curr.y = start.y;
-	curr.z = start.z;
+	curr.loc.vec[0] = start.loc.vec[0];
+	curr.loc.vec[1] = start.loc.vec[1];
+	curr.loc.vec[2] = start.loc.vec[2];
 	curr.color = start.color;
 //	diff.color = rgb_calc(end.color, start.color, '-');
-	diff.x = end.x - start.x;
-	diff.y = end.y - start.y;
-	diff.z = end.z - start.z;
-	if ((ft_abs(diff.x) > ft_abs(diff.y) && diff.x != 0) || diff.y == 0)
+	diff.loc.vec[0] = end.loc.vec[0] - start.loc.vec[0];
+	diff.loc.vec[1] = end.loc.vec[1] - start.loc.vec[1];
+	diff.loc.vec[2] = end.loc.vec[2] - start.loc.vec[2];
+	if ((ft_abs(diff.loc.vec[0]) > ft_abs(diff.loc.vec[1]) && diff.loc.vec[0] != 0) || diff.loc.vec[1] == 0)
 	{
-		while (curr.x != end.x)
+		while (curr.loc.vec[0] != end.loc.vec[0])
 		{
-			curr.y = start.y + diff.y * (curr.x - start.x) / diff.x;
+			curr.loc.vec[1] = start.loc.vec[1] + diff.loc.vec[1] * (curr.loc.vec[0] - start.loc.vec[0]) / diff.loc.vec[0];
 			curr.color = color_flow(start, diff, curr, end);
-			mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, curr.x, curr.y,
-					trgb_conv(curr.color));
-			curr.x = curr.x < end.x ? curr.x + 1 : curr.x - 1;
+			//if (curr.x + mlx->zoom >= 0 && curr.x - mlx->zoom <= mlx->width && 
+			//		curr.y + mlx->zoom >= 0 && curr.y - mlx->zoom <= mlx->height)
+			//	draw_spot(mlx, curr);
+			mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, curr.loc.vec[0], curr.loc.vec[1], trgb_conv(curr.color));
+			curr.loc.vec[0] = curr.loc.vec[0] < end.loc.vec[0] ? curr.loc.vec[0] + 1 : curr.loc.vec[0] - 1;
 		}
 	}
 	else
 	{
-		while (curr.y != end.y)
+		while (curr.loc.vec[1] != end.loc.vec[1])
 		{
-			curr.x = start.x + diff.x * (curr.y - start.y) / diff.y;
+			curr.loc.vec[0] = start.loc.vec[0] + diff.loc.vec[0] * (curr.loc.vec[1] - start.loc.vec[1]) / diff.loc.vec[1];
 			curr.color = color_flow(start, diff, curr, end);
-			mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, curr.x, curr.y,
-					trgb_conv(curr.color));
-			curr.y = curr.y < end.y ? curr.y + 1 : curr.y - 1;
+			//if (curr.x + mlx->zoom >= 0 && curr.x - mlx->zoom <= mlx->width &&
+			//		curr.y + mlx->zoom >= 0 && curr.y - mlx->zoom <= mlx->height)
+			//	draw_spot(mlx, curr);
+			mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, curr.loc.vec[0], curr.loc.vec[1], trgb_conv(curr.color));
+			curr.loc.vec[1] = curr.loc.vec[1] < end.loc.vec[1] ? curr.loc.vec[1] + 1 : curr.loc.vec[1] - 1;
 		}
 	}
 //printf("drew a line from x:%d y:%d z:%d to x:%d y:%d z:%d\n", start.x, start.y, start.z, end.x, end.y, end.z);
@@ -78,16 +108,63 @@ void	draw_line1(t_mlx *mlx, t_loca start, t_loca end)
 //printf("goal colors | red: %d green: %d blue: %d\n", end.color.red, end.color.green, end.color.blue);
 }
 
+void	draw_linez1(t_mlx *mlx, t_loca start, t_loca end)
+{
+	double	pi;
+	double	i;
+	t_loca	nstart;
+	t_loca	nend;
+	double	angle;
+
+	pi = 3.14159265;
+	draw_line1(mlx, start, end);
+//	if (mlx->zoom <= 1)
+//		return ;
+//	i = 0;
+//	angle = 180 - atan2(end.x - start.x, end.y - start.y) * (180 / pi);
+//	while (i < 180)
+//	{
+//		nstart = start;
+//		nend = end;
+//		i += angle;
+//		nstart.x += (int)(mlx->zoom * cos(i * pi / 180));
+//		nstart.y += (int)(mlx->zoom * sin(i * pi / 180));
+//		//i += i < 180 ? 180 : -180;
+//		i = angle - (i - angle);
+//		nend.x += (int)(mlx->zoom * cos(i * pi / 180));
+//		nend.y += (int)(mlx->zoom * sin(i * pi / 180));
+//		draw_line1(mlx, nstart, nend);
+//		i = angle - i;
+//		if (mlx->zoom < 8)
+//			i += 8;
+//		else if (mlx->zoom < 16)
+//			i += 4;
+//		else if (mlx->zoom < 32)
+//			i += 1;
+//		else if (mlx->zoom < 128)
+//			i += 0.5;
+//		else
+//			i += 0.1;
+//		//i -= i >= 180 ? 180 : -180;
+//		//i += 1;
+//	}
+}
+
+
 void	settings_reset(t_map *map, t_mlx *mlx)
 {
 	mlx->fov = FOV_DEF;
-	mlx->rota = map_point(ROTA_X, ROTA_Y, ROTA_Z, 0);
-	mlx->zoom = ZOOM_DEF;
-	mlx->mode = MODE_DEF;
-	mlx->color = MODE_COLOR;
-	map->w_mod = W_MOD;
+	map->rot = vec4_ini((float[4]){ROTA_X, ROTA_Y, ROTA_Z, ROTA_W});
+	map->origin = mat4_trans((float[3]){START_X + map->size.x * WIDTH, START_Y + map->size.y * WIDTH, 1});
+	printf("x %f y %f\n", map->size.x, map->size.y);
+	mat4_put(map->origin);
+	map->rotx = mat4_rotx(ROTA_X);
+	map->roty = mat4_roty(ROTA_Y);
+	map->rotz = mat4_rotz(ROTA_Z);
+	map->zoom = ZOOM_DEF;
+	map->mode = MODE_DEF;
+	map->color = MODE_COLOR;
 	map->h_mod = H_MOD;
-	map->pos = coords(START_X, START_Y);
 }
 
 void	draw1(t_map *map, t_mlx *mlx)
@@ -96,21 +173,19 @@ void	draw1(t_map *map, t_mlx *mlx)
 	t_point	*curr;
 	t_loca	this;
 	t_loca	next;
+	t_mat4	matrix;
 
+	matrix = map_matrix(map);
 	row = map->start;
-	while (row)
+	while (row && (curr = row))
 	{
-		curr = row;
 		while (curr)
 		{
-			this = point_loca(curr, map);
-			this = rota_x(this, mlx);
-			next = point_loca(curr->right, map);
-			next = rota_x(next, mlx);
-			draw_line1(mlx, this, next);
-			next = point_loca(curr->bottm, map);
-			next = rota_x(next, mlx);
-			draw_line1(mlx, this, next);
+			this = point_loca(curr, map, matrix);
+			if (curr->right)
+				draw_linez1(mlx, this, point_loca(curr->right, map, matrix));
+			if (curr->bottm)
+				draw_linez1(mlx, this, point_loca(curr->bottm, map, matrix));
 			curr = curr->right;
 		}
 		row = row->bottm;
@@ -120,7 +195,7 @@ void	draw1(t_map *map, t_mlx *mlx)
 void	draw_map(t_map *map, t_mlx *mlx)
 {
 	mlx_clear_window(mlx->mlx_ptr, mlx->mlx_win);
-	if (mlx->mode == 1)
+	if (map->mode == 1)
 		draw1(map, mlx);
 //	map = map;
 //	mlx = mlx;

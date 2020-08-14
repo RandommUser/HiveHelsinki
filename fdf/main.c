@@ -6,19 +6,19 @@
 /*   By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:20:20 by phakakos          #+#    #+#             */
-/*   Updated: 2020/02/21 16:18:09 by phakakos         ###   ########.fr       */
+/*   Updated: 2020/06/02 15:10:20 by phakakos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "header.h"
 
-t_loca	map_point(int x, int y, int z, int color)
+t_loca	map_point(t_vec4 vec, int color)
 {
 	t_loca	rtn;
 
-	rtn.x = x;
-	rtn.y = y;
-	rtn.z = z;
+	rtn.loc.vec[0] = (int)vec.vec[0];
+	rtn.loc.vec[1] = (int)vec.vec[1];
+	rtn.loc.vec[2] = (int)vec.vec[2];
 	rtn.color = rgb_conv(color);
 	return (rtn);
 }
@@ -32,71 +32,76 @@ t_coord	coords(int x, int y)
 	return (rtn);
 }
 
-t_coord	center_point(t_map *map)
+void	map_size(t_map **map)
 {
 	t_point	*start;
-	int		x;
-	int		y;
+	float		x;
+	float		y;
 
-	start = map->start;
-	while (start->right)
+	start = (*map)->start;
+	x = 0;
+	y = 0;
+	while (start->right && (++x))
 		start = start->right;
-	while (start->bottm)
+	while (start->bottm && (++y))
 		start = start->bottm;
-	x = start->x * 10 / 2;
-	x = /*(float)(x / 10) * map->w_mod + */(float)(x / 10) * WIDTH * map->w_mod + map->pos.x * map->w_mod;
-	y = start->y * 10 / 2;
-	y = /*(float)(y / 10) * map->w_mod + */(float)(y / 10) * WIDTH * map->w_mod + map->pos.y * map->w_mod;
-	return (coords(x, y));
+	(*map)->size.x = x / 2;
+	(*map)->size.y = y / 2;
 }
 
-t_loca	rota_x(t_loca point, t_mlx *mlx)
+t_mat4	map_matrix(t_map *map)
 {
-	t_coord	center;
-	int		rota;
-	float	prog;
+	//t_mat4	zoom;
+	t_mat4	trans;
 
-	rota = mlx->rota.y;
-	prog = (float)(rota) / 90;
-	if (point.x == -1 || rota == 0)
-		return (point);
-	center = center_point(mlx->map);
-	if (prog == 1 || prog == 3 || prog == -1 || prog == -3)
-	{
-		if (prog == 1 || prog == -3)
-			point.x = center.x + point.z;
-		else
-			point.x = center.x - point.z;
-	}
-	else if (prog == 2 || prog == -2)
-		point.x = center.x - (point.x - center.x);
-	else
-	{
-		prog = prog < 0 ? prog * -1 : prog;
-		prog = prog > 1 ? (int)(prog) + 1 - prog : prog;
-		if ((rota < 90 && rota >= 0) || (rota > -360 && rota < -270))
-			point.x += point.z * prog + (center.x - point.x - WIDTH * mlx->map->w_mod) * prog;
-		else if ((rota < 0 && rota > -90) || (rota > 270 && rota < 360))
-			point.x += (center.x - point.x - WIDTH * mlx->map->w_mod) * prog - point.z * prog;
-		else
-			point.x = center.x +  point.z * prog - (point.x - center.x - WIDTH *mlx->map->w_mod) * prog;
-	}
-	return (point);
+	//zoom = mat4_scales((float[4]){map->zoom, map->zoom, map->zoom, 1});
+	trans = mat4_iden();
+	trans = mat4_mat4(trans, map->rotx);
+	trans = mat4_mat4(trans, map->roty);
+	trans = mat4_mat4(trans, map->rotz);
+	mat4_put(trans);
+	//trans = mat4_mat4(trans, zoom);
+	//mat4_put(trans);
+	//trans = mat4_mat4(trans, map->origin);
+	//mat4_put(trans);
+	return (trans);
 }
 
-t_loca	point_loca(t_point *point, t_map *map)
+t_loca	point_loca(t_point *point, t_map *map, t_mat4 trans)
 {
-	int x;
-	int y;
-	int z;
+	t_vec4	vec;
+	t_mat4	zoom;
 
-	if (!point)
-		return (map_point(-1, -1, -1, -1));
-	x = map->pos.x * map->w_mod + point->x * WIDTH * map->w_mod;
-	y = map->pos.y * map->w_mod + point->y * WIDTH * map->w_mod;
-	z = point->z * WIDTH * map->h_mod;
 	point->color = point->color == -1 ? DEF_COLOR : point->color;
-	return (map_point(x, y, z, point->color));
+	
+	//vec = vec4_ini((float[4]){point->loc.vec[0],point->loc.vec[1],point->loc.vec[2],point->loc.vec[3]});
+	vec = vec4_ini((float[4]){(point->loc.vec[0] - map->size.x) * WIDTH,
+		(point->loc.vec[1] - map->size.y) * WIDTH, point->loc.vec[2] * WIDTH * map->h_mod, point->loc.vec[3]});
+	//vec4_put(vec);
+	//write(1, "\n", 1);
+	//mat4_put(trans);
+	//trans = mat4_trans((float[3]){(point->loc.vec[0] - map->size.x) * WIDTH,
+	//	(point->loc.vec[1] - map->size.y) * WIDTH, 1});
+	//vec = mat4_vec4(trans, vec);
+	zoom = mat4_scales((float[4]){map->zoom, map->zoom, map->zoom, 1});
+	//zoom = mat4_mat4(zoom, map->origin);
+	//mat4_put(zoom);
+
+	
+	vec = mat4_vec4(trans, vec);
+	vec = mat4_vec4(map->origin, vec);
+	vec = mat4_vec4(zoom, vec);
+	zoom = mat4_pro();
+	vec = mat4_vec4(zoom, vec);
+	
+	
+	
+	//vec = mat4_vec4(zoom, vec);
+	//vec4_put(vec);
+//	vec.vec[0] = map->pos.x * map->w_mod + point->loc.vec[0] * WIDTH * map->w_mod * mlx->zoom;
+//	vec.vec[1] = map->pos.y * map->w_mod + point->loc.vec[1] * WIDTH * map->w_mod * mlx->zoom;
+//	vec.vec[2] = point->loc.vec[2] * WIDTH * map->h_mod * mlx->zoom;
+	return (map_point(vec, point->color));
 }
 
 /*
@@ -179,48 +184,120 @@ int	input_testing(int key, void *param)
 	}
 	if (key == PG_UP)
 	{
-		map->w_mod = map->w_mod * 0.9;
+//		map->w_mod = map->w_mod * 0.9;
+//		printf("%f\n", map->zoom / 1.2);
+		map->zoom = map->zoom / 1.2;
 		draw_map(map, mlx);
 	}
 	else if (key == PG_DW)
 	{
-		map->w_mod = map->w_mod * 1.1;
+//		map->w_mod = map->w_mod * 1.1;
+		map->zoom = map->zoom * 1.2;
 		draw_map(map, mlx);
 	}
 	else if (key == AR_UP)
 	{
-		map->pos.y -= WIDTH * map->w_mod / 2;
-printf("start pos is x: %d y: %d\n", map->pos.x, map->pos.y);
+//		map->pos.y -= WIDTH * map->w_mod * mlx->zoom / 2;
+//printf("start pos is x: %f y: %f\n", map->pos.x, map->pos.y);
 		draw_map(map, mlx);
 	}
 	else if (key == AR_DW)
 	{
-		map->pos.y += WIDTH * map->w_mod / 2;
-printf("start pos is x: %d y: %d\n", map->pos.x, map->pos.y);
+//		map->pos.y += WIDTH * map->w_mod * mlx->zoom/ 2;
+//printf("start pos is x: %f y: %f\n", map->pos.x, map->pos.y);
 		draw_map(map, mlx);
 	}
 	else if (key == AR_LF)
 	{
-		map->pos.x -= WIDTH * map->w_mod / 2;
-printf("start pos is x: %d y: %d\n", map->pos.x, map->pos.y);
+//		map->pos.x -= WIDTH * map->w_mod * mlx->zoom / 2;
+//printf("start pos is x: %f y: %f\n", map->pos.x, map->pos.y);
 		draw_map(map, mlx);
 	}
 	else if (key == AR_RG)
 	{
-		map->pos.x += WIDTH * map->w_mod / 2;
-printf("start pos is x: %d y: %d\n", map->pos.x, map->pos.y);
+//		map->pos.x += WIDTH * map->w_mod * mlx->zoom / 2;
+//printf("start pos is x: %f y: %f\n", map->pos.x, map->pos.y);
 		draw_map(map, mlx);
 	}
-	else if (key == 88)
+	else if (key == K_W)
 	{
-		mlx->rota.y = mlx->rota.y + ROTA_STEP;
-		mlx->rota.y = mlx->rota.y / 360 > 0 ? mlx->rota.y - 360 : mlx->rota.y;
+//		map->pos.y -= WIDTH * map->w_mod / 4;
+//printf("start pos is x: %f y: %f\n", map->pos.x, map->pos.y);
 		draw_map(map, mlx);
 	}
-	else if (key == 86)
+	else if (key == K_S)
 	{
-		mlx->rota.y = mlx->rota.y - ROTA_STEP;
-		mlx->rota.y = mlx->rota.y / -360 > 0 ? mlx->rota.y + 360 : mlx->rota.y;
+//		map->pos.y += WIDTH * map->w_mod / 4;
+//printf("start pos is x: %f y: %f\n", map->pos.x, map->pos.y);
+		draw_map(map, mlx);
+	}
+	else if (key == K_A)
+	{
+//		map->pos.x -= WIDTH * map->w_mod / 4;
+//printf("start pos is x: %f y: %f\n", map->pos.x, map->pos.y);
+		draw_map(map, mlx);
+	}
+	else if (key == K_D)
+	{
+//		map->pos.x += WIDTH * map->w_mod / 4;
+//printf("start pos is x: %f y: %f\n", map->pos.x, map->pos.y);
+		draw_map(map, mlx);
+	}
+	else if (key == 88) // left
+	{
+		map->rot.vec[1] = map->rot.vec[1] + ROTA_STEP;
+		map->rot.vec[1] = map->rot.vec[1] >= 360 ? map->rot.vec[1] - 360 : map->rot.vec[1];
+		map->roty = mat4_roty(map->rot.vec[1]);
+		draw_map(map, mlx);
+	}
+	else if (key == 86) // right
+	{
+		map->rot.vec[1] = map->rot.vec[1] - ROTA_STEP;
+		map->rot.vec[1] = map->rot.vec[1] <= -360 ? map->rot.vec[1] + 360 : map->rot.vec[1];
+		map->roty = mat4_roty(map->rot.vec[1]);
+		draw_map(map, mlx);
+	}
+	else if (key == 91) // top
+	{
+		map->rot.vec[0] = map->rot.vec[0] - ROTA_STEP;
+		map->rot.vec[0] = map->rot.vec[0] <= -360 ? map->rot.vec[0] + 360 : map->rot.vec[0];
+		map->rotx = mat4_rotx(map->rot.vec[0]);
+		draw_map(map, mlx);
+	}
+	else if (key == 84) // bottom
+	{
+		map->rot.vec[0] = map->rot.vec[0] + ROTA_STEP;
+		map->rot.vec[0] = map->rot.vec[0] >= 360 ? map->rot.vec[0] - 360 : map->rot.vec[0];
+		map->rotx = mat4_rotx(map->rot.vec[0]);
+		draw_map(map, mlx);
+	}
+	else if (key == 92) // c-clockwise
+	{
+		map->rot.vec[2] = map->rot.vec[2] + ROTA_STEP;
+		map->rot.vec[2] = map->rot.vec[2] >= 360 ? map->rot.vec[2] - 360 : map->rot.vec[2];
+		map->rotz = mat4_rotz(map->rot.vec[2]);
+		draw_map(map, mlx);
+	}
+	else if (key == 83) // clockwise
+	{
+		map->rot.vec[2] = map->rot.vec[2] - ROTA_STEP;
+		map->rot.vec[2] = map->rot.vec[2] <= -360 ? map->rot.vec[2] + 360 : map->rot.vec[2];
+		map->rotz = mat4_rotz(map->rot.vec[2]);
+		draw_map(map, mlx);
+	}
+	else if (key == 69)
+	{
+		map->h_mod *= 1.1;
+		draw_map(map, mlx);
+	}
+	else if (key == 67)
+	{
+		map->h_mod *= -1;
+		draw_map(map, mlx);
+	}
+	else if (key == 78)
+	{
+		map->h_mod /= 1.1;
 		draw_map(map, mlx);
 	}
 	else if (key == 15)
@@ -228,18 +305,18 @@ printf("start pos is x: %d y: %d\n", map->pos.x, map->pos.y);
 		settings_reset(map, mlx);
 		draw_map(map, mlx);
 	}
-	else if (key == 2 && mlx->mode != 0)
-		mlx->mode = 0;
-	else if (key == 2 && mlx->mode == 0)
-		mlx->mode = 1;
+	else if (key == 2 && map->mode != 0)
+		map->mode = 0;
+	else if (key == 2 && map->mode == 0)
+		map->mode = 1;
 	else
 		contra = 0;
 	ft_putnbr(key);
 	ft_putstr("\n");
-printf("current rota | x: %d y: %d z: %d\n", mlx->rota.x, mlx->rota.y, mlx->rota.z);
+printf("current rota | x: %f y: %f z: %f zoom: %f\nheight mod %f\n", map->rot.vec[0], map->rot.vec[1], map->rot.vec[2], map->zoom, map->h_mod);
 	return (0);
 }
-
+/*
 int	mouse_testing(int button, int x, int y, void *container)
 {
 	t_mlx		*mlx;
@@ -288,7 +365,7 @@ int	mouse_testing(int button, int x, int y, void *container)
 	ft_putchar('\n');
 	return (0);
 }
-
+*/
 t_mlx	*cont_init(int width, int height, char *title)
 {
 	t_mlx	*rtn;
@@ -301,11 +378,14 @@ t_mlx	*cont_init(int width, int height, char *title)
 	rtn->mlx_ptr = mlx_init();
 	rtn->mlx_win = mlx_new_window(rtn->mlx_ptr, width, height, title);
 	rtn->fov = FOV_DEF;
-	rtn->zoom = ZOOM_DEF;
-	rtn->mode = MODE_DEF;
-	rtn->color = MODE_COLOR;
+	//rtn->zoom = ZOOM_DEF;
+	//rtn->mode = MODE_DEF;
+	//rtn->color = MODE_COLOR;
 	rtn->map = NULL;
-	rtn->rota = map_point(ROTA_X, ROTA_Y, ROTA_Z, 0);
+	//rtn->rot = vec4_ini((float[4]){0, 0, 0, 1});
+	//rtn->rotx = mat4_rotx(0);
+	//rtn->roty = mat4_roty(0);
+	//rtn->rotz = mat4_rotz(0);
 	return (rtn);
 }
 
@@ -320,7 +400,7 @@ int	main(int argc, char **argv)
 	else
 		mlx = cont_init(800, 600, "Hello World");
 	mlx_key_hook(mlx->mlx_win, input_testing, mlx);
-	mlx_mouse_hook(mlx->mlx_win, mouse_testing, mlx);
+	//mlx_mouse_hook(mlx->mlx_win, mouse_testing, mlx);
 	if (argc > 1)
 	{
 		if (!map_reader(mlx, argv[1], &map))
