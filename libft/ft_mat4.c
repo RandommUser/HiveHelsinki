@@ -80,13 +80,21 @@ t_mat4	mat4_rotx(double theta)
 	double	sint;
 	double	cost;
 
-	rota = mat4_iden();
-	sint = sin(theta); //* (3.14159265 / 180));
-	cost = cos(theta); //* (3.14159265 / 180));
-	rota.mat[1][1] = cost;
-	rota.mat[1][2] = sint;
-	rota.mat[2][1] = -(sint);
-	rota.mat[2][2] = cost;
+	rota = mat4_ini();
+	rota.mat[3][3] = 1;
+	//rota = mat4_iden();
+	sint = sin(theta * (3.14159265 / 180));
+	cost = cos(theta * (3.14159265 / 180));
+	rota.mat[0][2] = 1;
+	rota.mat[1][0] = cost;
+	rota.mat[1][1] = sint;
+	rota.mat[2][0] = sint * -1;
+	rota.mat[2][1] = cost;
+
+	//rota.mat[1][1] = cost;
+	//rota.mat[1][2] = sint;
+	//rota.mat[2][1] = -(sint);
+	//rota.mat[2][2] = cost;
 	return (rota);
 }
 
@@ -97,12 +105,23 @@ t_mat4	mat4_roty(double theta)
 	double	cost;
 
 	rota = mat4_iden();
-	sint = sin(theta);// * (3.14159265 / 180));
-	cost = cos(theta);// * (3.14159265 / 180));
+//	rota = mat4_ini();
+//	rota.mat[3][3] = 1;
+	sint = sin(theta * (3.14159265 / 180));
+	cost = cos(theta * (3.14159265 / 180));
+/*
+	rota.mat[0][0] = sint * -1;
+	rota.mat[0][1] = cost;
+	rota.mat[1][2] = 1;
+	rota.mat[2][0] = cost;
+	rota.mat[2][1] = sint;
+*/
+//	/*
 	rota.mat[0][0] = cost;
 	rota.mat[0][2] = -(sint);
 	rota.mat[2][0] = sint;
 	rota.mat[2][2] = cost;
+//	*/
 	return (rota);
 }
 
@@ -112,15 +131,34 @@ t_mat4	mat4_rotz(double theta)
 	double	sint;
 	double	cost;
 
-	rota = mat4_iden();
-	sint = sin(theta);// * (3.14159265 / 180));
-	cost = cos(theta);// * (3.14159265 / 180));
+	//rota = mat4_iden();
+	rota = mat4_ini();
+	rota.mat[3][3] = 1;
+	sint = sin(theta * (3.14159265 / 180));
+	cost = cos(theta * (3.14159265 / 180));
+
+	rota.mat[0][0] = cost;
+	rota.mat[0][1] = sint;
+	rota.mat[1][0] = sint * -1;
+	rota.mat[1][1] = cost;
+	rota.mat[2][2] = 1;
+
+	/*
 	rota.mat[0][0] = cost;
 	rota.mat[0][1] = sint;
 	rota.mat[1][0] = -(sint);
 	rota.mat[1][1] = cost;
-
+	*/
 	return (rota);
+}
+
+t_mat4	mat4_pro(void)
+{
+	t_mat4	proj;
+
+	proj = mat4_scales((float[4]){1,1,1,0});
+	proj.mat[3][2] = 1;
+	return (proj);
 }
 
 t_mat4	mat4_trans(float s[3])

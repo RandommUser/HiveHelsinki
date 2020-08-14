@@ -84,6 +84,7 @@ t_mat4  		mat4_trans(float s[3]);
 t_mat4  		mat4_scales(float s[4]);
 t_mat4  		mat4_ini(void);
 t_mat4  		mat4_iden(void);
+t_mat4			mat4_pro(void);
 t_mat4  		mat4_mat4(t_mat4 mat1, t_mat4 mat2);
 t_vec4  		mat4_vec4(t_mat4 mat4, t_vec4 vec4);
 
