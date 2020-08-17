@@ -74,6 +74,7 @@ t_vec2  		*mat2_vec(t_mat2 *mat2, t_vec2 *vec2);
 
 
 t_vec4  		vec4_ini(float in[4]);
+t_vec4			vec4m_vec4(t_vec4 vec1, t_vec4 vec2);
 t_vecn  		*vecn_ini(size_t n);
 t_vecn  		*vecn_cpy(float *vecn, size_t n);
 
@@ -85,6 +86,8 @@ t_mat4  		mat4_scales(float s[4]);
 t_mat4  		mat4_ini(void);
 t_mat4  		mat4_iden(void);
 t_mat4			mat4_pro(void);
+t_mat4			mat4_perps(t_vec4 vec);
+t_mat4			mat4_perps2(t_vec4 vec, float ar);
 t_mat4  		mat4_mat4(t_mat4 mat1, t_mat4 mat2);
 t_vec4  		mat4_vec4(t_mat4 mat4, t_vec4 vec4);
 

@@ -22,18 +22,32 @@ void    vec4_put(t_vec4 vec)
     i = -1;
     while (++i < n)
         printf("[%f]", vec.vec[i]);
-    printf("\n");
+	printf("\n");
 }
 
-t_vec4  vec4_ini(float in[4])
-{
-    t_vec4  ret;
-    size_t  i;
-    size_t  n;
 
-    i = -1;
-    n = 4;
-    while (++i < n)
-        ret.vec[i] = in[i];
-    return (ret);
+
+t_vec4	vec4_ini(float in[4])
+{
+	t_vec4  ret;
+	size_t  i;
+	size_t  n;
+
+	i = -1;
+	n = 4;
+	while (++i < n)
+		ret.vec[i] = in[i];
+	return (ret);
+}
+
+t_vec4	vec4m_vec4(t_vec4 vec1, t_vec4 vec2)
+{
+	t_vec4	ret;
+	size_t	i;
+
+	ret = vec4_ini((float[4]){0, 0, 0, 1});
+	i = -1;
+	while (++i < 3)
+		ret.vec[i] = vec1.vec[i] - vec2.vec[i];
+	return (ret);
 }

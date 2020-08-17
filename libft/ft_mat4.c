@@ -161,6 +161,35 @@ t_mat4	mat4_pro(void)
 	return (proj);
 }
 
+t_mat4	mat4_perps(t_vec4 vec)
+{
+	t_mat4	proj;
+
+	proj = mat4_scales((float[4]){1,1,0,1});
+	proj.mat[0][2] = vec.vec[0] / vec.vec[1];
+	proj.mat[1][2] = vec.vec[1] / vec.vec[2];
+	proj.mat[2][2] = 1 / vec.vec[2];
+	return (proj);
+}
+
+// near, far, fov, ? || width / height
+t_mat4	mat4_perps2(t_vec4 vec, float ar)
+{
+	t_mat4	proj;
+	float	tant;
+	float	range;
+
+	tant = tan((double)vec.vec[2] * (3.14159265 / 180) / 2 );
+	range = vec.vec[0] - vec.vec[1];
+	proj = mat4_ini();
+	proj.mat[3][2] = 1;
+	proj.mat[0][0] = 1 / (tant * ar);
+	proj.mat[1][1] = 1 / tant;
+	proj.mat[2][2] = (-(vec.vec[0]) - vec.vec[1]) / range;
+	proj.mat[2][3] = 2 * vec.vec[1] * vec.vec[0] / range;
+	return (proj);
+}
+
 t_mat4	mat4_trans(float s[3])
 {
 	t_mat4	tran;
