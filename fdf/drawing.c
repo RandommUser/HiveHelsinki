@@ -156,15 +156,14 @@ void	settings_reset(t_map *map, t_mlx *mlx)
 	mlx->fov = FOV_DEF;
 	map->rot = vec4_ini((float[4]){ROTA_X, ROTA_Y, ROTA_Z, ROTA_W});
 	map->origin = mat4_trans((float[3]){START_X + map->size.x * WIDTH, START_Y + map->size.y * WIDTH, 1});
-	printf("x %f y %f\n", map->size.x, map->size.y);
-	mat4_put(map->origin);
-	map->rotx = mat4_rotx(ROTA_X);
-	map->roty = mat4_roty(ROTA_Y);
-	map->rotz = mat4_rotz(ROTA_Z);
 	map->zoom = ZOOM_DEF;
 	map->mode = MODE_DEF;
 	map->color = MODE_COLOR;
 	map->h_mod = H_MOD;
+	map->cam.loc = vec4_ini((float[4]){(int)(map->pos.vec[0] / 2), (int)(map->pos.vec[1] / 2), 0, 1});
+	map->cam.plan = vec4_ini((float[4]){110, 120, FOV_DEF, 1});
+	map->cam.rot = vec4_ini((float[4]){90, 90, 0, 1});
+	map->pos = vec4_ini((float[4]){mlx->width, mlx->height, 0, 0});
 }
 
 void	draw1(t_map *map, t_mlx *mlx)
@@ -192,11 +191,38 @@ void	draw1(t_map *map, t_mlx *mlx)
 	}
 }
 
+void	draw2(t_map *map, t_mlx *mlx)
+{
+	t_point	*row;
+	t_point	*curr;
+	t_loca	this;
+	t_loca	next;
+	t_mat4	matrix;
+
+	matrix = camera_matrix(map->cam);
+	row = map->start;
+	while (row && (curr = row))
+	{
+		while (curr)
+		{
+			this = point_loca_p(curr, map, matrix);
+			if (curr->right)
+				draw_linez1(mlx, this, point_loca_p(curr->right, map, matrix));
+			if (curr->bottm)
+				draw_linez1(mlx, this, point_loca_p(curr->bottm, map, matrix));
+			curr = curr->right;
+		}
+		row = row->bottm;
+	}
+}
+
 void	draw_map(t_map *map, t_mlx *mlx)
 {
 	mlx_clear_window(mlx->mlx_ptr, mlx->mlx_win);
 	if (map->mode == 1)
 		draw1(map, mlx);
+	else if (map->mode == 2)
+		draw2(map, mlx);
 //	map = map;
 //	mlx = mlx;
 }

@@ -38,8 +38,10 @@
 # define WIDTH 10
 # define START_X 150
 # define START_Y 150
-# define FOV_DEF 100
+# define FOV_DEF 70
+# define FOV_STEP 5
 # define ZOOM_DEF 1
+# define ZOOM_STEP 10
 # define MODE_DEF 1
 # define MODE_COLOR 1
 # define DEF_COLOR 0x888888
@@ -77,6 +79,16 @@ typedef struct		s_loca
 	t_vec4	loc;
 }					t_loca;
 
+typedef struct		s_cam
+{
+	// x, y, z, w
+	t_vec4	loc;
+	// x, y, z, w
+	t_vec4	rot;
+	// nearZ, farZ, fov, ?
+	t_vec4	plan;
+}					t_cam;
+
 typedef	struct		s_map
 {
 	t_coord	size;
@@ -88,10 +100,9 @@ typedef	struct		s_map
 	int		color;
 	// x, y, z, w angles
 	t_vec4	rot;
-	t_mat4	rotx;
-	t_mat4	roty;
-	t_mat4	rotz;
-	t_mat4	rotw;
+	t_cam	cam;
+	//width, height, xpos, ypos
+	t_vec4	pos;
 }					t_map;
 
 typedef struct		s_mlx
@@ -111,11 +122,13 @@ t_coord				coords(int x, int y);
 
 t_loca				map_point(t_vec4 vec, int color);
 t_loca				point_loca(t_point *point, t_map *map, t_mat4 trans);
+t_loca				point_loca_p(t_point *point, t_map *map, t_mat4 trans);
 
 t_point				*point_conv(t_point *start, char **str, int y);
 t_point				*find_point(t_point *curr, int x, int y);
 
 t_mat4				map_matrix(t_map *map);
+t_mat4				camera_matrix(t_cam cam);
 
 void				print_point(t_point *start, int x, int y);
 void				draw_map(t_map *map, t_mlx *window);
