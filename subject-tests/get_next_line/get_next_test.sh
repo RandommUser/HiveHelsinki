@@ -6,7 +6,7 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/13 16:55:49 by phakakos          #+#    #+#              #
-#    Updated: 2020/02/14 13:02:05 by phakakos         ###   ########.fr        #
+#    Updated: 2020/08/18 12:46:12 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,6 +14,7 @@
 # Does tests set in the evaluation.
 # Creates it's own files, only this file needed to start
 # SHOULD BE PLACED ON THE ROOT OF PROJECT FOLDER
+# RUN WITH SH, bash & zsh do not support this formatting
 # Created by phakakos @ Hive Helsinki, 2019
 
 # VARIABLE DECLARATIONS
