@@ -29,6 +29,31 @@ void	rota(t_map *map, int angle, int dir)
 	}
 }
 
+void	map_select(t_mlx *mlx, int n)
+{
+	if (mlx->mode == 2 && n > 0 && n < 5)
+		mlx->smap = mlx->map[n];
+}
+
+void	view_mode(t_mlx *mlx)
+{
+	if (mlx->mode == 2)
+	{
+		mlx->mode = 1;
+		mlx->smap = mlx->map[0];
+	}
+	else
+	{
+		mlx->mode = 2;
+		mlx->smap = mlx->map[1];
+	}
+}
+
+void	mode(t_map *map)
+{
+	map->mode = map->mode == 2 ? 1 : 2;
+}
+
 void	move(t_map *map, int angle, int dir)
 {
 	if (map->mode == 2)
@@ -39,10 +64,7 @@ void	move(t_map *map, int angle, int dir)
 
 void	zoom(t_map *map, int dir)
 {
-	//if (map->mode == 2)
-	//	map->cam.plan.vec[2] += ZOOM_STEP * dir;
-	//else
-		map->zoom = dir > 0 ? map->zoom * 1.2 : map->zoom / 1.2;
+	map->zoom = dir > 0 ? map->zoom * 1.2 : map->zoom / 1.2;
 }
 
 void	fov(t_map *map, int dir)
@@ -50,8 +72,17 @@ void	fov(t_map *map, int dir)
 	if (map->mode == 2)
 	{
 		map->cam.plan.vec[2] += FOV_STEP * dir;
-		if (map->cam.plan.vec[2] > 180 || map->cam.plan.vec[2] < 0)
+		if (map->cam.plan.vec[2] >= 180 || map->cam.plan.vec[2] <= 0)
 			map->cam.plan.vec[2] -= FOV_STEP * dir;
+	}
+}
+
+void	plain_flip(t_map *map)
+{
+	if (map->mode == 2)
+	{
+		map->cam.plan.vec[0] *= -1;
+		map->cam.plan.vec[1] *= -1;
 	}
 }
 
@@ -60,7 +91,7 @@ void	cam_plain(t_map *map, int coord, int dir)
 	if (map->mode == 2)
 	{
 		map->cam.plan.vec[coord] += WIDTH / 2 * dir;
-		if (map->cam.plan.vec[0] == map->cam.plan.vec[1] || map->cam.plan.vec[coord] < 0)
+		if (map->cam.plan.vec[0] == map->cam.plan.vec[1])
 			map->cam.plan.vec[coord] -= WIDTH / 2 * dir;
 	}
 }
@@ -134,6 +165,7 @@ t_loca	point_loca_p(t_point *point, t_map *map, t_mat4 rot)
 	t_mat4	proj;
 	t_mat4	zoom;
 	t_mat4	trans;
+	t_vec4	rotn;
 
 	point->color = point->color == -1 ? DEF_COLOR : point->color;
 	zoom = mat4_scales((float[4]){map->zoom, map->zoom, map->zoom, 1});
@@ -142,11 +174,26 @@ t_loca	point_loca_p(t_point *point, t_map *map, t_mat4 rot)
 	vec = vec4_ini((float[4]){(point->loc.vec[0] - map->size.x) * WIDTH,
 		(point->loc.vec[1] - map->size.y) * WIDTH, point->loc.vec[2] * WIDTH * map->h_mod, point->loc.vec[3]});
 //	vec4_put(vec);
+
+	/* MORE ROTATIONS */
+/*	printf("x %f y %f\n", map->rot.vec[0], map->rot.vec[1]);
+	printf("x %f y %f\n", map->cam.plan.vec[2] / 2 * (point->loc.vec[0] - map->size.x) / map->size.x, map->cam.plan.vec[2] / 2 * (point->loc.vec[1] - map->size.y) / map->size.y);
+	rotn = map->rot;
+	rotn.vec[0] = -1 * (map->rot.vec[0] + 45 * (point->loc.vec[0] - map->size.x) / map->size.x);
+	rotn.vec[1] = 1 * (map->rot.vec[1] + 45 * (point->loc.vec[1] - map->size.y) / map->size.y);
+	rot = mat4_iden();
+	rot = mat4_mat4(rot, mat4_rotx(rotn.vec[0]));
+	rot = mat4_mat4(rot, mat4_roty(rotn.vec[1]));
+	rot = mat4_mat4(rot, mat4_rotz(rotn.vec[2]));
+*/
+
 	trans = mat4_mat4(zoom, rot);
 //	write(1, "\n", 1);
 //	mat4_put(trans);
 //	vec4_put(vec);
 	trans = mat4_mat4(trans, mat4_perps2(map->cam.plan, map->pos.vec[0] / map->pos.vec[1]));
+	
+	
 	//trans = mat4_mat4(trans, mat4_trans((float[3]){(int)(map->pos.vec[0] / 2), (int)(map->pos.vec[1] / 2), 1}));
 
 	
@@ -207,8 +254,8 @@ t_loca	point_loca(t_point *point, t_map *map, t_mat4 trans)
 
 	
 	vec = mat4_vec4(trans, vec);
-	vec = mat4_vec4(map->origin, vec);
 	vec = mat4_vec4(zoom, vec);
+	vec = mat4_vec4(map->origin, vec);
 	zoom = mat4_pro();
 	vec = mat4_vec4(zoom, vec);
 	
@@ -278,7 +325,7 @@ int	input_testing(int key, void *param)
 	t_map		*map;
 
 	mlx = param;
-	map = mlx->map;
+	map = mlx->smap;
 	if (key == ESC_KEY)
 		exit(1);
 	else if (key == 117)
@@ -300,189 +347,199 @@ int	input_testing(int key, void *param)
 		ft_putstr("SECRET FOUND!\n");
 		contra = 0;
 	}
+	else
+		contra = 0;
+	
 	if (key == PG_UP)
 	{
-//		map->w_mod = map->w_mod * 0.9;
-//		printf("%f\n", map->zoom / 1.2);
-		zoom(map, -1);
-//		map->zoom = map->zoom / 1.2;
+		zoom(mlx->smap, -1);
 		draw_map(map, mlx);
 	}
 	else if (key == PG_DW)
 	{
-//		map->w_mod = map->w_mod * 1.1;
-//		map->zoom = map->zoom * 1.2;
-		zoom(map, 1);
+		zoom(mlx->smap, 1);
 		draw_map(map, mlx);
 	}
 	else if (key == AR_UP)
 	{
-//		map->pos.y -= WIDTH * map->w_mod * mlx->zoom / 2;
-//printf("start pos is x: %f y: %f\n", map->pos.x, map->pos.y);
-		move(map, 1, -1);
+		move(mlx->smap, 1, -1);
 		draw_map(map, mlx);
 	}
 	else if (key == AR_DW)
 	{
-//		map->pos.y += WIDTH * map->w_mod * mlx->zoom/ 2;
-//printf("start pos is x: %f y: %f\n", map->pos.x, map->pos.y);
-		move(map, 1, 1);
+		move(mlx->smap, 1, 1);
 		draw_map(map, mlx);
 	}
 	else if (key == AR_LF)
 	{
-//		map->pos.x -= WIDTH * map->w_mod * mlx->zoom / 2;
-//printf("start pos is x: %f y: %f\n", map->pos.x, map->pos.y);
-		move(map, 0, -1);
+		move(mlx->smap, 0, -1);
 		draw_map(map, mlx);
 	}
 	else if (key == AR_RG)
 	{
-//		map->pos.x += WIDTH * map->w_mod * mlx->zoom / 2;
-//printf("start pos is x: %f y: %f\n", map->pos.x, map->pos.y);
-		move(map, 0, 1);
+		move(mlx->smap, 0, 1);
 		draw_map(map, mlx);
 	}
 	else if (key == K_W)
 	{
-//		map->pos.y -= WIDTH * map->w_mod / 4;
-//printf("start pos is x: %f y: %f\n", map->pos.x, map->pos.y);
-		move(map, 2, 1);
+		move(mlx->smap, 2, 1);
 		draw_map(map, mlx);
 	}
 	else if (key == K_S)
 	{
-//		map->pos.y += WIDTH * map->w_mod / 4;
-//printf("start pos is x: %f y: %f\n", map->pos.x, map->pos.y);
-		move(map, 2, -1);
+		move(mlx->smap, 2, -1);
 		draw_map(map, mlx);
 	}
 	else if (key == K_A)
 	{
-//		map->pos.x -= WIDTH * map->w_mod / 4;
-//printf("start pos is x: %f y: %f\n", map->pos.x, map->pos.y);
 		draw_map(map, mlx);
 	}
 	else if (key == K_D)
 	{
-//		map->pos.x += WIDTH * map->w_mod / 4;
-//printf("start pos is x: %f y: %f\n", map->pos.x, map->pos.y);
 		draw_map(map, mlx);
 	}
 	else if (key == 35) // projection change
 	{
-		settings_reset(map, mlx);
-		map->mode = 2;
+		//settings_reset(map, mlx);
+		mode(mlx->smap);
 		draw_map(map, mlx);
 	}
 	else if (key == 88) // left
 	{
-		rota(map, 1, 1);
-//		map->rot.vec[1] = map->rot.vec[1] + ROTA_STEP;
-//		map->rot.vec[1] = map->rot.vec[1] >= 360 ? map->rot.vec[1] - 360 : map->rot.vec[1];
+		rota(mlx->smap, 1, 1);
 		draw_map(map, mlx);
 	}
 	else if (key == 86) // right
 	{
-		rota(map, 1, -1);
-//		map->rot.vec[1] = map->rot.vec[1] - ROTA_STEP;
-//		map->rot.vec[1] = map->rot.vec[1] <= -360 ? map->rot.vec[1] + 360 : map->rot.vec[1];
+		rota(mlx->smap, 1, -1);
 		draw_map(map, mlx);
 	}
 	else if (key == 91) // top
 	{
-		rota(map, 0, -1);
-//		map->rot.vec[0] = map->rot.vec[0] - ROTA_STEP;
-//		map->rot.vec[0] = map->rot.vec[0] <= -360 ? map->rot.vec[0] + 360 : map->rot.vec[0];
+		rota(mlx->smap, 0, -1);
 		draw_map(map, mlx);
 	}
 	else if (key == 84) // bottom
 	{
-		rota(map, 0, 1);
-//		map->rot.vec[0] = map->rot.vec[0] + ROTA_STEP;
-//		map->rot.vec[0] = map->rot.vec[0] >= 360 ? map->rot.vec[0] - 360 : map->rot.vec[0];
+		rota(mlx->smap, 0, 1);
 		draw_map(map, mlx);
 	}
 	else if (key == 92) // c-clockwise
 	{
-		rota(map, 2, 1);
-//		map->rot.vec[2] = map->rot.vec[2] + ROTA_STEP;
-//		map->rot.vec[2] = map->rot.vec[2] >= 360 ? map->rot.vec[2] - 360 : map->rot.vec[2];
+		rota(mlx->smap, 2, 1);
 		draw_map(map, mlx);
 	}
 	else if (key == 83) // clockwise
 	{
-		rota(map, 2, -1);
-//		map->rot.vec[2] = map->rot.vec[2] - ROTA_STEP;
-//		map->rot.vec[2] = map->rot.vec[2] <= -360 ? map->rot.vec[2] + 360 : map->rot.vec[2];
+		rota(mlx->smap, 2, -1);
 		draw_map(map, mlx);
 	}
 	else if (key == 69) // height +
 	{
-		map->h_mod *= 1.1;
+		mlx->smap->h_mod *= 1.1;
 		draw_map(map, mlx);
 	}
 	else if (key == 67) // height flip
 	{
-		map->h_mod *= -1;
+		mlx->smap->h_mod *= -1;
 		draw_map(map, mlx);
 	}
 	else if (key == 78) // height --
 	{
-		map->h_mod /= 1.1;
+		mlx->smap->h_mod /= 1.1;
 		draw_map(map, mlx);
 	}
 	else if (key == 43) // fov ++
 	{
-		fov(map, -1);
+		fov(mlx->smap, -1);
 		draw_map(map, mlx);
 	}
 	else if (key == 47) // fov --
 	{
-		fov(map, 1);
+		fov(mlx->smap, 1);
 		draw_map(map, mlx);
 	}
 	else if (key == 41) // nearP --
 	{
-		cam_plain(map, 0, -1);
+		cam_plain(mlx->smap, 0, -1);
 		draw_map(map, mlx);
 	}
 	else if (key == 39) // nearP ++
 	{
-		cam_plain(map, 0, 1);
+		cam_plain(mlx->smap, 0, 1);
 		draw_map(map, mlx);
 	}
 	else if (key == 33) // farP --
 	{
-		cam_plain(map, 1, -1);
+		cam_plain(mlx->smap, 1, -1);
 		draw_map(map, mlx);
 	}
 	else if (key == 30) // farP ++
 	{
-		cam_plain(map, 1, 1);
+		cam_plain(mlx->smap, 1, 1);
 		draw_map(map, mlx);
 	}
-	else if (key == 15)
+	else if (key == 75) // camera plain flip
 	{
-		settings_reset(map, mlx);
+		plain_flip(mlx->smap);
+		draw_map(map, mlx);
+	}
+	else if (key == 15) // reset map
+	{
+		settings_reset(mlx->smap, mlx);
+		draw_map(map, mlx);
+	}
+	else if (key == 23) // view mode swap
+	{
+		view_mode(mlx);
+		draw_map(map, mlx);
+	}
+	else if (key == 18) // map 1
+	{
+		map_select(mlx, 1);
+		draw_map(map, mlx);
+	}
+	else if (key == 19) // map 2
+	{
+		map_select(mlx, 2);
+		draw_map(map, mlx);
+	}
+	else if (key == 20) // map 3
+	{
+		map_select(mlx, 3);
+		draw_map(map, mlx);
+	}
+	else if (key == 21) // map 4
+	{
+		map_select(mlx, 4);
 		draw_map(map, mlx);
 	}
 	else if (key == 2 && map->mode != 0)
-		map->mode = 0;
+		mlx->smap->mode = 0;
 	else if (key == 2 && map->mode == 0)
-		map->mode = 1;
-	else
-		contra = 0;
+		mlx->smap->mode = 1;
+
 	ft_putnbr(key);
 	ft_putstr("\n");
-	if (map->mode == 2)
+	if (mlx->smap->mode == 2)
 	{
-		printf("current rota | x: %f y: %f z: %f zoom: %f\n", map->cam.rot.vec[0], map->cam.rot.vec[1], map->cam.rot.vec[2], map->cam.plan.vec[2]);
-		printf("cam x %f y %f z %f\n", map->cam.loc.vec[0], map->cam.loc.vec[1], map->cam.loc.vec[2]);
-		printf("nP %f fP %f fov %f\n", map->cam.plan.vec[0], map->cam.plan.vec[1], map->cam.plan.vec[2]);
+		printf("current rota | x: %f y: %f z: %f zoom: %f\n", mlx->smap->cam.rot.vec[0], mlx->smap->cam.rot.vec[1], mlx->smap->cam.rot.vec[2], mlx->smap->zoom);
+		printf("cam x %f y %f z %f\n", mlx->smap->cam.loc.vec[0], mlx->smap->cam.loc.vec[1], mlx->smap->cam.loc.vec[2]);
+		printf("nP %f fP %f fov %f\n", mlx->smap->cam.plan.vec[0], mlx->smap->cam.plan.vec[1], mlx->smap->cam.plan.vec[2]);
 	}
 	else
-		printf("current rota | x: %f y: %f z: %f zoom: %f\nheight mod %f\n", map->rot.vec[0], map->rot.vec[1], map->rot.vec[2], map->zoom, map->h_mod);
+	{
+		printf("current rota | x: %f y: %f z: %f zoom: %f\nheight mod %f\n", mlx->smap->rot.vec[0], mlx->smap->rot.vec[1], mlx->smap->rot.vec[2], mlx->smap->zoom, mlx->smap->h_mod);
+		printf("x %f y %f\n", mlx->smap->origin.mat[0][3], mlx->smap->origin.mat[1][3]);
+		printf("w %f h %f x %f y %f\n", mlx->smap->pos.vec[0], mlx->smap->pos.vec[1], mlx->smap->pos.vec[2], mlx->smap->pos.vec[3]);
+		printf("stuff %f %f %f %f\n",mlx->map[2]->pos.vec[2] + mlx->map[2]->pos.vec[0], (mlx->map[2]->pos.vec[2] + mlx->map[2]->pos.vec[0]) / 4, mlx->map[2]->pos.vec[3] + mlx->map[2]->pos.vec[1], mlx->map[2]->pos.vec[3] + mlx->map[2]->pos.vec[1] / 4);
+	}
+	printf("view mode %d\n", mlx->mode);
+	if (mlx->mode == 2)
+	{
+		printf("map 1 %p map 2 %p map 3 %p map 4 %p\n", mlx->map[1], mlx->map[2], mlx->map[3], mlx->map[4]);
+		printf("smap %p\n", mlx->smap);
+	}
 	return (0);
 }
 /*
@@ -546,11 +603,12 @@ t_mlx	*cont_init(int width, int height, char *title)
 	rtn->title = title;
 	rtn->mlx_ptr = mlx_init();
 	rtn->mlx_win = mlx_new_window(rtn->mlx_ptr, width, height, title);
-	rtn->fov = FOV_DEF;
+	rtn->mode = 1;
 	//rtn->zoom = ZOOM_DEF;
 	//rtn->mode = MODE_DEF;
 	//rtn->color = MODE_COLOR;
-	rtn->map = NULL;
+	rtn->map[0] = NULL;
+	rtn->smap = NULL;
 	//rtn->rot = vec4_ini((float[4]){0, 0, 0, 1});
 	//rtn->rotx = mat4_rotx(0);
 	//rtn->roty = mat4_roty(0);
@@ -574,7 +632,10 @@ int	main(int argc, char **argv)
 	{
 		if (!map_reader(mlx, argv[1], &map))
 			exit(0);
-		mlx->map = map;
+		mlx->map[0] = map;
+		mlx->smap = mlx->map[0];
+		settings_reset(map, mlx);
+		map_reset(mlx);
 		draw_map(map, mlx);
 	}
 	mlx_loop(mlx->mlx_ptr);

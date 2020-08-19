@@ -186,7 +186,7 @@ t_mat4	mat4_perps2(t_vec4 vec, float ar)
 	proj.mat[0][0] = 1 / (tant * ar);
 	proj.mat[1][1] = 1 / tant;
 	proj.mat[2][2] = (-(vec.vec[0]) - vec.vec[1]) / range;
-	proj.mat[2][3] = 2 * vec.vec[1] * vec.vec[0] / range;
+	proj.mat[3][2] = 2 * vec.vec[1] * vec.vec[0] / range;
 	return (proj);
 }
 

@@ -112,8 +112,9 @@ typedef struct		s_mlx
 	char	*title;
 	int		height;
 	int		width;
-	int		fov;
-	t_map	*map;
+	t_map	*map[5];
+	t_map	*smap;
+	int		mode;
 }					t_mlx;
 
 int					map_reader(t_mlx *mlx, char *file, t_map **map);
@@ -132,8 +133,9 @@ t_mat4				camera_matrix(t_cam cam);
 
 void				print_point(t_point *start, int x, int y);
 void				draw_map(t_map *map, t_mlx *window);
-void				draw_line1(t_mlx *mlx, t_loca start, t_loca end);
+void				draw_line1(t_mlx *mlx, t_map *map, t_loca start, t_loca end);
 void				settings_reset(t_map *map, t_mlx *mlx);
+void				map_reset(t_mlx *mlx);
 void				map_size(t_map **map);
 
 #endif
