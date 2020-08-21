@@ -14,20 +14,6 @@
 
 #include <stdio.h>
 
-void	print_point(t_point	*start, int x, int y)
-{
-	t_point	*point;
-
-	if (start->loc.vec[0] == x && start->loc.vec[1] == y)
-	{ }
-	else if (!(point = find_point(start, x, y)))
-	{
-		printf("Could not find @ %d : %d\n", x, y);
-		return ;
-	}
-	printf("---\nPoint\nX: %f\nY: %f\nZ: %f\nColor: %d\nThis: %p\nTop: %p\nLeft: %p\nBottom: %p\nRight: %p\n", point->loc.vec[0], point->loc.vec[1], point->loc.vec[2], point->color ,point 
-	,point->top ,point->left, point->bottm, point->right);
-}
 
 t_point	*find_point(t_point *curr, int x, int y)
 {
@@ -65,13 +51,6 @@ void	point_conn(t_point *start, t_point *add, t_coord spot)
 	if ((bottom = find_point(start, spot.x, spot.y + 1)))
 		bottom->top = add;
 	add->bottm = bottom;
-/*	printf("x %f y %f\n", spot.x, spot.y);
-	if (spot.y > 0)
-		printf("top->bot %p", add->top->bottm);
-	if (spot.x > 0)
-		printf("left->right %p", add->left->right);
-	printf("\n");*/
-	//printf("this %p top %p right %p bottom %p left %p\n", add, add->top, add->right, add->bottm, add->left);
 }
 
 t_point	*point_init(t_point *start, t_coord spot, int height, int color)

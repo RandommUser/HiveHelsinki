@@ -12,20 +12,6 @@
 
 #include "header.h"
 
-void	map_print(t_map *map)
-{
-	int x;
-	int y;
-
-	y = -1;
-	while (++y <= 10 &&  (x = -1))
-	{
-		while (++x <= 18)
-			print_point(map->start, x, y);
-	}
-	exit(0);
-}
-
 t_map	*map_parse(t_map *new_map, char **file, int y)
 {
 ft_putstr("parsing a line\n");

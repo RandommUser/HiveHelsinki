@@ -85,7 +85,7 @@ typedef struct		s_cam
 	t_vec4	loc;
 	// x, y, z, w
 	t_vec4	rot;
-	// nearZ, farZ, fov, ?
+	// nearZ, farZ, fov, vanishing point
 	t_vec4	plan;
 }					t_cam;
 
@@ -97,6 +97,7 @@ typedef	struct		s_map
 	t_mat4	origin;
 	float	zoom;
 	int		mode;
+	int		limit;
 	int		color;
 	// x, y, z, w angles
 	t_vec4	rot;
@@ -123,7 +124,8 @@ t_coord				coords(int x, int y);
 
 t_loca				map_point(t_vec4 vec, int color);
 t_loca				point_loca(t_point *point, t_map *map, t_mat4 trans);
-t_loca				point_loca_p(t_point *point, t_map *map, t_mat4 trans);
+t_loca				point_loca_orth(t_point *point, t_map *map, t_mat4 trans);
+t_loca				point_loca_pin(t_point *point, t_map *map, t_mat4 rot);
 
 t_point				*point_conv(t_point *start, char **str, int y);
 t_point				*find_point(t_point *curr, int x, int y);
@@ -131,8 +133,7 @@ t_point				*find_point(t_point *curr, int x, int y);
 t_mat4				map_matrix(t_map *map);
 t_mat4				camera_matrix(t_cam cam);
 
-void				print_point(t_point *start, int x, int y);
-void				draw_map(t_map *map, t_mlx *window);
+void				draw_map(t_mlx *window);
 void				draw_line1(t_mlx *mlx, t_map *map, t_loca start, t_loca end);
 void				settings_reset(t_map *map, t_mlx *mlx);
 void				map_reset(t_mlx *mlx);

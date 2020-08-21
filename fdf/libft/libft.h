@@ -88,6 +88,7 @@ t_mat4  		mat4_iden(void);
 t_mat4			mat4_pro(void);
 t_mat4			mat4_perps(t_vec4 vec);
 t_mat4			mat4_perps2(t_vec4 vec, float ar);
+t_mat4			mat4_pinhole(t_vec4 vec, float ar);
 t_mat4  		mat4_mat4(t_mat4 mat1, t_mat4 mat2);
 t_vec4  		mat4_vec4(t_mat4 mat4, t_vec4 vec4);
 

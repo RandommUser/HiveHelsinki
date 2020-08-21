@@ -182,11 +182,25 @@ t_mat4	mat4_perps2(t_vec4 vec, float ar)
 	tant = tan((double)vec.vec[2] * (3.14159265 / 180) / 2 );
 	range = vec.vec[0] - vec.vec[1];
 	proj = mat4_ini();
-	proj.mat[3][2] = 1;
+	proj.mat[2][3] = 1;
 	proj.mat[0][0] = 1 / (tant * ar);
 	proj.mat[1][1] = 1 / tant;
 	proj.mat[2][2] = (-(vec.vec[0]) - vec.vec[1]) / range;
 	proj.mat[3][2] = 2 * vec.vec[1] * vec.vec[0] / range;
+	return (proj);
+}
+
+// focal, skew, cam x, cam y
+t_mat4	mat4_pinhole(t_vec4 vec, float ar)
+{
+	t_mat4	proj;
+
+	proj = mat4_iden();
+	proj.mat[0][0] = vec.vec[0];
+	proj.mat[0][1] = vec.vec[1];
+	proj.mat[0][2] = vec.vec[2];
+	proj.mat[1][1] = vec.vec[0] * ar;
+	proj.mat[1][2] = vec.vec[3];
 	return (proj);
 }
 

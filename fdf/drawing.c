@@ -82,12 +82,13 @@ void	draw_line1(t_mlx *mlx, t_map *map, t_loca start, t_loca end)
 		while (curr.loc.vec[0] != end.loc.vec[0])
 		{
 			curr.loc.vec[1] = start.loc.vec[1] + diff.loc.vec[1] * (curr.loc.vec[0] - start.loc.vec[0]) / diff.loc.vec[0];
+			curr.loc.vec[2] = start.loc.vec[2] + diff.loc.vec[2] * (curr.loc.vec[0] - start.loc.vec[0]) / diff.loc.vec[0];
 			curr.color = color_flow(start, diff, curr, end);
 			//if (curr.x + mlx->zoom >= 0 && curr.x - mlx->zoom <= mlx->width && 
 			//		curr.y + mlx->zoom >= 0 && curr.y - mlx->zoom <= mlx->height)
 			//	draw_spot(mlx, curr);
-		if ((int)curr.loc.vec[0] % 1 == 0 && (int)curr.loc.vec[1] % 1 == 0 && curr.loc.vec[0] >= map->pos.vec[2] && curr.loc.vec[0] <= map->pos.vec[2] + map->pos.vec[0] &&
-				curr.loc.vec[1] >= map->pos.vec[3] && curr.loc.vec[1] <= map->pos.vec[3] + map->pos.vec[1])
+		if ((int)curr.loc.vec[1] % 1 == 0 && curr.loc.vec[0] >= map->pos.vec[2] && curr.loc.vec[0] <= map->pos.vec[2] + map->pos.vec[0] &&
+				curr.loc.vec[1] >= map->pos.vec[3] && curr.loc.vec[1] <= map->pos.vec[3] + map->pos.vec[1] && curr.loc.vec[2] >= map->cam.plan.vec[3])
 				mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, curr.loc.vec[0], curr.loc.vec[1], trgb_conv(curr.color));
 			curr.loc.vec[0] = curr.loc.vec[0] < end.loc.vec[0] ? curr.loc.vec[0] + 1 : curr.loc.vec[0] - 1;
 		}
@@ -97,12 +98,13 @@ void	draw_line1(t_mlx *mlx, t_map *map, t_loca start, t_loca end)
 		while (curr.loc.vec[1] != end.loc.vec[1])
 		{
 			curr.loc.vec[0] = start.loc.vec[0] + diff.loc.vec[0] * (curr.loc.vec[1] - start.loc.vec[1]) / diff.loc.vec[1];
+			curr.loc.vec[2] = start.loc.vec[2] + diff.loc.vec[2] * (curr.loc.vec[1] - start.loc.vec[1]) / diff.loc.vec[1];
 			curr.color = color_flow(start, diff, curr, end);
 			//if (curr.x + mlx->zoom >= 0 && curr.x - mlx->zoom <= mlx->width &&
 			//		curr.y + mlx->zoom >= 0 && curr.y - mlx->zoom <= mlx->height)
 			//	draw_spot(mlx, curr);
-		if ((int)curr.loc.vec[0] % 1 == 0 && (int)curr.loc.vec[1] % 1 == 0 && curr.loc.vec[0] >= map->pos.vec[2] && curr.loc.vec[0] <= map->pos.vec[2] + map->pos.vec[0] &&
-				curr.loc.vec[1] >= map->pos.vec[3] && curr.loc.vec[1] <= map->pos.vec[3] + map->pos.vec[1])
+		if ((int)curr.loc.vec[0] % 1 == 0 && curr.loc.vec[0] >= map->pos.vec[2] && curr.loc.vec[0] <= map->pos.vec[2] + map->pos.vec[0] &&
+				curr.loc.vec[1] >= map->pos.vec[3] && curr.loc.vec[1] <= map->pos.vec[3] + map->pos.vec[1] && curr.loc.vec[2] >= map->cam.plan.vec[3])
 				mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, curr.loc.vec[0], curr.loc.vec[1], trgb_conv(curr.color));
 			curr.loc.vec[1] = curr.loc.vec[1] < end.loc.vec[1] ? curr.loc.vec[1] + 1 : curr.loc.vec[1] - 1;
 		}
@@ -203,8 +205,7 @@ void	zoom_check(t_map *map)
 		height = map->size.y * 4 * WIDTH * map->zoom;
 		printf("widht %f height %f zoom %f\n", width, height, map->zoom);
 	}
-	map->zoom /= 2;
-	//map->zoom /= 1.2;
+	map->zoom /= 2; // NOT GOOD
 	width = map->size.x * 4 * WIDTH * map->zoom;
 	height = map->size.y * 4 * WIDTH * map->zoom;
 	printf("final\nw %f h %f \n", map->pos.vec[0],map->pos.vec[1] );
@@ -230,6 +231,7 @@ t_map	*map_copy(t_mlx *mlx)
 	new->h_mod = mlx->smap->h_mod;
 	new->cam = mlx->smap->cam;
 	new->size = mlx->smap->size;
+	new->limit = mlx->smap->limit;
 	return (new);
 }
 
@@ -280,7 +282,6 @@ void	settings_reset(t_map *map, t_mlx *mlx)
 	mlx->mode = 1;
 	mlx->smap = mlx->map[0];
 	map->rot = vec4_ini((float[4]){ROTA_X, ROTA_Y, ROTA_Z, ROTA_W});
-	//map->zoom = //ZOOM_DEF;
 	map->mode = MODE_DEF;
 	map->color = MODE_COLOR;
 	map->h_mod = H_MOD;
@@ -288,63 +289,52 @@ void	settings_reset(t_map *map, t_mlx *mlx)
 	map->zoom = ZOOM_DEF;
 	zoom_check(map);
 	map->cam.loc = vec4_ini((float[4]){(int)(map->pos.vec[0] / 2), (int)(map->pos.vec[1] / 2), 0, 1});
-	map->cam.plan = vec4_ini((float[4]){0, 100, FOV_DEF, 1});
+	map->cam.plan = vec4_ini((float[4]){0, 100, FOV_DEF, -1});
 	map->cam.rot = vec4_ini((float[4]){90, 90, 0, 1});
 	map->origin = mat4_trans((float[3]){mlx->width / 4, mlx->height / 4, 1});
+	map->limit = 1;
 	//mat4_trans((float[3]){START_X + map->size.x * WIDTH, START_Y + map->size.y * WIDTH, 1});
 }
 
-void	draw1(t_map *map, t_mlx *mlx)
+// mode 1 map_matrix, mode 2/3 camera_matrix
+void	draw(t_map *map, t_mlx *mlx, t_mat4 matrix, t_loca (*loca)(t_point*, t_map*, t_mat4))
 {
 	t_point	*row;
 	t_point	*curr;
 	t_loca	this;
 	t_loca	next;
-	t_mat4	matrix;
 
-	matrix = map_matrix(map);
 	row = map->start;
 	while (row && (curr = row))
 	{
 		while (curr)
 		{
-			this = point_loca(curr, map, matrix);
+			this = (*loca)(curr, map, matrix);
 			if (curr->right)
-				draw_linez1(mlx, map, this, point_loca(curr->right, map, matrix));
+				draw_linez1(mlx, map, this, (*loca)(curr->right, map, matrix));
 			if (curr->bottm)
-				draw_linez1(mlx, map, this, point_loca(curr->bottm, map, matrix));
+				draw_linez1(mlx, map, this, (*loca)(curr->bottm, map, matrix));
 			curr = curr->right;
 		}
 		row = row->bottm;
 	}
+	// rotation cube HOW TO MAKE A T_POINT?? 
+	//this = (*loca)(map_point(vec4_ini((float[4]){0, 0, 0, 1}), 0xffffff), map, matrix);
+	//next = map_point(vec4_ini((float[4]){0, -1, 0, 1}), 0xffffff);
+	//draw_linez1(mlx, map, this, (*loca)(curr->bottm, map, matrix));
 }
 
-void	draw2(t_map *map, t_mlx *mlx)
+void	draw_selected(t_mlx *mlx, t_map *map)
 {
-	t_point	*row;
-	t_point	*curr;
-	t_loca	this;
-	t_loca	next;
-	t_mat4	matrix;
-
-	matrix = camera_matrix(map->cam);
-	row = map->start;
-	while (row && (curr = row))
-	{
-		while (curr)
-		{
-			this = point_loca_p(curr, map, matrix);
-			if (curr->right)
-				draw_linez1(mlx, map, this, point_loca_p(curr->right, map, matrix));
-			if (curr->bottm)
-				draw_linez1(mlx, map, this, point_loca_p(curr->bottm, map, matrix));
-			curr = curr->right;
-		}
-		row = row->bottm;
-	}
+	if (map->mode == 1)
+		draw(map, mlx, map_matrix(map), point_loca);
+	else if (map->mode == 2)
+		draw(map, mlx, camera_matrix(map->cam), point_loca_orth);
+	else if (map->mode == 3)
+		draw(mlx->smap, mlx, camera_matrix(map->cam), point_loca_pin);
 }
 
-void	draw_map(t_map *map, t_mlx *mlx)
+void	draw_map(t_mlx *mlx)
 {
 	int	i;
 
@@ -353,12 +343,11 @@ void	draw_map(t_map *map, t_mlx *mlx)
 	{
 		i = 0;
 		while (++i < 5)
-			mlx->map[i]->mode == 1 ? draw1(mlx->map[i], mlx) : draw2(mlx->map[i], mlx);
+			draw_selected(mlx, mlx->map[i]);
 		draw_linez1(mlx, mlx->map[0], map_point(vec4_ini((float[4]){0, mlx->height / 2, 0, 1}), 0xffffff), map_point(vec4_ini((float[4]){mlx->width, mlx->height / 2, 0, 1}), 0xffffff));
 
 		draw_linez1(mlx, mlx->map[0], map_point(vec4_ini((float[4]){mlx->width / 2, 0, 0, 1}), 0xffffff), map_point(vec4_ini((float[4]){mlx->width / 2, mlx->height, 0, 1}), 0xffffff));
 
-	printf("pos x %f y %f\n", mlx->smap->pos.vec[2], mlx->smap->pos.vec[3]);
 		draw_linez1(mlx, mlx->map[0], map_point(vec4_ini((float[4]){mlx->smap->pos.vec[2], mlx->smap->pos.vec[3], 0, 1}), 0xffffff), 
 			map_point(vec4_ini((float[4]){mlx->smap->pos.vec[2] + mlx->smap->pos.vec[0], mlx->smap->pos.vec[3], 0, 1}), 0xffffff)); // left top -> right top
 
@@ -371,9 +360,7 @@ void	draw_map(t_map *map, t_mlx *mlx)
 		draw_linez1(mlx, mlx->map[0], map_point(vec4_ini((float[4]){mlx->smap->pos.vec[2] + mlx->smap->pos.vec[0], mlx->smap->pos.vec[3], 0, 1}), 0xffffff), 
 			map_point(vec4_ini((float[4]){mlx->smap->pos.vec[2] + mlx->smap->pos.vec[0], mlx->smap->pos.vec[3] + mlx->smap->pos.vec[1], 0, 1}), 0xffffff)); // right top -> right bottom
 	}
-	if (mlx->smap->mode == 1)
-		draw1(mlx->smap, mlx);
-	else if (mlx->smap->mode == 2)
-		draw2(mlx->smap, mlx);
-
+	else {
+		draw_selected(mlx, mlx->smap);
+	}
 }
