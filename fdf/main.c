@@ -12,6 +12,11 @@
 
 #include "header.h"
 
+void	rota_cube(t_map *map)
+{
+	map->rot.vec[3] = map->rot.vec[3] == 1 ? 2 : 1;
+}
+
 void	vanishing_point(t_map *map, int dir)
 {
 	map->cam.plan.vec[3] += dir > 0 ? 0.1 : -0.1;
@@ -180,6 +185,7 @@ void	map_size(t_map **map)
 		start = start->bottm;
 	(*map)->size.x = x / 2;
 	(*map)->size.y = y / 2;
+	(*map)->size.z = 0;
 }
 
 t_mat4	camera_matrix(t_cam cam)
@@ -204,6 +210,30 @@ t_mat4	map_matrix(t_map *map)
 	return (trans);
 }
 
+t_loca	rotation_cube(t_vec4 loc, t_map *map, int color)
+{
+	int	dir;
+
+	loc.vec[0] *= WIDTH;
+	loc.vec[1] *= WIDTH;
+	loc.vec[2] *= WIDTH;
+	if (map->mode == 1)
+	{
+		loc = mat4_vec4(map_matrix(map), loc);
+		loc = mat4_vec4(map->origin, loc);
+	}
+	else
+	{
+		loc = mat4_vec4(camera_matrix(map->cam), loc);
+		dir = map->mode == 2 ? 1 : 1;
+		loc.vec[0] += (map->cam.loc.vec[0] * dir);
+		loc.vec[1] += (map->cam.loc.vec[1] * dir);
+	}
+	loc = mat4_vec4(mat4_pro(), loc);
+	color = color == -1 ? DEF_COLOR : color;
+	return (map_point(loc, color));
+}
+
 t_loca	point_loca_orth(t_point *point, t_map *map, t_mat4 rot)
 {
 	t_vec4	vec;
@@ -211,7 +241,7 @@ t_loca	point_loca_orth(t_point *point, t_map *map, t_mat4 rot)
 
 	point->color = point->color == -1 ? DEF_COLOR : point->color;
 	vec = vec4_ini((float[4]){(point->loc.vec[0] - map->size.x) * WIDTH,
-		(point->loc.vec[1] - map->size.y) * WIDTH, point->loc.vec[2] * WIDTH * map->h_mod, point->loc.vec[3]});
+		(point->loc.vec[1] - map->size.y) * WIDTH, (point->loc.vec[2] * map->h_mod - map->size.z) * WIDTH, point->loc.vec[3]});
 	trans = mat4_mat4(mat4_scales((float[4]){map->zoom * 2, map->zoom * 2, map->zoom * 2, 1}), rot);
 	trans = mat4_mat4(trans, mat4_perps2(map->cam.plan, map->pos.vec[0] / map->pos.vec[1]));
 	vec = mat4_vec4(trans, vec);
@@ -227,7 +257,7 @@ t_loca	point_loca_pin(t_point *point, t_map *map, t_mat4 rot)
 
 	point->color = point->color == -1 ? DEF_COLOR : point->color;
 	vec = vec4_ini((float[4]){(point->loc.vec[0] - map->size.x) * WIDTH,
-		(point->loc.vec[1] - map->size.y) * WIDTH, point->loc.vec[2] * WIDTH * map->h_mod, point->loc.vec[3]});
+		(point->loc.vec[1] - map->size.y) * WIDTH, (point->loc.vec[2] * map->h_mod - map->size.z) * WIDTH, point->loc.vec[3]});
 	vec = mat4_vec4(rot, vec);
 	vec.vec[0] -= map->cam.loc.vec[0] - map->pos.vec[0] / 2;
 	vec.vec[1] -= map->cam.loc.vec[1] - map->pos.vec[1] / 2;
@@ -247,11 +277,39 @@ t_loca	point_loca(t_point *point, t_map *map, t_mat4 trans)
 	point->color = point->color == -1 ? DEF_COLOR : point->color;
 	vec = vec4_ini((float[4]){(point->loc.vec[0] - map->size.x) * WIDTH,
 		(point->loc.vec[1] - map->size.y) * WIDTH, point->loc.vec[2] * WIDTH * map->h_mod, point->loc.vec[3]});
-	vec = mat4_vec4(trans, vec);
-	vec = mat4_vec4(mat4_scales((float[4]){map->zoom, map->zoom, map->zoom, 1}), vec);
-	vec = mat4_vec4(map->origin, vec);
-	vec = mat4_vec4(mat4_pro(), vec);
+	//vec4_put(vec);
+	zoom = mat4_scales((float[4]){map->zoom, map->zoom, map->zoom, 1});
+	//mat4_put(zoom);
+	//printf("\n");
+	//mat4_put(trans);
+	vec = mat4_vec4(trans, vec); // map rotation matrix
+	vec = mat4_vec4(zoom, vec); // zoom
+	vec.vec[0] += map->origin.mat[0][3]; // translate
+	vec.vec[1] += map->origin.mat[1][3];
+	//vec4_put(vec);
+
 	return (map_point(vec, point->color));
+	/*
+	t_vec4	vec;
+	t_mat4	zoom;
+
+	point->color = point->color == -1 ? DEF_COLOR : point->color;
+	vec = vec4_ini((float[4]){(point->loc.vec[0] - map->size.x) * WIDTH,
+		(point->loc.vec[1] - map->size.y) * WIDTH, point->loc.vec[2] * WIDTH * map->h_mod, point->loc.vec[3]});
+	zoom = mat4_scales((float[4]){map->zoom, map->zoom, map->zoom, 1});
+	mat4_put(zoom);
+	
+	vec = mat4_vec4(trans, vec); // map rotation matrix
+	vec = mat4_vec4(zoom, vec); // zoom
+	//vec = mat4_vec4(trans, vec);
+	vec.vec[0] += map->origin.mat[0][3]; // translate
+	vec.vec[1] += map->origin.mat[1][3];
+	//vec = mat4_vec4(mat4_scales((float[4]){map->zoom, map->zoom, map->zoom, 1}), vec); // zoom
+	//vec = mat4_vec4(map->origin, vec);
+	//vec = mat4_vec4(mat4_pro(), vec);
+	vec4_put(vec);
+	return (map_point(vec, point->color));
+	*/
 }
 
 int	input(int key, void *param)
@@ -278,8 +336,10 @@ int	input(int key, void *param)
 		contra++;
 	else if (key == 36 && contra == 10)
 	{
-		ft_putstr("SECRET FOUND!\n");
+		printf("SECRET FOUND! %p\n", mlx->smap->start);
 		contra = 0;
+		rota_cube(mlx->smap);
+		draw_map(mlx);
 	}
 	else
 		contra = 0;

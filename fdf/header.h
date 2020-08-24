@@ -70,6 +70,7 @@ typedef struct		s_point
 {
 	float	x;
 	float	y;
+	float	z;
 }					t_coord;
 
 typedef struct		s_loca
@@ -126,6 +127,7 @@ t_loca				map_point(t_vec4 vec, int color);
 t_loca				point_loca(t_point *point, t_map *map, t_mat4 trans);
 t_loca				point_loca_orth(t_point *point, t_map *map, t_mat4 trans);
 t_loca				point_loca_pin(t_point *point, t_map *map, t_mat4 rot);
+t_loca				rotation_cube(t_vec4 loc, t_map *map, int color);
 
 t_point				*point_conv(t_point *start, char **str, int y);
 t_point				*find_point(t_point *curr, int x, int y);
