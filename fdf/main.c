@@ -320,8 +320,42 @@ int	input(int key, void *param)
 	mlx = param;
 	if (key == ESC_KEY)
 		exit(1);
-	else if (key == 117)
-		mlx_clear_window(mlx->mlx_ptr, mlx->mlx_win);
+	else if (key == 117) // fun
+	{
+		//mlx_clear_window(mlx->mlx_ptr, mlx->mlx_win);
+		int i;
+		t_vec4 backup;
+		i = 0;
+		if (mlx->smap->mode == 1)
+		{
+			backup = mlx->smap->rot;
+			while (++i <= 360)
+			{
+				//mlx->smap->rot.vec[0] = backup.vec[0] + i;
+				mlx->smap->rot.vec[1] = backup.vec[1] + i;
+				//mlx->smap->rot.vec[2] = backup.vec[2] + i;
+				draw_map(mlx);
+				mlx_do_sync(mlx->mlx_ptr);
+				usleep(50);
+			}
+			mlx->smap->rot = backup;
+		}
+		else
+		{
+			backup = mlx->smap->cam.rot;
+			while (++i <= 360)
+			{
+				//mlx->smap->cam.rot.vec[0] = backup.vec[0] + i;
+				mlx->smap->cam.rot.vec[1] = backup.vec[1] + i;
+				//mlx->smap->cam.rot.vec[2] = backup.vec[2] + i;
+				draw_map(mlx);
+				mlx_do_sync(mlx->mlx_ptr);
+				usleep(50);
+			}
+			mlx->smap->cam.rot = backup;
+		}
+		draw_map(mlx);
+	}
 	else if (key == 126 && (contra == 0 || contra == 1))
 		contra++;
 	else if (key == 125 && (contra == 2 || contra == 3))
@@ -478,7 +512,8 @@ int	input(int key, void *param)
 	}
 	else if (key == 15) // reset map
 	{
-		settings_reset(mlx->smap, mlx);
+		map_reset(mlx, mlx->smap);
+		//settings_reset(mlx->smap, mlx);
 		draw_map(mlx);
 	}
 	else if (key == 23) // view mode swap
@@ -613,6 +648,8 @@ t_mlx	*cont_init(int width, int height, char *title)
 	rtn->mlx_ptr = mlx_init();
 	rtn->mlx_win = mlx_new_window(rtn->mlx_ptr, width, height, title);
 	rtn->mode = 1;
+	rtn->mlx_img = NULL;
+	rtn->img_dat = NULL;
 	//rtn->zoom = ZOOM_DEF;
 	//rtn->mode = MODE_DEF;
 	//rtn->color = MODE_COLOR;
@@ -637,12 +674,20 @@ int	main(int argc, char **argv)
 		mlx = cont_init(800, 600, "Hello World");
 	mlx_key_hook(mlx->mlx_win, input, mlx); // LOOK INTO HOLD DOWN SUPPORT
 	mlx_mouse_hook(mlx->mlx_win, mouse, mlx); // ADD MOUSE SUPPORT // MOUSE ROTATING?
+	mlx->mlx_img = mlx_new_image(mlx->mlx_ptr, mlx->width, mlx->width);
+	mlx->img_dat = mlx_get_data_addr(mlx->mlx_img, &mlx->bpp, &mlx->size_line, &mlx->endian);
+	printf("img data %s\n", mlx->img_dat);
+	printf("bpp %d size line %d endian %d\n", mlx->bpp, mlx->size_line, mlx->endian);
 	if (argc > 1)
 	{
 		if (!map_reader(mlx, argv[1], &mlx->map[0]))
 			exit(0);
 		settings_reset(mlx->map[0], mlx);
-		map_reset(mlx);
+		map_reset(mlx, mlx->map[0]);
+		map_reset(mlx, mlx->map[1]);
+		map_reset(mlx, mlx->map[2]);
+		map_reset(mlx, mlx->map[3]);
+		map_reset(mlx, mlx->map[4]);
 		draw_map(mlx);
 	}
 	mlx_loop(mlx->mlx_ptr);

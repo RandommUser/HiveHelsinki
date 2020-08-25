@@ -12,6 +12,23 @@
 
 #include "header.h"
 
+void	draw_to_image(t_mlx *mlx, t_loca spot)
+{
+	int		writer;
+	char	*image;
+
+	if (!mlx->mlx_img)
+		return ;
+	
+	writer = (int)spot.loc.vec[0] * 4 + mlx->size_line * (int)spot.loc.vec[1];
+	image = mlx->img_dat;
+//printf("spot x %f y %f | writer %d\n", spot.loc.vec[0], spot.loc.vec[1], writer);
+	image[writer++] = spot.color.red;
+	image[writer++] = spot.color.green;
+	image[writer++] = spot.color.blue;
+	image[writer++] = (char)256;//(int)(256 * (1 - spot.loc.vec[3]));
+}
+
 t_rgb	color_flow(t_loca start, t_loca diff, t_loca curr, t_loca end)
 {
 	t_rgb	rtn;
@@ -84,12 +101,14 @@ void	draw_line1(t_mlx *mlx, t_map *map, t_loca start, t_loca end)
 			curr.loc.vec[1] = start.loc.vec[1] + diff.loc.vec[1] * (curr.loc.vec[0] - start.loc.vec[0]) / diff.loc.vec[0];
 			curr.loc.vec[2] = start.loc.vec[2] + diff.loc.vec[2] * (curr.loc.vec[0] - start.loc.vec[0]) / diff.loc.vec[0];
 			curr.color = color_flow(start, diff, curr, end);
+			curr.loc.vec[3] = curr.loc.vec[1] - (int)curr.loc.vec[1];
 			//if (curr.x + mlx->zoom >= 0 && curr.x - mlx->zoom <= mlx->width && 
 			//		curr.y + mlx->zoom >= 0 && curr.y - mlx->zoom <= mlx->height)
 			//	draw_spot(mlx, curr);
-		if ((int)curr.loc.vec[1] % 1 == 0 && curr.loc.vec[0] >= map->pos.vec[2] && curr.loc.vec[0] <= map->pos.vec[2] + map->pos.vec[0] &&
+		if (/*(int)curr.loc.vec[1] % 1 == 0 && */curr.loc.vec[0] >= map->pos.vec[2] && curr.loc.vec[0] <= map->pos.vec[2] + map->pos.vec[0] &&
 				curr.loc.vec[1] >= map->pos.vec[3] && curr.loc.vec[1] <= map->pos.vec[3] + map->pos.vec[1]/* && curr.loc.vec[2] >= map->cam.plan.vec[3]*/)
-				mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, curr.loc.vec[0], curr.loc.vec[1], trgb_conv(curr.color));
+				draw_to_image(mlx, curr);
+				//mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, curr.loc.vec[0], curr.loc.vec[1], trgb_conv(curr.color));
 			curr.loc.vec[0] = curr.loc.vec[0] < end.loc.vec[0] ? curr.loc.vec[0] + 1 : curr.loc.vec[0] - 1;
 		}
 	}
@@ -100,12 +119,14 @@ void	draw_line1(t_mlx *mlx, t_map *map, t_loca start, t_loca end)
 			curr.loc.vec[0] = start.loc.vec[0] + diff.loc.vec[0] * (curr.loc.vec[1] - start.loc.vec[1]) / diff.loc.vec[1];
 			curr.loc.vec[2] = start.loc.vec[2] + diff.loc.vec[2] * (curr.loc.vec[1] - start.loc.vec[1]) / diff.loc.vec[1];
 			curr.color = color_flow(start, diff, curr, end);
+			curr.loc.vec[3] = curr.loc.vec[1] - (int)curr.loc.vec[1];
 			//if (curr.x + mlx->zoom >= 0 && curr.x - mlx->zoom <= mlx->width &&
 			//		curr.y + mlx->zoom >= 0 && curr.y - mlx->zoom <= mlx->height)
 			//	draw_spot(mlx, curr);
-		if ((int)curr.loc.vec[0] % 1 == 0 && curr.loc.vec[0] >= map->pos.vec[2] && curr.loc.vec[0] <= map->pos.vec[2] + map->pos.vec[0] &&
+		if (/*(int)curr.loc.vec[0] % 1 == 0 && */curr.loc.vec[0] >= map->pos.vec[2] && curr.loc.vec[0] <= map->pos.vec[2] + map->pos.vec[0] &&
 				curr.loc.vec[1] >= map->pos.vec[3] && curr.loc.vec[1] <= map->pos.vec[3] + map->pos.vec[1]/* && curr.loc.vec[2] >= map->cam.plan.vec[3]*/)
-				mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, curr.loc.vec[0], curr.loc.vec[1], trgb_conv(curr.color));
+				draw_to_image(mlx, curr);
+				//mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, curr.loc.vec[0], curr.loc.vec[1], trgb_conv(curr.color));
 			curr.loc.vec[1] = curr.loc.vec[1] < end.loc.vec[1] ? curr.loc.vec[1] + 1 : curr.loc.vec[1] - 1;
 		}
 	}
@@ -193,23 +214,23 @@ void	zoom_check(t_map *map)
 		map->zoom *= 1.2;
 		width = map->size.x * 4 * WIDTH * map->zoom;
 		height = map->size.y * 4 * WIDTH * map->zoom;
-		printf("w %f h %f \n", map->pos.vec[0],map->pos.vec[1] );
-		printf("widht %f height %f zoom %f\n", width, height, map->zoom);
+		//printf("w %f h %f \n", map->pos.vec[0],map->pos.vec[1] );
+		//printf("widht %f height %f zoom %f\n", width, height, map->zoom);
 	}
 	while (width >= map->pos.vec[0] || height >= map->pos.vec[1])
 	{
-		printf("w %f h %f \n", map->pos.vec[0],map->pos.vec[1] );
-		printf("widht %f height %f zoom %f\n", width, height, map->zoom);
+		//printf("w %f h %f \n", map->pos.vec[0],map->pos.vec[1] );
+		//printf("widht %f height %f zoom %f\n", width, height, map->zoom);
 		map->zoom /= 1.2;
 		width = map->size.x * 4 * WIDTH * map->zoom;
 		height = map->size.y * 4 * WIDTH * map->zoom;
-		printf("widht %f height %f zoom %f\n", width, height, map->zoom);
+		//printf("widht %f height %f zoom %f\n", width, height, map->zoom);
 	}
 	map->zoom /= 2; // NOT GOOD
 	width = map->size.x * 4 * WIDTH * map->zoom;
 	height = map->size.y * 4 * WIDTH * map->zoom;
-	printf("final\nw %f h %f \n", map->pos.vec[0],map->pos.vec[1] );
-	printf("widht %f height %f zoom %f\n", width, height, map->zoom);
+	//printf("final\nw %f h %f \n", map->pos.vec[0],map->pos.vec[1] );
+	//printf("widht %f height %f zoom %f\n", width, height, map->zoom);
 }
 
 t_map	*map_copy(t_mlx *mlx)
@@ -235,14 +256,95 @@ t_map	*map_copy(t_mlx *mlx)
 	return (new);
 }
 
-void	map_reset(t_mlx *mlx)
+void	map_gen_reset(t_mlx *mlx, t_map *map)
 {
-	size_t	i;
+	map->h_mod = H_MOD;
+	map->zoom = ZOOM_DEF;
+	map->limit = 1;
+	map->color = MODE_COLOR;
+	if (map != mlx->map[0]) // CAM POS RESET TOO
+	{
+		map->pos.vec[0] = mlx->width / 2 - 1;
+		map->pos.vec[1] = mlx->height / 2 - 1;
+		map->pos.vec[2] = 0;
+		map->pos.vec[3] = 0;
+	}
+}
 
-	i = 1;
-	if (!(mlx->map[1] = map_copy(mlx)) || !(mlx->map[2] = map_copy(mlx)) || !(mlx->map[3] = map_copy(mlx)) || !(mlx->map[4] = map_copy(mlx)))
-		exit (2);
-	mlx->map[i]->origin = mat4_trans((float[3]){(mlx->map[i]->pos.vec[2] + mlx->map[i]->pos.vec[0]) / 4, (mlx->map[i]->pos.vec[3] + mlx->map[i]->pos.vec[1]) / 4, 1});
+void	map4_reset(t_mlx *mlx, t_map *map)
+{
+	map_gen_reset(mlx, map);
+	if (mlx->width % 2 == 0)
+		map->pos.vec[0] -= 1;
+	if (mlx->height % 2 == 0)
+		map->pos.vec[1] -= 1;
+	map->pos.vec[2] += mlx->width / 2 + 1;
+	map->pos.vec[3] += mlx->height / 2 + 1;
+	map->origin = mat4_trans((float[3]){map->pos.vec[2] + map->pos.vec[0] / 2, map->pos.vec[3] + map->pos.vec[1] / 2, 1});
+	map->rot = vec4_ini((float[4]){-90, -90, -180, ROTA_W});
+	//zoom_check(map);
+}
+
+void	map3_reset(t_mlx *mlx, t_map *map)
+{
+	map_gen_reset(mlx, map);
+	if (mlx->height % 2 == 0)
+		map->pos.vec[1] -= 1;
+	map->pos.vec[3] += mlx->height / 2 + 1;
+	map->origin = mat4_trans((float[3]){map->pos.vec[2] + map->pos.vec[0] / 2, map->pos.vec[3] + map->pos.vec[1] / 2, 1});
+	map->rot = vec4_ini((float[4]){-180, -90, 180, ROTA_W});
+	//zoom_check(map);
+}
+
+void	map2_reset(t_mlx *mlx, t_map *map)
+{
+	map_gen_reset(mlx, map);
+	map->pos.vec[2] += mlx->width / 2 + 1;
+	if (mlx->width % 2 == 0)
+		map->pos.vec[0] -= 1;
+	map->origin = mat4_trans((float[3]){map->pos.vec[2] + map->pos.vec[0] / 2, map->pos.vec[3] + map->pos.vec[1] / 2, 1});
+	map->rot = vec4_ini((float[4]){-180, 0, -90, ROTA_W});
+	//zoom_check(map);
+}
+
+void	map1_reset(t_mlx *mlx, t_map *map)
+{
+	map_gen_reset(mlx, map);
+	map->origin = mat4_trans((float[3]){(map->pos.vec[2] + map->pos.vec[0]) / 4, (map->pos.vec[3] + map->pos.vec[1]) / 4, 1});
+	map->mode = 2;
+	map->cam.loc = vec4_ini((float[4]){(int)(map->pos.vec[2] + map->pos.vec[0] / 2), (int)(map->pos.vec[3] + map->pos.vec[1] / 2), 0, 1});
+	map->cam.rot = vec4_ini((float[4]){40, 85, 25, 1});
+	map->cam.plan.vec[2] = 55;
+	//zoom_check(map);
+}
+
+void	map0_reset(t_mlx *mlx, t_map *map)
+{
+	map_gen_reset(mlx, map);
+	map->rot = vec4_ini((float[4]){ROTA_X, ROTA_Y, ROTA_Z, ROTA_W});
+	//map->mode = MODE_DEF;
+	map->pos = vec4_ini((float[4]){mlx->width, mlx->height, 0, 0});
+	zoom_check(map);
+	map->cam.loc = vec4_ini((float[4]){(int)(map->pos.vec[0] / 2), (int)(map->pos.vec[1] / 2), 0, 1});
+	map->cam.plan = vec4_ini((float[4]){0, 100, FOV_DEF, -1});
+	map->cam.rot = vec4_ini((float[4]){90, 90, 0, 1});
+	map->origin = mat4_trans((float[3]){mlx->width / 2, mlx->height / 2, 1});
+}
+
+void	map_reset(t_mlx *mlx, t_map *map)
+{
+	if (map == mlx->map[1])
+		map1_reset(mlx, map);
+	else if (map == mlx->map[2])
+		map2_reset(mlx, map);
+	else if (map == mlx->map[3])
+		map3_reset(mlx, map);
+	else if (map == mlx->map[4])
+		map4_reset(mlx, map);
+	else
+		map0_reset(mlx, map);
+
+/*	mlx->map[i]->origin = mat4_trans((float[3]){(mlx->map[i]->pos.vec[2] + mlx->map[i]->pos.vec[0]) / 4, (mlx->map[i]->pos.vec[3] + mlx->map[i]->pos.vec[1]) / 4, 1});
 	mlx->map[i]->mode = 2;
 	mlx->map[i]->cam.loc = vec4_ini((float[4]){(int)(mlx->map[i]->pos.vec[2] + mlx->map[i]->pos.vec[0] / 2), (int)(mlx->map[i]->pos.vec[3] + mlx->map[1]->pos.vec[1] / 2), 0, 1});
 	mlx->map[i]->cam.rot = vec4_ini((float[4]){40, 85, 25, 1});
@@ -253,7 +355,7 @@ void	map_reset(t_mlx *mlx)
 	mlx->map[i]->pos.vec[2] += mlx->width / 2 + 1;
 	if (mlx->width % 2 == 0)
 		mlx->map[i]->pos.vec[0] -= 1;
-	mlx->map[i]->origin = mat4_trans((float[3]){(mlx->map[i]->pos.vec[2] + mlx->map[i]->pos.vec[0] * 2) / 4, (mlx->map[i]->pos.vec[3] + mlx->map[i]->pos.vec[1]) / 4, 1}); // ???
+	mlx->map[i]->origin = mat4_trans((float[3]){mlx->map[i]->pos.vec[2] + mlx->map[i]->pos.vec[0] / 2, mlx->map[i]->pos.vec[3] + mlx->map[i]->pos.vec[1] / 2, 1}); // ???
 	mlx->map[i]->rot = vec4_ini((float[4]){-180, 0, -90,ROTA_W});
 	zoom_check(mlx->map[i]);
 	i++;
@@ -261,7 +363,7 @@ void	map_reset(t_mlx *mlx)
 	if (mlx->height % 2 == 0)
 		mlx->map[i]->pos.vec[1] -= 1;
 	mlx->map[i]->pos.vec[3] += mlx->height / 2 + 1;
-	mlx->map[i]->origin = mat4_trans((float[3]){(mlx->map[i]->pos.vec[2] + mlx->map[i]->pos.vec[0]) / 4, (mlx->map[i]->pos.vec[3] + mlx->map[i]->pos.vec[1] * 2) / 4, 1});
+	mlx->map[i]->origin = mat4_trans((float[3]){mlx->map[i]->pos.vec[2] + mlx->map[i]->pos.vec[0] / 2, mlx->map[i]->pos.vec[3] + mlx->map[i]->pos.vec[1] / 2, 1});
 	mlx->map[i]->rot = vec4_ini((float[4]){-180, -90, 180,ROTA_W});
 	zoom_check(mlx->map[i]);
 	i++;
@@ -272,9 +374,9 @@ void	map_reset(t_mlx *mlx)
 		mlx->map[i]->pos.vec[1] -= 1;
 	mlx->map[i]->pos.vec[2] += mlx->width / 2 + 1;
 	mlx->map[i]->pos.vec[3] += mlx->height / 2 + 1;
-	mlx->map[i]->origin = mat4_trans((float[3]){(mlx->map[i]->pos.vec[2] + mlx->map[i]->pos.vec[0] * 2) / 4, (mlx->map[i]->pos.vec[3] + mlx->map[i]->pos.vec[1] * 2) / 4, 1});
+	mlx->map[i]->origin = mat4_trans((float[3]){mlx->map[i]->pos.vec[2] + mlx->map[i]->pos.vec[0] / 2, mlx->map[i]->pos.vec[3] + mlx->map[i]->pos.vec[1] / 2, 1});
 	mlx->map[i]->rot = vec4_ini((float[4]){-90, -90, -180,ROTA_W});
-	zoom_check(mlx->map[i]);
+	zoom_check(mlx->map[i]); */
 }
 
 void	settings_reset(t_map *map, t_mlx *mlx)
@@ -292,9 +394,9 @@ void	settings_reset(t_map *map, t_mlx *mlx)
 	map->cam.plan = vec4_ini((float[4]){0, 100, FOV_DEF, -1});
 	map->cam.rot = vec4_ini((float[4]){90, 90, 0, 1});
 	map->origin = mat4_trans((float[3]){mlx->width / 2, mlx->height / 2, 1});
-	
 	map->limit = 1;
-	//mat4_trans((float[3]){START_X + map->size.x * WIDTH, START_Y + map->size.y * WIDTH, 1});
+	if (!(mlx->map[1] = map_copy(mlx)) || !(mlx->map[2] = map_copy(mlx)) || !(mlx->map[3] = map_copy(mlx)) || !(mlx->map[4] = map_copy(mlx)))
+		exit (2);
 }
 
 // mode 1 map_matrix, mode 2/3 camera_matrix
@@ -349,6 +451,8 @@ void	draw_map(t_mlx *mlx)
 	int	i;
 
 	mlx_clear_window(mlx->mlx_ptr, mlx->mlx_win);
+	mlx->mlx_img = mlx_new_image(mlx->mlx_ptr, mlx->width, mlx->width);
+	mlx->img_dat = mlx_get_data_addr(mlx->mlx_img, &mlx->bpp, &mlx->size_line, &mlx->endian);
 	if (mlx->mode == 2)
 	{
 		i = 0;
@@ -373,4 +477,6 @@ void	draw_map(t_mlx *mlx)
 	else {
 		draw_selected(mlx, mlx->smap);
 	}
+	printf("printing map next\n");
+	mlx_put_image_to_window(mlx->mlx_ptr, mlx->mlx_win, mlx->mlx_img, 0, 0);
 }
