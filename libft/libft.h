@@ -75,6 +75,7 @@ t_vec2  		*mat2_vec(t_mat2 *mat2, t_vec2 *vec2);
 
 t_vec4  		vec4_ini(float in[4]);
 t_vec4			vec4m_vec4(t_vec4 vec1, t_vec4 vec2);
+double				vec4_ccw(t_vec4 vec1, t_vec4 vec2, t_vec4 vec3);
 t_vecn  		*vecn_ini(size_t n);
 t_vecn  		*vecn_cpy(float *vecn, size_t n);
 
