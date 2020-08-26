@@ -94,11 +94,20 @@ void	view_mode(t_mlx *mlx)
 	{
 		mlx->mode = 1;
 		mlx->smap = mlx->map[0];
+		map_reset(mlx, mlx->smap);
 	}
 	else
 	{
 		mlx->mode = 2;
 		mlx->smap = mlx->map[1];
+		map_reset(mlx, mlx->map[1]);
+		map_reset(mlx, mlx->map[2]);
+		map_reset(mlx, mlx->map[3]);
+		map_reset(mlx, mlx->map[4]);
+		mlx->map[1]->mode = 2;
+		mlx->map[2]->mode = 1;
+		mlx->map[3]->mode = 1;
+		mlx->map[4]->mode = 1;
 	}
 }
 
@@ -241,8 +250,8 @@ t_loca	point_loca_orth(t_point *point, t_map *map, t_mat4 rot)
 
 	point->color = point->color == -1 ? DEF_COLOR : point->color;
 	vec = vec4_ini((float[4]){(point->loc.vec[0] - map->size.x) * WIDTH,
-		(point->loc.vec[1] - map->size.y) * WIDTH, (point->loc.vec[2] * map->h_mod - map->size.z) * WIDTH, point->loc.vec[3]});
-	trans = mat4_mat4(mat4_scales((float[4]){map->zoom * 2, map->zoom * 2, map->zoom * 2, 1}), rot);
+		(point->loc.vec[1] - map->size.y) * WIDTH , (point->loc.vec[2] * map->h_mod - map->size.z) * WIDTH, point->loc.vec[3]});
+	trans = mat4_mat4(mat4_scales((float[4]){map->zoom, map->zoom, map->zoom, 1}), rot);
 	trans = mat4_mat4(trans, mat4_perps2(map->cam.plan, map->pos.vec[0] / map->pos.vec[1]));
 	vec = mat4_vec4(trans, vec);
 	vec.vec[0] += map->cam.loc.vec[0];
@@ -259,8 +268,6 @@ t_loca	point_loca_pin(t_point *point, t_map *map, t_mat4 rot)
 	vec = vec4_ini((float[4]){(point->loc.vec[0] - map->size.x) * WIDTH,
 		(point->loc.vec[1] - map->size.y) * WIDTH, (point->loc.vec[2] * map->h_mod - map->size.z) * WIDTH, point->loc.vec[3]});
 	vec = mat4_vec4(rot, vec);
-	vec.vec[0] -= map->cam.loc.vec[0] - map->pos.vec[0] / 2;
-	vec.vec[1] -= map->cam.loc.vec[1] - map->pos.vec[1] / 2;
 	trans = mat4_pinhole(vec4_ini((float[4]){map->cam.plan.vec[2], map->cam.loc.vec[2], vec.vec[0], vec.vec[1]}), map->pos.vec[0] / map->pos.vec[1]);
 	trans = mat4_mat4(trans, mat4_scales((float[4]){map->zoom / 10, map->zoom / 10, map->zoom / 10, 1}));
 	vec = mat4_vec4(trans, vec);

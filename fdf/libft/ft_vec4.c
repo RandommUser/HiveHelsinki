@@ -25,7 +25,14 @@ void    vec4_put(t_vec4 vec)
 	printf("\n");
 }
 
-
+double		vec4_ccw(t_vec4 vec1, t_vec4 vec2, t_vec4 vec3)
+{
+	double	ret;
+	
+	ret = (vec2.vec[0] - vec1.vec[0]) * (vec3.vec[1] - vec1.vec[1]);
+	ret = ret - (vec2.vec[1] - vec1.vec[1]) * (vec3.vec[0] - vec1.vec[0]);
+	return (ret);
+}
 
 t_vec4	vec4_ini(float in[4])
 {
