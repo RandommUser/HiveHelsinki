@@ -12,21 +12,35 @@
 
 #include "header.h"
 
-void	draw_to_image(t_mlx *mlx, t_loca spot)
+void	draw_to_image(t_mlx *mlx, t_map *map, t_loca spot)
 {
 	int		writer;
 	char	*image;
 
 	if (!mlx->mlx_img)
 		return ;
-	
-	writer = (int)spot.loc.vec[0] * 4 + mlx->size_line * (int)spot.loc.vec[1];
-	image = mlx->img_dat;
-//printf("spot x %f y %f | writer %d\n", spot.loc.vec[0], spot.loc.vec[1], writer);
-	image[writer++] = spot.color.red;
-	image[writer++] = spot.color.green;
-	image[writer++] = spot.color.blue;
-	image[writer++] = (char)256;//(int)(256 * (1 - spot.loc.vec[3]));
+	if (spot.loc.vec[0] >= map->pos.vec[2] && spot.loc.vec[0] <= map->pos.vec[2]
+	 + map->pos.vec[0] && spot.loc.vec[1] >= map->pos.vec[3] && spot.loc.vec[1] 
+	 <= map->pos.vec[3] + map->pos.vec[1] /*&& spot.loc.vec[2] >= 
+	 map->cam.plan.vec[3]*/)
+	{
+		writer = (int)spot.loc.vec[0] * 4 + mlx->size_line * (int)spot.loc.vec[1];
+		image = mlx->img_dat;
+		if (!mlx->endian) // rework?
+		{
+			image[writer++] = spot.color.blue;
+			image[writer++] = spot.color.green;
+			image[writer++] = spot.color.red;
+			image[writer++] = 0;
+		}
+		else
+		{
+			image[writer++] = 0;
+			image[writer++] = spot.color.red;
+			image[writer++] = spot.color.green;
+			image[writer++] = spot.color.blue;
+		}
+	}
 }
 
 t_rgb	color_flow(t_loca start, t_loca diff, t_loca curr, t_loca end)
@@ -47,122 +61,103 @@ t_rgb	color_flow(t_loca start, t_loca diff, t_loca curr, t_loca end)
 	rtn.red = (1 - prog) * start.color.red + end.color.red * prog;
 	rtn.green = (1 - prog) * start.color.green + end.color.green * prog;
 	rtn.blue = (1 - prog) * start.color.blue + end.color.blue * prog;
-//printf("curr|x:%d y:%d |end|x:%d y:%d\n", curr.x, curr.y, end.x, end.y);
-//printf("prog|red:%d|green:%d|blue%d|prog:%f\n", rtn.red, rtn.green, rtn.blue,prog);
 	return (rtn);
 }
 
-void	draw_spot(t_mlx *mlx, t_map *map, t_loca curr)
+float	move_line(t_vec4 start, t_vec4 diff, float curr, int i)
 {
-	double	pi;
-	int		z;
-	double	i;
-	int		x;
 	int		y;
-   
-	pi = 3.1415926535;
-	z = 1;
-	while (z++ < map->zoom)
-	{
-		i = 0;
-		while (i < 360)
-		{
-			x = z * cos(i * pi / 180);
-			y = z * sin(i * pi / 180);
-			if (x % 1 == 0 && y % 1 == 0 && x >= map->pos.vec[2] && x <= map->pos.vec[2] + map->pos.vec[0] &&
-			y >= map->pos.vec[3] && y <= map->pos.vec[3] + map->pos.vec[1])
-				mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, curr.loc.vec[0] + x, curr.loc.vec[1] + y, trgb_conv(curr.color));
-		//	i += 0.1;
-			i += 30;
-		}
-	}
-	mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, curr.loc.vec[0], curr.loc.vec[1], trgb_conv(curr.color));
+	float	rtn;
+
+	y = i == 1 ? 0 : 1;
+	rtn = start.vec[y];
+	rtn += diff.vec[y] * (curr - start.vec[i]) / diff.vec[i];
+	return (rtn);
+}
+
+float	move_height(t_vec4 start, t_vec4 diff, float curr, int i)
+{
+	float	rtn;
+
+	rtn = start.vec[2];
+	rtn += diff.vec[2] * (curr - start.vec[i]) / diff.vec[i];
+	return (rtn);
 }
 
 void	draw_line1(t_mlx *mlx, t_map *map, t_loca start, t_loca end)
 {
 	t_loca	diff;
 	t_loca	curr;
+	int		i;
+	int		y;
 
-	//if (start.loc.vec[0] == -1 || end.loc.vec[0] == -1)
-	//	return ;
-	curr.loc.vec[0] = start.loc.vec[0];
-	curr.loc.vec[1] = start.loc.vec[1];
-	curr.loc.vec[2] = start.loc.vec[2];
-	curr.color = start.color;
-//	diff.color = rgb_calc(end.color, start.color, '-');
+	curr = start;
 	diff.loc.vec[0] = end.loc.vec[0] - start.loc.vec[0];
 	diff.loc.vec[1] = end.loc.vec[1] - start.loc.vec[1];
 	diff.loc.vec[2] = end.loc.vec[2] - start.loc.vec[2];
-	if ((ft_abs(diff.loc.vec[0]) > ft_abs(diff.loc.vec[1]) && diff.loc.vec[0] != 0) || diff.loc.vec[1] == 0)
+	if (!(i = 1) || diff.loc.vec[1] == 0 || (diff.loc.vec[0] != 0 && 
+	ft_abs(diff.loc.vec[0]) > ft_abs(diff.loc.vec[1])))
+		i = 0;
+	y = i == 0 ? 1 : 0;
+	while (curr.loc.vec[i] != end.loc.vec[i])
 	{
-		while (curr.loc.vec[0] != end.loc.vec[0])
-		{
-			curr.loc.vec[1] = start.loc.vec[1] + diff.loc.vec[1] * (curr.loc.vec[0] - start.loc.vec[0]) / diff.loc.vec[0];
-			curr.loc.vec[2] = start.loc.vec[2] + diff.loc.vec[2] * (curr.loc.vec[0] - start.loc.vec[0]) / diff.loc.vec[0];
-			curr.color = color_flow(start, diff, curr, end);
-			curr.loc.vec[3] = curr.loc.vec[1] - (int)curr.loc.vec[1];
-			//if (curr.x + mlx->zoom >= 0 && curr.x - mlx->zoom <= mlx->width && 
-			//		curr.y + mlx->zoom >= 0 && curr.y - mlx->zoom <= mlx->height)
-			//	draw_spot(mlx, curr);
-		if (/*(int)curr.loc.vec[1] % 1 == 0 && */curr.loc.vec[0] >= map->pos.vec[2] && curr.loc.vec[0] <= map->pos.vec[2] + map->pos.vec[0] &&
-				curr.loc.vec[1] >= map->pos.vec[3] && curr.loc.vec[1] <= map->pos.vec[3] + map->pos.vec[1]/* && curr.loc.vec[2] >= map->cam.plan.vec[3]*/)
-				draw_to_image(mlx, curr);
-				//mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, curr.loc.vec[0], curr.loc.vec[1], trgb_conv(curr.color));
-			curr.loc.vec[0] = curr.loc.vec[0] < end.loc.vec[0] ? curr.loc.vec[0] + 1 : curr.loc.vec[0] - 1;
-		}
+		curr.loc.vec[y] = move_line(start.loc, diff.loc, curr.loc.vec[i], i);
+		curr.loc.vec[2] = move_height(start.loc, diff.loc, curr.loc.vec[i], i);
+		curr.color = color_flow(start, diff, curr, end);
+		draw_to_image(mlx, map, curr);
+		curr.loc.vec[i] = curr.loc.vec[i] < end.loc.vec[i] ? curr.loc.vec[i] 
+			+ 1 : curr.loc.vec[i] - 1;
 	}
-	else
-	{
-		while (curr.loc.vec[1] != end.loc.vec[1])
-		{
-			curr.loc.vec[0] = start.loc.vec[0] + diff.loc.vec[0] * (curr.loc.vec[1] - start.loc.vec[1]) / diff.loc.vec[1];
-			curr.loc.vec[2] = start.loc.vec[2] + diff.loc.vec[2] * (curr.loc.vec[1] - start.loc.vec[1]) / diff.loc.vec[1];
-			curr.color = color_flow(start, diff, curr, end);
-			curr.loc.vec[3] = curr.loc.vec[1] - (int)curr.loc.vec[1];
-			//if (curr.x + mlx->zoom >= 0 && curr.x - mlx->zoom <= mlx->width &&
-			//		curr.y + mlx->zoom >= 0 && curr.y - mlx->zoom <= mlx->height)
-			//	draw_spot(mlx, curr);
-		if (/*(int)curr.loc.vec[0] % 1 == 0 && */curr.loc.vec[0] >= map->pos.vec[2] && curr.loc.vec[0] <= map->pos.vec[2] + map->pos.vec[0] &&
-				curr.loc.vec[1] >= map->pos.vec[3] && curr.loc.vec[1] <= map->pos.vec[3] + map->pos.vec[1]/* && curr.loc.vec[2] >= map->cam.plan.vec[3]*/)
-				draw_to_image(mlx, curr);
-				//mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, curr.loc.vec[0], curr.loc.vec[1], trgb_conv(curr.color));
-			curr.loc.vec[1] = curr.loc.vec[1] < end.loc.vec[1] ? curr.loc.vec[1] + 1 : curr.loc.vec[1] - 1;
-		}
-	}
+	draw_to_image(mlx, map, curr);
 }
 
-int		pos_test(t_mlx *mlx, t_loca start, t_loca end) // TEST FOR BOTH X AND Y OUT OF BOUNDS
+int		within_map(t_map *map, t_loca spot)
+{
+	if (spot.loc.vec[0] < map->pos.vec[2] || 
+		spot.loc.vec[0] > map->pos.vec[0] + map->pos.vec[2])
+		return (0);
+	if (spot.loc.vec[1] < map->pos.vec[3] || 
+		spot.loc.vec[1] > map->pos.vec[1] + map->pos.vec[3])
+		return (0);
+	return (1);
+}
+
+int		pos_test(t_map *map, t_loca start, t_loca end)
 {
 	t_loca	a;
 	t_loca	b;
 	int		ret;
 
+	if (within_map(map, start) || within_map(map, end))
+		return (1);
 	a.loc = vec4_ini((float[4]){0, 0, 0, 0});
 	b.loc = vec4_ini((float[4]){0, 0, 0, 0});
-	if ((start.loc.vec[0] < 0 && end.loc.vec[0] > 0) 
-		|| (start.loc.vec[0] > 0 && end.loc.vec[0] < 0))
-		b.loc.vec[1] = mlx->height;
-	else if ((start.loc.vec[0] < mlx->width && end.loc.vec[0] > mlx->width) 
-		|| (start.loc.vec[0] > mlx->width && end.loc.vec[0] < mlx->width))
+	if ((start.loc.vec[0] < map->pos.vec[2] && end.loc.vec[0] > map->pos.vec[2]) 
+		|| (start.loc.vec[0] > map->pos.vec[2] && end.loc.vec[0] < map->pos.vec[2]))
 	{
-		a.loc.vec[0] = mlx->width;
-		b.loc = vec4_ini((float[4]){mlx->width, mlx->height, 0, 0});
+		a.loc = vec4_ini((float[4]){map->pos.vec[2], map->pos.vec[3], 0, 0});
+		b.loc = vec4_ini((float[4]){map->pos.vec[2], map->pos.vec[3] + map->pos.vec[1], 0, 0});
 	}
-	else if ((start.loc.vec[1] < 0 && end.loc.vec[1] > 0) 
-		|| (start.loc.vec[1] > 0 && end.loc.vec[1] < 0))
-		b.loc.vec[0] = mlx->width;
-	else if ((start.loc.vec[1] < mlx->height && end.loc.vec[1] > mlx->height) 
-		|| (start.loc.vec[1] > mlx->height && end.loc.vec[1] < mlx->height))
+	else if ((start.loc.vec[0] < map->pos.vec[2] + map->pos.vec[0] && end.loc.vec[0] > map->pos.vec[2]  + map->pos.vec[0]) 
+		|| (start.loc.vec[0] > map->pos.vec[2] + map->pos.vec[0] && end.loc.vec[0] < map->pos.vec[2]  + map->pos.vec[0]))
 	{
-		a.loc.vec[1] = mlx->height;
-		b.loc = vec4_ini((float[4]){mlx->width, mlx->height, 0, 0});
+		a.loc = vec4_ini((float[4]){map->pos.vec[2] + map->pos.vec[0], map->pos.vec[3], 0, 0});
+		b.loc = vec4_ini((float[4]){map->pos.vec[2] + map->pos.vec[0], map->pos.vec[3] + map->pos.vec[1], 0, 0});
+	}
+	else if ((start.loc.vec[1] < map->pos.vec[3] && end.loc.vec[1] > map->pos.vec[3] ) 
+		|| (start.loc.vec[1] > map->pos.vec[3] && end.loc.vec[1] < map->pos.vec[3] ))
+		{
+			a.loc = vec4_ini((float[4]){map->pos.vec[2], map->pos.vec[3], 0, 0});
+			b.loc = vec4_ini((float[4]){map->pos.vec[2] + map->pos.vec[0], map->pos.vec[3], 0, 0});
+		}
+	else if ((start.loc.vec[1] < map->pos.vec[3] + map->pos.vec[1] && end.loc.vec[1] > map->pos.vec[3] + map->pos.vec[1]) 
+		|| (start.loc.vec[1] > map->pos.vec[3] + map->pos.vec[1] && end.loc.vec[1] < map->pos.vec[3] + map->pos.vec[1]))
+	{
+		a.loc = vec4_ini((float[4]){map->pos.vec[2], map->pos.vec[3] + map->pos.vec[1], 0, 0});
+		b.loc = vec4_ini((float[4]){map->pos.vec[2] + map->pos.vec[0], map->pos.vec[3] + map->pos.vec[1], 0, 0});
 	}
 	if (!a.loc.vec[0] && !a.loc.vec[1] && !b.loc.vec[0] && !b.loc.vec[1])
 		return (1);
-//printf("pos test sx %f sy %f ex %f ey %f\nax %f ay %f bx %f by %f\n",
-//	 start.loc.vec[0], start.loc.vec[1], end.loc.vec[0], end.loc.vec[1], 
-//	 a.loc.vec[0], a.loc.vec[1], b.loc.vec[0], b.loc.vec[1]);
 	if (vec4_ccw(start.loc, end.loc, a.loc) * vec4_ccw(start.loc, end.loc, b.loc) >= 0)
 		return (0);
 	if (vec4_ccw(a.loc, b.loc, start.loc) * vec4_ccw(a.loc, b.loc, end.loc) >= 0)
@@ -172,49 +167,18 @@ int		pos_test(t_mlx *mlx, t_loca start, t_loca end) // TEST FOR BOTH X AND Y OUT
 
 void	draw_linez1(t_mlx *mlx, t_map *map, t_loca start, t_loca end)
 {
-//	double	pi;
 	double	i;
 	t_loca	nstart;
 	t_loca	nend;
 	double	angle;
 
-//	pi = 3.14159265;
-//if (x % 1 == 0 && y % 1 == 0 && x >= map->pos.vec[2] && x <= map->pos.vec[2] + map->pos.vec[0] &&
-//			y >= map->pos.vec[3] && y <= map->pos.vec[3] + map->pos.vec[1]);
-/*	while (start.loc.vec[0] > map->pos.vec[2] + map->pos.vec[0] || start.loc.vec[0] < map->pos.vec[2])
-	{
-		start.loc.vec[0] += end.loc.vec[0] > start.loc.vec[0] ? 1 : -1;
-		if (start.loc.vec[0] == end.loc.vec[0])
-			return ;
-	}
-	while (end.loc.vec[0] > map->pos.vec[2] + map->pos.vec[0] || end.loc.vec[0] < map->pos.vec[2])
-	{
-		end.loc.vec[0] += start.loc.vec[0] > end.loc.vec[0] ? 1 : -1;
-		if (start.loc.vec[0] == end.loc.vec[0])
-			return ;
-	}
-
-	while (start.loc.vec[1] > map->pos.vec[3] + map->pos.vec[1] || start.loc.vec[1] < map->pos.vec[3])
-	{
-		start.loc.vec[1] += end.loc.vec[1] > start.loc.vec[1] ? 1 : -1;
-		if (start.loc.vec[1] == end.loc.vec[1])
-			return ;
-	}
-	while (end.loc.vec[1] > map->pos.vec[3] + map->pos.vec[1] || end.loc.vec[1] < map->pos.vec[3])
-	{
-		end.loc.vec[1] += start.loc.vec[1] > end.loc.vec[1] ? 1 : -1;
-		if (start.loc.vec[1] == end.loc.vec[1])
-			return ;
-	}
-*/
 	if ((start.loc.vec[0] < 0 && end.loc.vec[0] < 0) || (start.loc.vec[0] > mlx->width && end.loc.vec[0] > mlx->width) ||
 		(start.loc.vec[1] < 0 && end.loc.vec[1] < 0) || (start.loc.vec[1] > mlx->height && end.loc.vec[1] > mlx->height))
 		return ;
-	else if (!pos_test(mlx, start, end))
+	else if (!pos_test(map, start, end))
 		return ;
 	draw_line1(mlx, map, start, end);
-
-	if (map->zoom <= 1)
+	if (map->zoom <= 1 || !map->thick)
 		return ;
 	i = 0;
 	angle = 180 - atan2(end.loc.vec[0] - start.loc.vec[0], end.loc.vec[1] - start.loc.vec[1]) * (180 / 3.14159265);
@@ -225,11 +189,9 @@ void	draw_linez1(t_mlx *mlx, t_map *map, t_loca start, t_loca end)
 		i += angle;
 		nstart.loc.vec[0] += (int)(map->zoom * cos(i * 3.14159265 / 180));
 		nstart.loc.vec[1] += (int)(map->zoom * sin(i * 3.14159265 / 180));
-		//i += i < 180 ? 180 : -180;
 		i = angle - (i - angle);
 		nend.loc.vec[0] += (int)(map->zoom * cos(i * 3.14159265 / 180));
 		nend.loc.vec[1] += (int)(map->zoom * sin(i * 3.14159265 / 180));
-		if ((int)nstart.loc.vec[0] % 1 == 0 || (int)nstart.loc.vec[1] % 1 == 0)
 		draw_line1(mlx, map, nstart, nend);
 		i = angle - i;
 		if (map->zoom < 8)
@@ -257,23 +219,16 @@ void	zoom_check(t_map *map)
 		map->zoom *= 1.2;
 		width = map->size.x * 2 * WIDTH * map->zoom;
 		height = map->size.y * 2 * WIDTH * map->zoom;
-		//printf("w %f h %f \n", map->pos.vec[0],map->pos.vec[1] );
-		//printf("widht %f height %f zoom %f\n", width, height, map->zoom);
 	}
 	while (width >= map->pos.vec[0] || height >= map->pos.vec[1])
 	{
-		//printf("w %f h %f \n", map->pos.vec[0],map->pos.vec[1] );
-		//printf("widht %f height %f zoom %f\n", width, height, map->zoom);
 		map->zoom /= 1.2;
 		width = map->size.x * 2 * WIDTH * map->zoom;
 		height = map->size.y * 2 * WIDTH * map->zoom;
-		//printf("widht %f height %f zoom %f\n", width, height, map->zoom);
 	}
 	map->zoom /= 1.5;
 	width = map->size.x * 2 * WIDTH * map->zoom;
 	height = map->size.y * 2 * WIDTH * map->zoom;
-	//printf("final\nw %f h %f \n", map->pos.vec[0],map->pos.vec[1] );
-	//printf("widht %f height %f zoom %f\n", width, height, map->zoom);
 }
 
 t_map	*map_copy(t_mlx *mlx)
@@ -296,6 +251,7 @@ t_map	*map_copy(t_mlx *mlx)
 	new->cam = mlx->smap->cam;
 	new->size = mlx->smap->size;
 	new->limit = mlx->smap->limit;
+	new->thick = mlx->smap->thick;
 	return (new);
 }
 
@@ -390,46 +346,13 @@ void	map_reset(t_mlx *mlx, t_map *map)
 		map4_reset(mlx, map);
 	else
 		map0_reset(mlx, map);
-
-/*	mlx->map[i]->origin = mat4_trans((float[3]){(mlx->map[i]->pos.vec[2] + mlx->map[i]->pos.vec[0]) / 4, (mlx->map[i]->pos.vec[3] + mlx->map[i]->pos.vec[1]) / 4, 1});
-	mlx->map[i]->mode = 2;
-	mlx->map[i]->cam.loc = vec4_ini((float[4]){(int)(mlx->map[i]->pos.vec[2] + mlx->map[i]->pos.vec[0] / 2), (int)(mlx->map[i]->pos.vec[3] + mlx->map[1]->pos.vec[1] / 2), 0, 1});
-	mlx->map[i]->cam.rot = vec4_ini((float[4]){40, 85, 25, 1});
-	mlx->map[i]->cam.plan.vec[2] = 55;
-	zoom_check(mlx->map[i]);
-	i++;
-
-	mlx->map[i]->pos.vec[2] += mlx->width / 2 + 1;
-	if (mlx->width % 2 == 0)
-		mlx->map[i]->pos.vec[0] -= 1;
-	mlx->map[i]->origin = mat4_trans((float[3]){mlx->map[i]->pos.vec[2] + mlx->map[i]->pos.vec[0] / 2, mlx->map[i]->pos.vec[3] + mlx->map[i]->pos.vec[1] / 2, 1}); // ???
-	mlx->map[i]->rot = vec4_ini((float[4]){-180, 0, -90,ROTA_W});
-	zoom_check(mlx->map[i]);
-	i++;
-
-	if (mlx->height % 2 == 0)
-		mlx->map[i]->pos.vec[1] -= 1;
-	mlx->map[i]->pos.vec[3] += mlx->height / 2 + 1;
-	mlx->map[i]->origin = mat4_trans((float[3]){mlx->map[i]->pos.vec[2] + mlx->map[i]->pos.vec[0] / 2, mlx->map[i]->pos.vec[3] + mlx->map[i]->pos.vec[1] / 2, 1});
-	mlx->map[i]->rot = vec4_ini((float[4]){-180, -90, 180,ROTA_W});
-	zoom_check(mlx->map[i]);
-	i++;
-
-	if (mlx->width % 2 == 0)
-		mlx->map[i]->pos.vec[0] -= 1;
-	if (mlx->height % 2 == 0)
-		mlx->map[i]->pos.vec[1] -= 1;
-	mlx->map[i]->pos.vec[2] += mlx->width / 2 + 1;
-	mlx->map[i]->pos.vec[3] += mlx->height / 2 + 1;
-	mlx->map[i]->origin = mat4_trans((float[3]){mlx->map[i]->pos.vec[2] + mlx->map[i]->pos.vec[0] / 2, mlx->map[i]->pos.vec[3] + mlx->map[i]->pos.vec[1] / 2, 1});
-	mlx->map[i]->rot = vec4_ini((float[4]){-90, -90, -180,ROTA_W});
-	zoom_check(mlx->map[i]); */
 }
 
 void	settings_reset(t_map *map, t_mlx *mlx)
 {
 	mlx->mode = 1;
 	mlx->smap = mlx->map[0];
+	map->thick = 0;
 	map->rot = vec4_ini((float[4]){ROTA_X, ROTA_Y, ROTA_Z, ROTA_W});
 	map->mode = MODE_DEF;
 	map->color = MODE_COLOR;
@@ -471,22 +394,21 @@ void	draw(t_map *map, t_mlx *mlx, t_mat4 matrix, t_loca (*loca)(t_point*, t_map*
 	if (map->rot.vec[3] == 2)
 	{
 	// rotation cube
-		this = rotation_cube(vec4_ini((float[4]){0, 0, 0, 1}), map, 0x0062ff);
-		next = rotation_cube(vec4_ini((float[4]){0, -2, 0, 1}), map, 0x0062ff);
+		this = rotation_cube(vec4_ini((float[4]){0, 0, 0, 1}), map, 0x0000ff); // 0062ff
+	printf("r %d g %d b %d %u %d %d\n", this.color.red, this.color.green, this.color.blue, mlx_get_color_value(mlx->mlx_ptr, 0x0000ff), 0x0000ff, trgb_conv(this.color));
+		next = rotation_cube(vec4_ini((float[4]){0, -2, 0, 1}), map, 0x0000ff);
 		draw_line1(mlx, map, this, next);
-		next = rotation_cube(vec4_ini((float[4]){2, 0, 0, 1}), map, 0xff0000);
 		this = map_point(this.loc, 0xff0000);
+		next = rotation_cube(vec4_ini((float[4]){2, 0, 0, 1}), map, 0xff0000); // 0xff0000
 		draw_line1(mlx, map, this, next);
-		this = map_point(this.loc, 0xfffb00);
-		next = rotation_cube(vec4_ini((float[4]){0, 0, 2, 1}), map, 0xfffb00);
+		this = map_point(this.loc, 0xff0000);
+		next = rotation_cube(vec4_ini((float[4]){0, 0, 2, 1}), map, 0xff0000); // 0xfffb00
 		draw_line1(mlx, map, this, next);
 	}
 }
 
 void	draw_selected(t_mlx *mlx, t_map *map)
 {
-	printf("map coordinates x %f y %f size x %f y %f\n", map->pos.vec[2], map->pos.vec[3], map->pos.vec[0], map->pos.vec[1]);
-	printf("cam loc x %f y %f\nmap loc x %f y %f\n", map->cam.loc.vec[0], map->cam.loc.vec[1], map->origin.mat[0][3], map->origin.mat[1][3]);
 	if (map->mode == 1)
 		draw(map, mlx, map_matrix(map), point_loca);
 	else if (map->mode == 2)
@@ -526,6 +448,5 @@ void	draw_map(t_mlx *mlx)
 	else {
 		draw_selected(mlx, mlx->smap);
 	}
-	printf("printing map next\n");
 	mlx_put_image_to_window(mlx->mlx_ptr, mlx->mlx_win, mlx->mlx_img, 0, 0);
 }
