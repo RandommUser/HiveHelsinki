@@ -52,6 +52,8 @@
 # define ROTA_Z -170
 # define ROTA_W 1
 # define ROTA_STEP 10
+# define ANIM_STEP 100
+# define ANIM_TIME 500000
 
 # define ERR_MEMORY 4
 
@@ -105,13 +107,19 @@ typedef	struct		s_map
 	t_cam	cam;
 	//width, height, xpos, ypos
 	t_vec4	pos;
+	int		thick;
 }					t_map;
 
 typedef struct		s_mlx
 {
 	void	*mlx_ptr;
 	void	*mlx_win;
+	void	*mlx_img;
+	char	*img_dat;
 	char	*title;
+	int		bpp;
+	int		size_line;
+	int		endian;
 	int		height;
 	int		width;
 	t_map	*map[5];
@@ -138,7 +146,18 @@ t_mat4				camera_matrix(t_cam cam);
 void				draw_map(t_mlx *window);
 void				draw_line1(t_mlx *mlx, t_map *map, t_loca start, t_loca end);
 void				settings_reset(t_map *map, t_mlx *mlx);
-void				map_reset(t_mlx *mlx);
+void				map_reset(t_mlx *mlx, t_map *map);
 void				map_size(t_map **map);
+void				map0_reset(t_mlx *mlx, t_map *map);
+
+void				actions1(int func, t_map *map);
+void				actions2(int func, t_map *map, float dir);
+void				actions3(int func, t_map *map, int dir, int ang);
+void				actions4(int func, t_mlx *mlx, int x, int y);
+void				actions5(int func, t_map *map, int x, int y);
+void				view_mode(t_mlx *mlx);
+
+void				contra(t_mlx *mlx, int key);
+void				keys(t_mlx *mlx, int key);
 
 #endif

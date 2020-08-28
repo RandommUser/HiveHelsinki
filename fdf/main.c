@@ -11,120 +11,308 @@
 /* ************************************************************************** */
 
 #include "header.h"
-
-void	map_anim(t_mlx *mlx, t_map *start, t_map *end)
+// map_anim helper
+t_vec4	anim_step(float start[4], float diff[4], float i)
 {
-	t_vec4	dloc;
-	t_vec4	drot;
-	t_vec4	dplan;
-	t_vec4	dmisc;
+	t_vec4	end;
+
+	end.vec[0] = start[0] + diff[0] * (i / ANIM_STEP);
+	end.vec[1] = start[1] + diff[1] * (i / ANIM_STEP);
+	end.vec[2] = start[2] + diff[2] * (i / ANIM_STEP);
+	end.vec[3] = start[3] + diff[3] * (i / ANIM_STEP);
+	return (end);
+}
+// map_anim helper
+t_mat4	anim_step2(t_mat4 end, t_mat4 start, float diff[4], float i)
+{
+	end.mat[0][3] = start.mat[0][3] + diff[0] * (i / ANIM_STEP);
+	end.mat[1][3] = start.mat[1][3] + diff[1] * (i / ANIM_STEP);
+	end.mat[2][3] = start.mat[2][3] + diff[2] * (i / ANIM_STEP);
+	end.mat[3][3] = start.mat[3][3] + diff[3] * (i / ANIM_STEP);
+	return (end);
+}
+// map_anim helper
+t_vec4	diff_ini(float start[4], float end[4])
+{
+	t_vec4	diff;
+
+	diff = vec4_ini((float[4]){end[0] - start[0], end[1] - start[1], 
+		end[2] - start[2], end[3] - start[3]});
+	return (diff);
+}
+// map_anim helper
+t_vec4	diff_ini2(t_mat4 start, t_mat4 end)
+{
+	t_vec4	diff;
+
+	diff = vec4_ini((float[4]){end.mat[0][3] - start.mat[0][3], 
+		end.mat[1][3] - start.mat[1][3], end.mat[2][3] - start.mat[2][3], 
+		end.mat[3][3] - start.mat[3][3]});
+	return (diff);
+}
+// map_anim helper
+void	play_anim(t_mlx *mlx, t_map *start, t_map *end, t_vec4 diff[4])
+{
 	float	i;
 
-	if (start->mode != end->mode)
-	{
-		mlx->smap = end;
-		return ;
-	}
-	mlx->smap = end;
-	dmisc = vec4_ini((float[4]){end->h_mod - start->h_mod, end->zoom - start->zoom, end->thick, 0});
-	end->thick = 0;
-	if (start->mode == 1)
-	{
-		dloc = vec4_ini((float[4]){end->origin.mat[0][3] - start->origin.mat[0][3], 
-			end->origin.mat[1][3] - start->origin.mat[1][3], 
-			end->origin.mat[2][3] - start->origin.mat[2][3], 
-			end->origin.mat[3][3] - start->origin.mat[3][3]});
-		drot = vec4_ini((float[4]){end->rot.vec[0] - start->rot.vec[0], 
-			end->rot.vec[1] - start->rot.vec[1], 
-			end->rot.vec[2] - start->rot.vec[2], 
-			end->rot.vec[3] - start->rot.vec[3]});
-		if (!dloc.vec[0] && !dloc.vec[1] && !dloc.vec[2] && !dloc.vec[3] &&
-		!drot.vec[0] && !drot.vec[1] && !drot.vec[2] && !drot.vec[3] &&
-		!dmisc.vec[0] && !dmisc.vec[1])
-			return ;
-	}
-	else
-	{
-		dloc = vec4_ini((float[4]){end->cam.loc.vec[0] - start->cam.loc.vec[0], 
-			end->cam.loc.vec[1] - start->cam.loc.vec[1], 
-			end->cam.loc.vec[2] - start->cam.loc.vec[2], 
-			end->cam.loc.vec[3] - start->cam.loc.vec[3]});
-		drot = vec4_ini((float[4]){end->cam.rot.vec[0] - start->cam.rot.vec[0], 
-			end->cam.rot.vec[1] - start->cam.rot.vec[1], 
-			end->cam.rot.vec[2] - start->cam.rot.vec[2], 
-			end->cam.rot.vec[3] - start->cam.rot.vec[3]});
-		dplan = vec4_ini((float[4]){end->cam.plan.vec[0] - start->cam.plan.vec[0], 
-			end->cam.plan.vec[1] - start->cam.plan.vec[1], 
-			end->cam.plan.vec[2] - start->cam.plan.vec[2], 
-			end->cam.plan.vec[3] - start->cam.plan.vec[3]});
-		if (!dloc.vec[0] && !dloc.vec[1] && !dloc.vec[2] && !dloc.vec[3] &&
-		!drot.vec[0] && !drot.vec[1] && !drot.vec[2] && !drot.vec[3] &&
-		!dplan.vec[0] && !dplan.vec[1] && !dplan.vec[2] && !dplan.vec[3] &&
-		!dmisc.vec[0] && !dmisc.vec[1])
-			return ;
-	}
 	i = -1;
 	while (++i <= ANIM_STEP)
 	{
 		if (start->mode == 1)
 		{
-			end->origin.mat[0][3] = start->origin.mat[0][3] + dloc.vec[0] * (i / ANIM_STEP);
-			end->origin.mat[1][3] = start->origin.mat[1][3] + dloc.vec[1] * (i / ANIM_STEP);
-			end->origin.mat[2][3] = start->origin.mat[2][3] + dloc.vec[2] * (i / ANIM_STEP);
-			end->origin.mat[3][3] = start->origin.mat[3][3] + dloc.vec[3] * (i / ANIM_STEP);
-			end->rot.vec[0] = start->rot.vec[0] + drot.vec[0] * (i / ANIM_STEP);
-			end->rot.vec[1] = start->rot.vec[1] + drot.vec[1] * (i / ANIM_STEP);
-			end->rot.vec[2] = start->rot.vec[2] + drot.vec[2] * (i / ANIM_STEP);
-			end->rot.vec[3] = start->rot.vec[3] + drot.vec[3] * (i / ANIM_STEP);
+			end->origin = anim_step2(end->origin, start->origin, diff[0].vec, i);
+			end->rot = anim_step(start->rot.vec, diff[1].vec, i);
 		}
 		else
 		{
-			end->cam.loc.vec[0] = start->cam.loc.vec[0] + dloc.vec[0] * (i / ANIM_STEP);
-			end->cam.loc.vec[1] = start->cam.loc.vec[1] + dloc.vec[1] * (i / ANIM_STEP);
-			end->cam.loc.vec[2] = start->cam.loc.vec[2] + dloc.vec[2] * (i / ANIM_STEP);
-			end->cam.loc.vec[3] = start->cam.loc.vec[3] + dloc.vec[3] * (i / ANIM_STEP);
-			end->cam.rot.vec[0] = start->cam.rot.vec[0] + drot.vec[0] * (i / ANIM_STEP);
-			end->cam.rot.vec[1] = start->cam.rot.vec[1] + drot.vec[1] * (i / ANIM_STEP);
-			end->cam.rot.vec[2] = start->cam.rot.vec[2] + drot.vec[2] * (i / ANIM_STEP);
-			end->cam.rot.vec[3] = start->cam.rot.vec[3] + drot.vec[3] * (i / ANIM_STEP);
-			end->cam.plan.vec[0] = start->cam.plan.vec[0] + dplan.vec[0] * (i / ANIM_STEP);
-			end->cam.plan.vec[1] = start->cam.plan.vec[1] + dplan.vec[1] * (i / ANIM_STEP);
-			end->cam.plan.vec[2] = start->cam.plan.vec[2] + dplan.vec[2] * (i / ANIM_STEP);
-			end->cam.plan.vec[3] = start->cam.plan.vec[3] + dplan.vec[3] * (i / ANIM_STEP);
+			end->cam.loc = anim_step(start->cam.loc.vec, diff[0].vec, i);
+			end->cam.rot = anim_step(start->cam.rot.vec, diff[1].vec, i);
+			end->cam.plan = anim_step(start->cam.plan.vec, diff[2].vec, i);
 		}
-		end->h_mod = start->h_mod + dmisc.vec[0] * (i / ANIM_STEP);
-		end->zoom = start->zoom + dmisc.vec[1] * (i / ANIM_STEP); 
+		end->h_mod = start->h_mod + diff[3].vec[0] * (i / ANIM_STEP);
+		end->zoom = start->zoom + diff[3].vec[1] * (i / ANIM_STEP); 
 		draw_map(mlx);
 		mlx_do_sync(mlx->mlx_ptr);
 		usleep(ANIM_TIME / ANIM_STEP);
 	}
-	end->thick = dmisc.vec[2];
+	end->thick = diff[3].vec[2];
 	draw_map(mlx);
 }
-
-void	thicc(t_map *map)
+// map_anim helper
+int		anim_diff_check(t_vec4 diff[4])
 {
-	map->thick = map->thick ? 0 : 1;
+	if (!diff[0].vec[0] && !diff[0].vec[1] && 
+		!diff[0].vec[2] && !diff[0].vec[3] &&
+		!diff[1].vec[0] && !diff[1].vec[1] && 
+		!diff[1].vec[2] && !diff[1].vec[3] &&
+		!diff[2].vec[0] && !diff[2].vec[1] && 
+		!diff[2].vec[2] && !diff[2].vec[3] &&
+		!diff[3].vec[0] && !diff[3].vec[1])
+		return (0);
+	return (1);
 }
 
-void	rota_cube(t_map *map)
+/*
+** diff = 1) location 2) rotation 3) view plain 4) misc 
+*/
+void	map_anim(t_mlx *mlx, t_map *start, t_map *end)
 {
-	map->rot.vec[3] = map->rot.vec[3] == 1 ? 2 : 1;
+	t_vec4	diff[4];
+
+	mlx->smap = end;
+	if (start->mode != end->mode)
+		return ;
+	if (!(end->thick = 0))
+		diff[3] = vec4_ini((float[4]){end->h_mod - start->h_mod, 
+			end->zoom - start->zoom, end->thick, 0});
+	if (start->mode == 1)
+	{
+		diff[0] = diff_ini2(start->origin, end->origin);
+		diff[1] = diff_ini(start->rot.vec, end->rot.vec);
+		diff[2] = vec4_ini((float[4]){0, 0, 0, 0});
+		if (!anim_diff_check(diff))
+			return ;
+	}
+	else
+	{
+		diff[0] = diff_ini(start->cam.loc.vec, end->cam.loc.vec);
+		diff[1] = diff_ini(start->cam.rot.vec, end->cam.rot.vec);
+		diff[2] = diff_ini(start->cam.plan.vec, end->cam.plan.vec);
+		if (!anim_diff_check(diff))
+			return ;
+	}
+	play_anim(mlx, start, end, diff);
 }
 
-void	vanishing_point(t_map *map, int dir)
+void	view_mode(t_mlx *mlx)
 {
-	map->cam.plan.vec[3] += dir > 0 ? 0.1 : -0.1;
+	if (mlx->mode == 2)
+	{
+		map_reset(mlx, mlx->smap);
+		map0_reset(mlx, mlx->map[1]);
+		map0_reset(mlx, mlx->map[2]);
+		map0_reset(mlx, mlx->map[3]);
+	}
+	else
+	{
+		map_reset(mlx, mlx->map[1]);
+		map_reset(mlx, mlx->map[2]);
+		map_reset(mlx, mlx->map[3]);
+		map_reset(mlx, mlx->map[4]);
+		mlx->map[1]->mode = 2;
+		mlx->map[2]->mode = 1;
+		mlx->map[3]->mode = 1;
+		mlx->map[4]->mode = 1;
+	}
+	mlx->mode = mlx->mode == 1 ? 2 : 1;
+	mlx->smap = mlx->mode == 1 ? mlx->map[0] : mlx->map[1];
+}
+/*
+** 0) thick lines 1) rotation cube toggle 2) fov limitor 3) map mode toggle
+** 4) plain_flip
+*/
+void	actions1(int func, t_map *map)
+{
+	if (func == 0)
+		map->thick = map->thick ? 0 : 1;
+	else if (func == 1)
+		map->rot.vec[3] = map->rot.vec[3] == 1 ? 2 : 1;
+	else if (func == 2)
+		map->limit = map->limit == 1 ? 0 : 1;
+	else if (func == 3)
+	{
+		map->mode++;
+		map->mode = map->mode > 3 ? 1 : map->mode;
+	}
+	else if (func == 4 && map->mode > 1) // does nothing??
+	{
+		map->cam.plan.vec[0] *= -1;
+		map->cam.plan.vec[1] *= -1;
+	}
+}
+/*
+** 0) moving vanishing point 1) map zoom 2) FOV change 3) height modifier
+*/
+void	actions2(int func, t_map *map, float dir)
+{
+	if (func == 0)
+		map->cam.plan.vec[3] += dir > 0 ? 0.1 : -0.1;
+	else if (func == 1)
+		map->zoom = dir > 0 ? map->zoom * 1.2 : map->zoom / 1.2;
+	else if (func == 2 && map->mode > 1)
+	{
+		map->cam.plan.vec[2] += FOV_STEP * dir;
+		if ((map->limit  && map->cam.plan.vec[2] >= 180) || 
+			(map->limit && map->cam.plan.vec[2] <= 0))
+			map->cam.plan.vec[2] -= FOV_STEP * dir;
+	}
+	else if (func == 3)
+	{
+		map->h_mod *= dir;
+	}
+}
+/*
+** 0) map rotating 1) map move
+*/
+void	actions3(int func, t_map *map, int ang, int dir)
+{
+	if (func == 0)
+	{
+		if (map->mode > 1)
+		{
+			map->cam.rot.vec[ang] += ROTA_STEP / 2 * dir;
+			if (map->cam.rot.vec[ang] <= -360 || map->cam.rot.vec[ang] 
+				>= 360)
+				map->cam.rot.vec[ang] = (ft_abs(map->cam.rot.vec[ang]) 
+					- 360) * dir;
+		}
+		else
+		{
+			map->rot.vec[ang] += (ROTA_STEP * dir);
+			if (map->rot.vec[ang] <= -360 || map->rot.vec[ang] >= 360)
+				map->rot.vec[ang] = (ft_abs(map->rot.vec[ang]) - 360) * dir;
+		}
+	}
+	else if (func == 1)
+	{
+		if (map->mode > 1)
+			map->cam.loc.vec[ang] += WIDTH * dir;
+		else
+			map->origin.mat[ang][3] += WIDTH * dir;
+	}
+}
+/*
+** 0) map mouse select 1) key map select
+*/
+void	actions4(int func, t_mlx *mlx, int x, int y)
+{
+	size_t	i;
+
+	if (func == 0 && mlx->mode == 2)
+	{
+		i = 0;
+		while (++i < 5)
+		{
+			if (x >= mlx->map[i]->pos.vec[2] && x <= (mlx->map[i]->pos.vec[2] 
+				+ mlx->map[i]->pos.vec[0]))
+				if (y >= mlx->map[i]->pos.vec[3] && y <= 
+					(mlx->map[i]->pos.vec[3] + mlx->map[i]->pos.vec[1]))
+				{
+					mlx->smap = mlx->map[i];
+					return ;
+				}
+		}
+	}
+	else if (func == 1)
+	{
+		if (mlx->mode == 2 && x > 0 && x < 5)
+			mlx->smap = mlx->map[x];
+		else if (mlx->mode == 1 && mlx->smap != mlx->map[--x])
+			map_anim(mlx, mlx->smap, mlx->map[x]);
+	}
+}
+/*
+** 0) mouse move 1) camera plain changes
+*/
+void	actions5(int func, t_map *map, int x, int y)
+{
+	if (func == 0)
+	{
+		if (map->mode > 1)
+		{
+			map->cam.loc.vec[0] = x;
+			map->cam.loc.vec[1] = y;
+		}
+		else
+		{
+			map->origin.mat[0][3] = x;
+			map->origin.mat[1][3] = y;
+		}
+	}
+	else if (func == 1 && map->mode > 1)
+	{
+		map->cam.plan.vec[x] += WIDTH / 2 * y;
+		if (map->cam.plan.vec[0] == map->cam.plan.vec[1])
+			map->cam.plan.vec[x] -= WIDTH / 2 * y;
+	}
 }
 
-void	limitor(t_map *map)
+
+/*
+void	cam_plain(t_map *map, int coord, int dir) //action5-1
 {
-	map->limit = map->limit == 1 ? 0 : 1;
+	if (map->mode > 1)
+	{
+		map->cam.plan.vec[coord] += WIDTH / 2 * dir;
+		if (map->cam.plan.vec[0] == map->cam.plan.vec[1])
+			map->cam.plan.vec[coord] -= WIDTH / 2 * dir;
+	}
 }
 
-void	rota(t_map *map, int angle, int dir)
+void	mouse_move(t_map *map, int x, int y) //action5-0
 {
+	if (map->mode > 1)
+	{
+		map->cam.loc.vec[0] = x;
+		map->cam.loc.vec[1] = y;
+	}
+	else
+	{
+		map->origin.mat[0][3] = x;
+		map->origin.mat[1][3] = y;
+	}
+}
 
+void	move(t_map *map, int angle, int dir) //action3-1
+{
+	if (map->mode > 1)
+		map->cam.loc.vec[angle] += WIDTH * dir;
+	else
+		map->origin.mat[angle][3] += WIDTH * dir;
+}
+
+void	rota(t_map *map, int angle, int dir) //action3-0
+{
 	if (map->mode > 1)
 	{
 		map->cam.rot.vec[angle] += ROTA_STEP / 2 * dir;
@@ -139,98 +327,7 @@ void	rota(t_map *map, int angle, int dir)
 	}
 }
 
-void	map_select(t_mlx *mlx, int n)
-{
-	if (mlx->mode == 2 && n > 0 && n < 5)
-		mlx->smap = mlx->map[n];
-	else if (mlx->mode == 1 && mlx->smap != mlx->map[--n])
-		map_anim(mlx, mlx->smap, mlx->map[n]);
-}
-
-void	map_mouse(t_mlx *mlx, int x, int y)
-{
-	size_t	i;
-
-	if (mlx->mode == 2)
-	{
-		i = 0;
-		while (++i < 5)
-		{
-			if (x >= mlx->map[i]->pos.vec[2] && x <= (mlx->map[i]->pos.vec[2] + mlx->map[i]->pos.vec[0]))
-				if (y >= mlx->map[i]->pos.vec[3] && y <= (mlx->map[i]->pos.vec[3] + mlx->map[i]->pos.vec[1]))
-				{
-					mlx->smap = mlx->map[i];
-					return ;
-				}
-		}
-	}
-}
-
-void	mouse_move(t_map *map, int x, int y)
-{
-	if (map->mode > 1)
-	{
-		map->cam.loc.vec[0] = x;
-		map->cam.loc.vec[1] = y;
-	}
-	else
-	{
-		map->origin.mat[0][3] = x;
-		map->origin.mat[1][3] = y;
-	}
-}
-
-void	mouse_zoom(t_map *map, int dir)
-{
-	map->zoom = dir > 0 ? map->zoom * 1.2 : map->zoom / 1.2;
-}
-
-void	view_mode(t_mlx *mlx)
-{
-	if (mlx->mode == 2)
-	{
-		mlx->mode = 1;
-		mlx->smap = mlx->map[0];
-		map_reset(mlx, mlx->smap);
-		map0_reset(mlx, mlx->map[1]);
-		map0_reset(mlx, mlx->map[2]);
-		map0_reset(mlx, mlx->map[3]);
-	}
-	else
-	{
-		mlx->mode = 2;
-		mlx->smap = mlx->map[1];
-		map_reset(mlx, mlx->map[1]);
-		map_reset(mlx, mlx->map[2]);
-		map_reset(mlx, mlx->map[3]);
-		map_reset(mlx, mlx->map[4]);
-		mlx->map[1]->mode = 2;
-		mlx->map[2]->mode = 1;
-		mlx->map[3]->mode = 1;
-		mlx->map[4]->mode = 1;
-	}
-}
-
-void	mode(t_map *map)
-{
-	map->mode++;
-	map->mode = map->mode > 3 ? 1 : map->mode;
-}
-
-void	move(t_map *map, int angle, int dir)
-{
-	if (map->mode > 1)
-		map->cam.loc.vec[angle] += WIDTH * dir;
-	else
-		map->origin.mat[angle][3] += WIDTH * dir;
-}
-
-void	zoom(t_map *map, int dir)
-{
-	map->zoom = dir > 0 ? map->zoom * 1.2 : map->zoom / 1.2;
-}
-
-void	fov(t_map *map, int dir)
+void	fov(t_map *map, int dir) //actions2-2 
 {
 	if (map->mode > 1)
 	{
@@ -240,7 +337,17 @@ void	fov(t_map *map, int dir)
 	}
 }
 
-void	plain_flip(t_map *map)
+void	zoom(t_map *map, int dir) //actions2-1 COMBINE
+{
+	map->zoom = dir > 0 ? map->zoom * 1.2 : map->zoom / 1.2;
+}
+
+void	mouse_zoom(t_map *map, int dir) //
+{
+	map->zoom = dir > 0 ? map->zoom * 1.2 : map->zoom / 1.2;
+}
+
+void	plain_flip(t_map *map) // does nothing//
 {
 	if (map->mode > 1)
 	{
@@ -249,15 +356,45 @@ void	plain_flip(t_map *map)
 	}
 }
 
-void	cam_plain(t_map *map, int coord, int dir)
+void	mode(t_map *map) //actions1-3
 {
-	if (map->mode > 1)
-	{
-		map->cam.plan.vec[coord] += WIDTH / 2 * dir;
-		if (map->cam.plan.vec[0] == map->cam.plan.vec[1])
-			map->cam.plan.vec[coord] -= WIDTH / 2 * dir;
-	}
+	map->mode++;
+	map->mode = map->mode > 3 ? 1 : map->mode;
 }
+
+void	thicc(t_map *map) //actions1-0
+{
+	map->thick = map->thick ? 0 : 1;
+}
+
+void	rota_cube(t_map *map) //actions1-1
+{
+	map->rot.vec[3] = map->rot.vec[3] == 1 ? 2 : 1;
+}
+
+void	vanishing_point(t_map *map, int dir) //actions2-0
+{
+	map->cam.plan.vec[3] += dir > 0 ? 0.1 : -0.1;
+}
+
+void	limitor(t_map *map) //actions1-2
+{
+	map->limit = map->limit == 1 ? 0 : 1;
+}
+
+void	map_select(t_mlx *mlx, int n) //action4-1
+{
+	if (mlx->mode == 2 && n > 0 && n < 5)//
+		mlx->smap = mlx->map[n];
+	else if (mlx->mode == 1 && mlx->smap != mlx->map[--n])
+		map_anim(mlx, mlx->smap, mlx->map[n]);
+}
+
+void	map_mouse(t_mlx *mlx, int x, int y)//action4-0
+{
+}
+*/
+// END OF CONTROL FUNCTIONS
 
 t_loca	map_point(t_vec4 vec, int color)
 {
@@ -356,9 +493,12 @@ t_loca	point_loca_orth(t_point *point, t_map *map, t_mat4 rot)
 
 	point->color = point->color == -1 ? DEF_COLOR : point->color;
 	vec = vec4_ini((float[4]){(point->loc.vec[0] - map->size.x) * WIDTH,
-		(point->loc.vec[1] - map->size.y) * WIDTH , (point->loc.vec[2] * map->h_mod - map->size.z) * WIDTH, point->loc.vec[3]});
-	trans = mat4_mat4(mat4_scales((float[4]){map->zoom, map->zoom, map->zoom, 1}), rot);
-	trans = mat4_mat4(trans, mat4_perps2(map->cam.plan, map->pos.vec[0] / map->pos.vec[1]));
+		(point->loc.vec[1] - map->size.y) * WIDTH , (point->loc.vec[2] * 
+		map->h_mod - map->size.z) * WIDTH, point->loc.vec[3]});
+	trans = mat4_mat4(mat4_scales((float[4]){map->zoom, map->zoom, map->zoom,
+		 1}), rot);
+	trans = mat4_mat4(trans, mat4_perps2(map->cam.plan, 
+		map->pos.vec[0] / map->pos.vec[1]));
 	vec = mat4_vec4(trans, vec);
 	vec.vec[0] += map->cam.loc.vec[0];
 	vec.vec[1] += map->cam.loc.vec[1];
@@ -372,10 +512,14 @@ t_loca	point_loca_pin(t_point *point, t_map *map, t_mat4 rot)
 
 	point->color = point->color == -1 ? DEF_COLOR : point->color;
 	vec = vec4_ini((float[4]){(point->loc.vec[0] - map->size.x) * WIDTH,
-		(point->loc.vec[1] - map->size.y) * WIDTH, (point->loc.vec[2] * map->h_mod - map->size.z) * WIDTH, point->loc.vec[3]});
+		(point->loc.vec[1] - map->size.y) * WIDTH, (point->loc.vec[2] * 
+		map->h_mod - map->size.z) * WIDTH, point->loc.vec[3]});
 	vec = mat4_vec4(rot, vec);
-	trans = mat4_pinhole(vec4_ini((float[4]){map->cam.plan.vec[2], map->cam.loc.vec[2], vec.vec[0], vec.vec[1]}), map->pos.vec[0] / map->pos.vec[1]);
-	trans = mat4_mat4(trans, mat4_scales((float[4]){map->zoom / 10, map->zoom / 10, map->zoom / 10, 1}));
+	trans = mat4_pinhole(vec4_ini((float[4]){map->cam.plan.vec[2], 
+		map->cam.loc.vec[2], vec.vec[0], vec.vec[1]}), 
+		map->pos.vec[0] / map->pos.vec[1]);
+	trans = mat4_mat4(trans, mat4_scales((float[4]){map->zoom / 10, 
+		map->zoom / 10, map->zoom / 10, 1}));
 	vec = mat4_vec4(trans, vec);
 	vec.vec[0] += map->cam.loc.vec[0];
 	vec.vec[1] += map->cam.loc.vec[1];
@@ -389,59 +533,30 @@ t_loca	point_loca(t_point *point, t_map *map, t_mat4 trans)
 
 	point->color = point->color == -1 ? DEF_COLOR : point->color;
 	vec = vec4_ini((float[4]){(point->loc.vec[0] - map->size.x) * WIDTH,
-		(point->loc.vec[1] - map->size.y) * WIDTH, point->loc.vec[2] * WIDTH * map->h_mod, point->loc.vec[3]});
+		(point->loc.vec[1] - map->size.y) * WIDTH, 
+		point->loc.vec[2] * WIDTH * map->h_mod, point->loc.vec[3]});
 	zoom = mat4_scales((float[4]){map->zoom, map->zoom, map->zoom, 1});
-	vec = mat4_vec4(trans, vec); // map rotation matrix
-	vec = mat4_vec4(zoom, vec); // zoom
-	vec.vec[0] += map->origin.mat[0][3]; // translate
+	vec = mat4_vec4(trans, vec);
+	vec = mat4_vec4(zoom, vec);
+	vec.vec[0] += map->origin.mat[0][3];
 	vec.vec[1] += map->origin.mat[1][3];
 	return (map_point(vec, point->color));
 }
 
 int	input(int key, void *param)
 {
-	static int	contra;
 	t_mlx		*mlx;
 
 	mlx = param;
 	if (key == ESC_KEY)
-		exit(1);
-	else if (key == 117) // fun
+		exit(0);
+	contra(mlx, key);
+	keys(mlx, key);
+	/*else if (key == 117) // del
 	{
-		int i;
-		t_vec4 backup;
-		i = 0;
-		if (mlx->smap->mode == 1)
-		{
-			backup = mlx->smap->rot;
-			while (++i <= 360)
-			{
-				//mlx->smap->rot.vec[0] = backup.vec[0] + i;
-				mlx->smap->rot.vec[1] = backup.vec[1] + i;
-				//mlx->smap->rot.vec[2] = backup.vec[2] + i;
-				draw_map(mlx);
-				mlx_do_sync(mlx->mlx_ptr);
-				usleep(500);
-			}
-			mlx->smap->rot = backup;
-		}
-		else
-		{
-			backup = mlx->smap->cam.rot;
-			while (++i <= 360)
-			{
-				//mlx->smap->cam.rot.vec[0] = backup.vec[0] + i;
-				mlx->smap->cam.rot.vec[1] = backup.vec[1] + i;
-				//mlx->smap->cam.rot.vec[2] = backup.vec[2] + i;
-				draw_map(mlx);
-				mlx_do_sync(mlx->mlx_ptr);
-				usleep(500);
-			}
-			mlx->smap->cam.rot = backup;
-		}
 		draw_map(mlx);
 	}
-	else if (key == 126 && (contra == 0 || contra == 1))
+	if (key == 126 && (contra == 0 || contra == 1))
 		contra++;
 	else if (key == 125 && (contra == 2 || contra == 3))
 		contra++;
@@ -649,7 +764,8 @@ printf("SECRET FOUND!\n");
 		mlx->smap->mode = 0;
 	else if (key == 2 && mlx->smap->mode == 0)
 		mlx->smap->mode = 1;
-
+*/
+	// TO REMOVE
 	ft_putnbr(key);
 	ft_putstr("\n");
 	if (mlx->smap->mode > 1)
@@ -679,27 +795,19 @@ int	mouse(int button, int x, int y, void *param)
 	t_mlx		*mlx;
 
 	mlx = param;
+	printf("\npressed %d at x %d y %d\n", button, x, y);
 	if (button == 1) // map select
-	{
-		map_mouse(mlx, x, y);
-		draw_map(mlx);
-	}
+		actions4(0, mlx, x, y);
 	else if (button == 2) // map origin move
-	{
-		mouse_move(mlx->smap, x, y);
-		draw_map(mlx);
-	}
+		actions5(0, mlx->smap, x, y);
 	else if (button == 5) //  scroll up
-	{
-		mouse_zoom(mlx->smap, 1);
-		draw_map(mlx);
-	}
+		actions2(1, mlx->smap, 1);
 	else if (button == 4) //  scroll down
-	{
-		mouse_zoom(mlx->smap, -1);
-		draw_map(mlx);
-	}
-
+		actions2(1, mlx->smap, -1);
+	else
+		return (0);
+	draw_map(mlx);
+	// TO REMOVE
 	if (mlx->smap->mode > 1)
 	{
 		printf("current rota | x: %f y: %f z: %f zoom: %f\n", mlx->smap->cam.rot.vec[0], mlx->smap->cam.rot.vec[1], mlx->smap->cam.rot.vec[2], mlx->smap->zoom);
@@ -719,9 +827,6 @@ int	mouse(int button, int x, int y, void *param)
 		printf("map 1 %p map 2 %p map 3 %p map 4 %p\n", mlx->map[1], mlx->map[2], mlx->map[3], mlx->map[4]);
 		printf("smap %p\n", mlx->smap);
 	}
-
-
-	printf("\npressed %d at x %d y %d\n", button, x, y);
 	return (0);
 }
 
@@ -750,28 +855,27 @@ int	main(int argc, char **argv)
 	t_map	*map;
 
 	mlx = NULL;
-	if (argc == 4)
-		mlx = cont_init(ft_atoi(argv[2]), ft_atoi(argv[3]), "Hello World");
+	if (argc < 2)
+		return (1);
+	else if (argc == 4)
+		mlx = cont_init(ft_atoi(argv[2]), ft_atoi(argv[3]), argv[1]);
 	else
-		mlx = cont_init(800, 600, "Hello World");
+		mlx = cont_init(800, 600, argv[1]);
 	mlx_key_hook(mlx->mlx_win, input, mlx);
 	mlx_mouse_hook(mlx->mlx_win, mouse, mlx);
 	mlx->mlx_img = mlx_new_image(mlx->mlx_ptr, mlx->width, mlx->width);
 	mlx->img_dat = mlx_get_data_addr(mlx->mlx_img, &mlx->bpp, &mlx->size_line, &mlx->endian);
-	printf("img data %s\n", mlx->img_dat);
-	printf("bpp %d size line %d endian %d\n", mlx->bpp, mlx->size_line, mlx->endian);
-	if (argc > 1)
-	{
-		if (!map_reader(mlx, argv[1], &mlx->map[0]))
-			exit(0);
-		settings_reset(mlx->map[0], mlx);
-		map_reset(mlx, mlx->map[0]);
-		map0_reset(mlx, mlx->map[1]);
-		map0_reset(mlx, mlx->map[2]);
-		map0_reset(mlx, mlx->map[3]);
-		map_reset(mlx, mlx->map[4]);
-		draw_map(mlx);
-	}
+//	printf("img data %s\n", mlx->img_dat);
+//	printf("bpp %d size line %d endian %d\n", mlx->bpp, mlx->size_line, mlx->endian);
+	if (!map_reader(mlx, argv[1], &mlx->map[0]))
+		exit(0);
+	settings_reset(mlx->map[0], mlx);
+	map_reset(mlx, mlx->map[0]);
+	map0_reset(mlx, mlx->map[1]);
+	map0_reset(mlx, mlx->map[2]);
+	map0_reset(mlx, mlx->map[3]);
+	map_reset(mlx, mlx->map[4]);
+	draw_map(mlx);
 	mlx_loop(mlx->mlx_ptr);
 	return (0);
 }

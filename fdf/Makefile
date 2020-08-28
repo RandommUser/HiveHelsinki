@@ -12,7 +12,7 @@
 
 NAME=fdf
 
-FILES=main.c reader.c points.c drawing.c
+FILES=main.c reader.c points.c drawing.c keys.c
 
 INCLUDES=-I ./libft -I ./minilibx
 
