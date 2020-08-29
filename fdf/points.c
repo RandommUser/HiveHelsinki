@@ -12,9 +12,6 @@
 
 #include "header.h"
 
-#include <stdio.h>
-
-
 t_point	*find_point(t_point *curr, int x, int y)
 {
 	if (curr == NULL)
@@ -82,24 +79,19 @@ t_point	*point_conv(t_point *start, char **str, int y)
 	x = -1;
 	if (!start && !(++x))
 	{
-//printf("making a new starting point: %s\n", str[x]);
 		height = ft_atoi(str[x]);
-		color = -1;
-		if (ft_strchr(str[x], COLOR_SPLIT))
-			color = ft_atoi_base(str[x] + ft_strclen(str[x], COLOR_SPLIT) + 1, 16);
+		color = ft_strchr(str[x], COLOR_SPLIT) ? ft_atoi_base(str[x] +
+		ft_strclen(str[x], COLOR_SPLIT) + 1, 16) : -1;
 		if (!(start = point_init(start, coords(x, y), height, color)))
-			return (NULL);
-//ft_putstr("made a new start point\n");
+			exit(ERR_MEMORY);
 	}
 	while (start && str[++x])
 	{
 		height = ft_atoi(str[x]);
-		color = -1;
-		if (ft_strchr(str[x], COLOR_SPLIT))
-			color = ft_atoi_base(str[x] + ft_strclen(str[x], COLOR_SPLIT) + 1, 16); 
+		color = ft_strchr(str[x], COLOR_SPLIT) ? ft_atoi_base(str[x] +
+		ft_strclen(str[x], COLOR_SPLIT) + 1, 16) : -1;
 		if (!(point_init(start, coords(x, y), height, color)))
-			return (NULL);
-//ft_putstr("point added\n");
+			exit(ERR_MEMORY);
 	}
 	ft_strarrdel(str);
 	return (start);

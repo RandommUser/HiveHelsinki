@@ -12,23 +12,27 @@
 
 #include "header.h"
 
-void	contra(t_mlx *mlx, int key)
+/*
+** SUPER SECRET BONUS
+*/
+
+void		contra(t_mlx *mlx, int key)
 {
 	static char	contra;
 
-	if (key == 126 && (contra == 0 || contra == 1))
+	if (key == AR_UP && (contra == 0 || contra == 1))
 		contra++;
-	else if (key == 125 && (contra == 2 || contra == 3))
+	else if (key == AR_DW && (contra == 2 || contra == 3))
 		contra++;
-	else if (key == 123 && (contra == 4 || contra == 6))
+	else if (key == AR_LF && (contra == 4 || contra == 6))
 		contra++;
-	else if (key == 124 && (contra == 5 || contra == 7))
+	else if (key == AR_RG && (contra == 5 || contra == 7))
 		contra++;
-	else if (key == 11 && contra == 8)
+	else if (key == K_B && contra == 8)
 		contra++;
-	else if (key == 0 && contra == 9)
+	else if (key == K_A && contra == 9)
 		contra++;
-	else if (key == 36 && contra == 10)
+	else if (key == K_ENT && contra == 10)
 	{
 		contra = 0;
 		actions1(1, mlx->smap);
@@ -36,50 +40,58 @@ void	contra(t_mlx *mlx, int key)
 	}
 }
 
+/*
+**  map select (2-4) | limitor toggle | vanishing point-- | vanishing point++
+**  thick lines toggle
+*/
+
 static void	keys3(t_mlx *mlx, int key)
 {
-	if (key == 20) // map 3
+	if (key == K_2)
+		actions4(1, mlx, 2, 0);
+	else if (key == K_3)
 		actions4(1, mlx, 3, 0);
-	else if (key == 21) // map 4
+	else if (key == K_4)
 		actions4(1, mlx, 4, 0);
-	else if (key == 256) // map (fov) limitor
+	else if (key == K_LCN)
 		actions1(2, mlx->smap);
-	else if (key == 27) // vanishing point --
+	else if (key == K_MI)
 		actions2(0, mlx->smap, -1);
-	else if (key == 24) // vanishing point ++;
-		actions2(0 ,mlx->smap, 1);
-	else if (key == 17) // thicc
+	else if (key == K_PL)
+		actions2(0, mlx->smap, 1);
+	else if (key == K_T)
 		actions1(0, mlx->smap);
-	else if (key == 2 && mlx->smap->mode != 0)
-		mlx->smap->mode = 0;
-	else if (key == 2 && mlx->smap->mode == 0)
-		mlx->smap->mode = 1;
 	else
 		return ;
 	draw_map(mlx);
 }
 
+/*
+**  fov++ | fov-- | near plain-- | near plain++ | far plain++ | far plain--
+**  map reset | view mode toggle | map select (1)
+*/
+
 static void	keys2(t_mlx *mlx, int key)
 {
-	if (key == 41) // nearP --
+	if (key == K_DOT)
+		actions2(2, mlx->smap, 1);
+	else if (key == K_COM)
+		actions2(2, mlx->smap, -1);
+	else if (key == K_COL)
 		actions5(1, mlx->smap, 0, -1);
-	else if (key == 39) // nearP ++
+	else if (key == K_QUO)
 		actions5(1, mlx->smap, 0, 1);
-	else if (key == 33) // farP --
+	else if (key == K_SBS)
 		actions5(1, mlx->smap, 1, -1);
-	else if (key == 30) // farP ++
+	else if (key == K_SBC)
 		actions5(1, mlx->smap, 1, 1);
-	else if (key == 75) // camera plain flip
-		actions1(4, mlx->smap);
-	else if (key == 15) // reset map
-		mlx->mode == 1 ? map0_reset(mlx, mlx->smap) : 
+	else if (key == K_R)
+		mlx->mode == 1 ? map0_reset(mlx, mlx->smap) :
 			map_reset(mlx, mlx->smap);
-	else if (key == 23) // view mode swap
+	else if (key == K_5)
 		view_mode(mlx);
-	else if (key == 18) // map 1
+	else if (key == K_1)
 		actions4(1, mlx, 1, 0);
-	else if (key == 19) // map 2
-		actions4(1, mlx, 2, 0);
 	else
 	{
 		keys3(mlx, key);
@@ -88,28 +100,32 @@ static void	keys2(t_mlx *mlx, int key)
 	draw_map(mlx);
 }
 
+/*
+**  rotate left (y-axis) | rotate right (y-axis) | rotate top (x-axis)
+**  rotate bottom (x-axis) | rotate clockwise (z-axis)
+** 	rotate cclockwise (z-axis) | height++ | height--
+*/
+
 static void	keys1(t_mlx *mlx, int key)
 {
-	if (key == 86) // right
+	if (key == NUM_4)
+		actions3(0, mlx->smap, 1, 1);
+	else if (key == NUM_6)
 		actions3(0, mlx->smap, 1, -1);
-	else if (key == 91) // top
+	else if (key == NUM_8)
 		actions3(0, mlx->smap, 0, -1);
-	else if (key == 84) // bottom
+	else if (key == NUM_2)
 		actions3(0, mlx->smap, 0, 1);
-	else if (key == 92) // c-clockwise
+	else if (key == NUM_9)
 		actions3(0, mlx->smap, 2, 1);
-	else if (key == 83) // clockwise
+	else if (key == NUM_1)
 		actions3(0, mlx->smap, 2, -1);
-	else if (key == 69) // height +
+	else if (key == NUM_P)
 		actions2(3, mlx->smap, 1.1);
-	else if (key == 67) // height flip
+	else if (key == NUM_A)
 		actions2(3, mlx->smap, -1);
-	else if (key == 78) // height --
+	else if (key == NUM_M)
 		actions2(3, mlx->smap, 0.9);
-	else if (key == 43) // fov ++
-		actions2(2, mlx->smap, -1);
-	else if (key == 47) // fov --
-		actions2(2, mlx->smap, 1);
 	else
 	{
 		keys2(mlx, key);
@@ -118,28 +134,31 @@ static void	keys1(t_mlx *mlx, int key)
 	draw_map(mlx);
 }
 
-void	keys(t_mlx *mlx, int key)
+/*
+**  zoom-- | zoom++ | move up | move down | move left | move right
+**  skew left | skew right | projection change
+*/
+
+void		keys(t_mlx *mlx, int key)
 {
-	if (key == PG_UP) // zoom
+	if (key == PG_DW)
 		actions2(1, mlx->smap, -1);
-	else if (key == PG_DW) // zoom
+	else if (key == PG_UP)
 		actions2(1, mlx->smap, 1);
-	else if (key == AR_UP) // move
+	else if (key == AR_UP)
 		actions3(1, mlx->smap, 1, -1);
-	else if (key == AR_DW) // move
+	else if (key == AR_DW)
 		actions3(1, mlx->smap, 1, 1);
-	else if (key == AR_LF) // move
+	else if (key == AR_LF)
 		actions3(1, mlx->smap, 0, -1);
-	else if (key == AR_RG) // move
+	else if (key == AR_RG)
 		actions3(1, mlx->smap, 0, 1);
-	else if (key == K_W) // skew or something
+	else if (key == K_W)
 		actions3(1, mlx->smap, 2, 1);
-	else if (key == K_S) // skew or something
+	else if (key == K_S)
 		actions3(1, mlx->smap, 2, -1);
-	else if (key == 35) // projection change
+	else if (key == K_P)
 		actions1(3, mlx->smap);
-	else if (key == 88) // left
-		actions3(0, mlx->smap, 1, 1);
 	else
 	{
 		keys1(mlx, key);

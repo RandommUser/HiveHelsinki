@@ -25,14 +25,50 @@
 # define ESC_KEY 53
 # define PG_UP 116
 # define PG_DW 121
+
 # define AR_UP 126
 # define AR_DW 125
 # define AR_LF 123
 # define AR_RG 124
+
+# define NUM_1 83
+# define NUM_2 84
+# define NUM_4 86
+# define NUM_6 88
+# define NUM_8 91
+# define NUM_9 92
+# define NUM_P 69
+# define NUM_M 78
+# define NUM_A 67
+
 # define K_W 13
 # define K_A 0
 # define K_S 1
 # define K_D 2
+# define K_B 11
+# define K_LCN 256
+# define K_1 18
+# define K_2 19
+# define K_3 20
+# define K_4 21
+# define K_5 23
+# define K_MI 27
+# define K_PL 24
+# define K_P 35
+# define K_T 17
+# define K_R 15
+# define K_ENT 36
+# define K_COM 43
+# define K_DOT 47
+# define K_COL 41// :
+# define K_QUO 39
+# define K_SBS 33// [
+# define K_SBC 30// ]
+
+# define MOU_L 1
+# define MOU_R 2
+# define MOU_S_U 5
+# define MOU_S_D 4
 
 # define COLOR_SPLIT ','
 # define WIDTH 10
@@ -54,8 +90,15 @@
 # define ROTA_STEP 10
 # define ANIM_STEP 100
 # define ANIM_TIME 500000
+# define WIN_WIDTH 800
+# define WIN_HEIGHT 600
+# define MAX_WIDTH 5120
+# define MAX_HEIGHT 2880
 
 # define ERR_MEMORY 4
+# define ERR_MAP 5
+# define ERR_MLX 2
+# define ERR_READER 3
 
 typedef struct		s_point
 {
@@ -140,8 +183,7 @@ t_loca				rotation_cube(t_vec4 loc, t_map *map, int color);
 t_point				*point_conv(t_point *start, char **str, int y);
 t_point				*find_point(t_point *curr, int x, int y);
 
-t_mat4				map_matrix(t_map *map);
-t_mat4				camera_matrix(t_cam cam);
+t_mat4				rot_matrix(float rot[4]);
 
 void				draw_map(t_mlx *window);
 void				draw_line1(t_mlx *mlx, t_map *map, t_loca start, t_loca end);
@@ -159,5 +201,9 @@ void				view_mode(t_mlx *mlx);
 
 void				contra(t_mlx *mlx, int key);
 void				keys(t_mlx *mlx, int key);
+
+void				map_anim(t_mlx *mlx, t_map *start, t_map *end);
+t_vec4				anim_step(float start[4], float diff[4], float i);
+t_mat4				anim_step2(t_mat4 end, t_mat4 start, t_vec4 diff, float i);
 
 #endif
