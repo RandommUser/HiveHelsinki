@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "libft.h"
+#include <stdlib.h>
 
 void	ft_strarrdel(char **strarr)
 {
@@ -18,7 +19,10 @@ void	ft_strarrdel(char **strarr)
 
 	i = -1;
 	if (strarr)
+	{
 		while (strarr[++i])
 			ft_strdel(&strarr[i]);
-	ft_strdel(strarr);
+		ft_strdel(&strarr[i]);
+	}
+	free(strarr);
 }
