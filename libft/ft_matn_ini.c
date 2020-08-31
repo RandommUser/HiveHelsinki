@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "libft.h"
+#include <stdlib.h>
 
 t_matn	*matn_cpy(float *src, size_t n)
 {
