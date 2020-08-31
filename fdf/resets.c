@@ -23,7 +23,6 @@ void	map_gen_reset(t_mlx *mlx, t_map *map)
 	map->h_mod = H_MOD;
 	map->zoom = ZOOM_DEF;
 	map->limit = 1;
-	map->color = MODE_COLOR;
 	if (map != mlx->map[0])
 	{
 		map->pos.vec[0] = mlx->width / 2 - 1;
@@ -62,7 +61,6 @@ void	settings_reset(t_map *map, t_mlx *mlx)
 	map->thick = 0;
 	map->rot = vec4_ini((float[4]){ROTA_X, ROTA_Y, ROTA_Z, ROTA_W});
 	map->mode = MODE_DEF;
-	map->color = MODE_COLOR;
 	map->h_mod = H_MOD;
 	map->pos = vec4_ini((float[4]){mlx->width, mlx->height, 0, 0});
 	map->zoom = ZOOM_DEF;
@@ -73,6 +71,7 @@ void	settings_reset(t_map *map, t_mlx *mlx)
 	map->cam.rot = vec4_ini((float[4]){90, 90, 0, 1});
 	map->origin = mat4_trans((float[3]){mlx->width / 2, mlx->height / 2, 1});
 	map->limit = 1;
+	map->color = 0;
 	mlx->map[1] = map_copy(mlx);
 	mlx->map[2] = map_copy(mlx);
 	mlx->map[3] = map_copy(mlx);

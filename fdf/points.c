@@ -58,15 +58,15 @@ t_point	*point_init(t_point *start, t_coord spot, int height, int color)
 		return (NULL);
 	rtn->loc.vec[0] = spot.x;
 	rtn->loc.vec[1] = spot.y;
+	rtn->loc.vec[2] = height;
+	rtn->loc.vec[3] = 1;
+	rtn->color = color;
 	rtn->top = NULL;
 	rtn->bottm = NULL;
 	rtn->left = NULL;
 	rtn->right = NULL;
 	if (start)
 		point_conn(start, rtn, spot);
-	rtn->loc.vec[2] = height;
-	rtn->loc.vec[3] = 1;
-	rtn->color = color;
 	return (rtn);
 }
 

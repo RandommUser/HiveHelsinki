@@ -60,10 +60,11 @@
 # define K_ENT 36
 # define K_COM 43
 # define K_DOT 47
-# define K_COL 41// :
+# define K_COL 41
 # define K_QUO 39
-# define K_SBS 33// [
-# define K_SBC 30// ]
+# define K_SBS 33
+# define K_SBC 30
+# define K_TAB 48
 
 # define MOU_L 1
 # define MOU_R 2
@@ -79,8 +80,10 @@
 # define ZOOM_DEF 1
 # define ZOOM_STEP 10
 # define MODE_DEF 1
-# define MODE_COLOR 1
 # define DEF_COLOR 0x888888
+# define HEIGHT 20
+# define MAX_COLOR 0xff0000//0xffffff
+# define MIN_COLOR 0x0000ff//0x303030
 # define H_MOD 0.2
 # define W_MOD 1
 # define ROTA_X -100
@@ -100,9 +103,13 @@
 # define ERR_MLX 2
 # define ERR_READER 3
 
+/*
+** point in map
+** loc: x, y, z, w
+*/
+
 typedef struct		s_point
 {
-	// x, y, z, w
 	t_vec4			loc;
 	struct s_point	*top;
 	struct s_point	*left;
@@ -111,29 +118,52 @@ typedef struct		s_point
 	int				color;
 }					t_point;
 
- typedef struct		s_coord
+/*
+** x,y coordinate position
+*/
+
+typedef struct		s_coord
 {
 	float	x;
 	float	y;
 	float	z;
 }					t_coord;
 
+/*
+** pixel position
+** color: r, g, b
+** loc: x, y, z, w
+*/
+
 typedef struct		s_loca
 {
 	t_rgb	color;
-	// x, y, z, w
 	t_vec4	loc;
 }					t_loca;
 
+/*
+** camera data
+** loc: x, y, z, w
+** rot: x, y, z, w;
+** plan: near pain, far plain, Fov, vanishing point
+*/
+
 typedef struct		s_cam
 {
-	// x, y, z, w
 	t_vec4	loc;
-	// x, y, z, w
 	t_vec4	rot;
-	// nearZ, farZ, fov, vanishing point
 	t_vec4	plan;
 }					t_cam;
+
+/*
+** map data
+** size: x / 2, z / 2 (points in input)
+** start: top left corner of input map
+** origin: x, y(, z, w) translation
+** rot: x, y, z, w angles
+** cam: camera struct
+** pos: widht, height, x origin, y origin (map render area)
+*/
 
 typedef	struct		s_map
 {
@@ -145,13 +175,17 @@ typedef	struct		s_map
 	int		mode;
 	int		limit;
 	int		color;
-	// x, y, z, w angles
 	t_vec4	rot;
 	t_cam	cam;
-	//width, height, xpos, ypos
 	t_vec4	pos;
 	int		thick;
 }					t_map;
+
+/*
+** mlx data
+** map[5]: map copies for swapping
+** smap: currently selected map
+*/
 
 typedef struct		s_mlx
 {
@@ -170,27 +204,62 @@ typedef struct		s_mlx
 	int		mode;
 }					t_mlx;
 
+/*
+** input reader
+*/
+
 int					map_reader(t_mlx *mlx, char *file, t_map **map);
+t_point				*point_conv(t_point *start, char **str, int y);
+t_point				*find_point(t_point *curr, int x, int y);
+
+/*
+** misc struct init
+*/
 
 t_coord				coords(int x, int y);
-
 t_loca				map_point(t_vec4 vec, int color);
+
+/*
+** projection calculations
+*/
+
 t_loca				point_loca(t_point *point, t_map *map, t_mat4 trans);
 t_loca				point_loca_orth(t_point *point, t_map *map, t_mat4 trans);
 t_loca				point_loca_pin(t_point *point, t_map *map, t_mat4 rot);
 t_loca				rotation_cube(t_vec4 loc, t_map *map, int color);
-
-t_point				*point_conv(t_point *start, char **str, int y);
-t_point				*find_point(t_point *curr, int x, int y);
-
 t_mat4				rot_matrix(float rot[4]);
 
+/*
+** drawing functions
+*/
+
 void				draw_map(t_mlx *window);
-void				draw_line1(t_mlx *mlx, t_map *map, t_loca start, t_loca end);
+void				draw_line(t_mlx *mlx, t_map *map, t_loca start, t_loca end);
+void				draw_linet(t_mlx *mlx, t_map *map, t_loca start,
+						t_loca end);
+void				draw_rota(t_mlx *mlx, t_map *map);
+int					pos_test(float map[4], float start[4], float end[4]);
+int					height_color(float z, int min, int max, float depth);
+
+/*
+** mlx/map resetting stuff
+*/
+
 void				settings_reset(t_map *map, t_mlx *mlx);
 void				map_reset(t_mlx *mlx, t_map *map);
-void				map_size(t_map **map);
 void				map0_reset(t_mlx *mlx, t_map *map);
+void				map1_reset(t_mlx *mlx, t_map *map);
+void				map2_reset(t_mlx *mlx, t_map *map);
+void				map3_reset(t_mlx *mlx, t_map *map);
+void				map4_reset(t_mlx *mlx, t_map *map);
+void				map_gen_reset(t_mlx *mlx, t_map *map);
+t_map				*map_copy(t_mlx *mlx);
+void				map_size(t_map **map);
+void				zoom_check(t_map *map);
+
+/*
+** control actions
+*/
 
 void				actions1(int func, t_map *map);
 void				actions2(int func, t_map *map, float dir);
@@ -199,8 +268,16 @@ void				actions4(int func, t_mlx *mlx, int x, int y);
 void				actions5(int func, t_map *map, int x, int y);
 void				view_mode(t_mlx *mlx);
 
+/*
+** control handling
+*/
+
 void				contra(t_mlx *mlx, int key);
 void				keys(t_mlx *mlx, int key);
+
+/*
+** map transitions
+*/
 
 void				map_anim(t_mlx *mlx, t_map *start, t_map *end);
 t_vec4				anim_step(float start[4], float diff[4], float i);

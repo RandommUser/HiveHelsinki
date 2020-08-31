@@ -42,7 +42,7 @@ void		contra(t_mlx *mlx, int key)
 
 /*
 **  map select (2-4) | limitor toggle | vanishing point-- | vanishing point++
-**  thick lines toggle
+**  thick lines toggle | depth coloring toggle
 */
 
 static void	keys3(t_mlx *mlx, int key)
@@ -61,6 +61,8 @@ static void	keys3(t_mlx *mlx, int key)
 		actions2(0, mlx->smap, 1);
 	else if (key == K_T)
 		actions1(0, mlx->smap);
+	else if (key == K_TAB)
+		actions1(4, mlx->smap);
 	else
 		return ;
 	draw_map(mlx);

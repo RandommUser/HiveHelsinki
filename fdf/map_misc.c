@@ -12,7 +12,36 @@
 
 #include "header.h"
 
-/* 
+/*
+** height coloring
+*/
+// remove
+#include <stdio.h>
+
+int		height_color(float z, int min, int max, float depth)
+{
+	float	prog;
+	t_rgb	diff;
+	t_rgb	minc;
+
+	//depth *= depth < 0 ? -1 : 1;
+	depth = depth == 0 ? 0.001 : depth;
+	if (z < -(depth))
+		return (min);
+	else if (z > depth)
+		return (max);
+	diff = rgb_conv(max);
+	minc = rgb_conv(min);
+	rgb_calc(diff, minc, '-');
+	prog = (z + depth) / (depth * 2);
+//printf("%f\n", prog);
+	minc.red += diff.red * prog;
+	minc.green += diff.green * prog;
+	minc.blue += diff.blue * prog;
+	return (trgb_conv(minc));
+}
+
+/*
 ** automated zoom finder
 ** mapN_reset helper -> map_reset helper
 */
@@ -95,7 +124,6 @@ t_map	*map_copy(t_mlx *mlx)
 	new->rot = mlx->smap->rot;
 	new->zoom = mlx->smap->zoom;
 	new->mode = mlx->smap->mode;
-	new->color = mlx->smap->color;
 	new->h_mod = mlx->smap->h_mod;
 	new->cam = mlx->smap->cam;
 	new->size = mlx->smap->size;

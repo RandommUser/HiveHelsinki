@@ -12,8 +12,9 @@
 
 NAME=fdf
 
-FILES=main.c reader.c points.c drawing.c keys.c anim.c anim_helpers.c actions.c \
-add_actions.c projections.c map_misc.c resets.c map_resets.c
+FILES=main.c reader.c points.c drawing.c keys.c anim.c anim_helpers.c \
+actions.c add_actions.c projections.c map_misc.c resets.c map_resets.c \
+draw_line.c pos_test.c draw_helpers.c
 
 INCLUDES=-I ./libft -I ./minilibx
 

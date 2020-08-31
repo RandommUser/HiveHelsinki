@@ -59,8 +59,10 @@ t_loca	point_loca(t_point *point, t_map *map, t_mat4 trans)
 {
 	t_vec4	vec;
 	t_mat4	zoom;
+	int		color;
 
-	point->color = point->color == -1 ? DEF_COLOR : point->color;
+	color = !map->color && point->color == -1 ? height_color(point->loc.vec[2]
+		* map->h_mod, MIN_COLOR, MAX_COLOR, HEIGHT) : point->color;
 	vec = vec4_ini((float[4]){(point->loc.vec[0] - map->size.x) * WIDTH,
 		(point->loc.vec[1] - map->size.y) * WIDTH,
 		point->loc.vec[2] * WIDTH * map->h_mod, point->loc.vec[3]});
@@ -69,7 +71,9 @@ t_loca	point_loca(t_point *point, t_map *map, t_mat4 trans)
 	vec = mat4_vec4(zoom, vec);
 	vec.vec[0] += map->origin.mat[0][3];
 	vec.vec[1] += map->origin.mat[1][3];
-	return (map_point(vec, point->color));
+	color = map->color ? height_color(vec.vec[2], 0x303030, 0xffffff,
+		20) : color;
+	return (map_point(vec, color));
 }
 
 /*
@@ -80,8 +84,10 @@ t_loca	point_loca_orth(t_point *point, t_map *map, t_mat4 rot)
 {
 	t_vec4	vec;
 	t_mat4	trans;
+	int		color;
 
-	point->color = point->color == -1 ? DEF_COLOR : point->color;
+	color = !map->color && point->color == -1 ? height_color(point->loc.vec[2]
+		* map->h_mod, MIN_COLOR, MAX_COLOR, HEIGHT) : point->color;
 	vec = vec4_ini((float[4]){(point->loc.vec[0] - map->size.x) * WIDTH,
 		(point->loc.vec[1] - map->size.y) * WIDTH, (point->loc.vec[2] *
 		map->h_mod - map->size.z) * WIDTH, point->loc.vec[3]});
@@ -92,7 +98,9 @@ t_loca	point_loca_orth(t_point *point, t_map *map, t_mat4 rot)
 	vec = mat4_vec4(trans, vec);
 	vec.vec[0] += map->cam.loc.vec[0];
 	vec.vec[1] += map->cam.loc.vec[1];
-	return (map_point(vec, point->color));
+	color = map->color ? height_color(vec.vec[2], 0x303030, 0xffffff,
+		map->cam.plan.vec[3] * -10) : color;
+	return (map_point(vec, color));
 }
 
 /*
@@ -103,8 +111,10 @@ t_loca	point_loca_pin(t_point *point, t_map *map, t_mat4 rot)
 {
 	t_vec4	vec;
 	t_mat4	trans;
+	int		color;
 
-	point->color = point->color == -1 ? DEF_COLOR : point->color;
+	color = !map->color && point->color == -1 ? height_color(point->loc.vec[2]
+		* map->h_mod, MIN_COLOR, MAX_COLOR, HEIGHT) : point->color;
 	vec = vec4_ini((float[4]){(point->loc.vec[0] - map->size.x) * WIDTH,
 		(point->loc.vec[1] - map->size.y) * WIDTH, (point->loc.vec[2] *
 		map->h_mod - map->size.z) * WIDTH, point->loc.vec[3]});
@@ -117,5 +127,7 @@ t_loca	point_loca_pin(t_point *point, t_map *map, t_mat4 rot)
 	vec = mat4_vec4(trans, vec);
 	vec.vec[0] += map->cam.loc.vec[0];
 	vec.vec[1] += map->cam.loc.vec[1];
-	return (map_point(vec, point->color));
+	color = map->color ? height_color(vec.vec[2], 0x303030, 0xffffff,
+		map->cam.plan.vec[3]) : color;
+	return (map_point(vec, color));
 }

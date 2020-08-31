@@ -16,7 +16,7 @@
 ** key loop
 */
 
-int	input(int key, void *param)
+static int		input(int key, void *param)
 {
 	t_mlx		*mlx;
 
@@ -55,7 +55,7 @@ int	input(int key, void *param)
 ** map select | map origin move | zoom++ | zoom--
 */
 
-int	mouse(int button, int x, int y, void *param)
+static int		mouse(int button, int x, int y, void *param)
 {
 	t_mlx		*mlx;
 
@@ -99,7 +99,7 @@ int	mouse(int button, int x, int y, void *param)
 ** main helper
 */
 
-t_mlx	*cont_init(int width, int height, char *title)
+static t_mlx	*cont_init(int width, int height, char *title)
 {
 	t_mlx	*rtn;
 
@@ -124,7 +124,7 @@ t_mlx	*cont_init(int width, int height, char *title)
 ** main helper
 */
 
-void	mlx_startup(int argc, char **argv, t_mlx **mlx)
+static void		mlx_startup(int argc, char **argv, t_mlx **mlx)
 {
 	if (argc == 4)
 		mlx[0] = cont_init(ft_atoi(argv[2]) <= MAX_WIDTH ? ft_atoi(argv[2]) :
@@ -138,13 +138,11 @@ void	mlx_startup(int argc, char **argv, t_mlx **mlx)
 		|| !(mlx[0]->img_dat = mlx_get_data_addr(mlx[0]->mlx_img, &mlx[0]->bpp,
 		&mlx[0]->size_line, &mlx[0]->endian)))
 		exit(ERR_MLX);
-//	printf("img data %s\n", mlx->img_dat);
-//	printf("bpp %d size line %d endian %d\n", mlx->bpp, mlx->size_line, mlx->endian);
 	if (!map_reader(mlx[0], argv[1], &mlx[0]->map[0]))
 		exit(ERR_MAP);
 }
 
-int	main(int argc, char **argv)
+int				main(int argc, char **argv)
 {
 	t_mlx	*mlx;
 

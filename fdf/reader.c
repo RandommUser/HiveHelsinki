@@ -39,12 +39,18 @@ int		map_reader(t_mlx *mlx, char *file, t_map **map)
 	int		y;
 
 	new_map = NULL;
-	y = -1;
+	y = 0;
 	if ((fd = open(file, O_RDONLY)) < 3)
 		exit(ERR_READER);
-	while (get_next_line(fd, &line) > -1 && line && ++y >= 0)
-		if (!(new_map = map_parse(new_map, ft_strsplit(line, ' '), y)))
+	while (get_next_line(fd, &line) > -1 && line)
+	{
+		if (line[0] && !(new_map = map_parse(new_map, ft_strsplit(line, ' '), y)))
 			exit(ERR_MEMORY);
+		y += !line[0] ? 0 : 1;
+		free(line);
+	}
+	if (!new_map)
+		exit(ERR_MAP);
 	*map = new_map;
 	map_size(map);
 	settings_reset(*map, mlx);

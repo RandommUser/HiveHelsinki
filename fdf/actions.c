@@ -15,6 +15,7 @@
 /*
 ** mouse and keyboard action
 ** 0) thick lines 1) rotation cube toggle 2) fov limitor 3) map mode toggle
+** 4) map color toggle (depth/height)
 */
 
 void	actions1(int func, t_map *map)
@@ -30,6 +31,8 @@ void	actions1(int func, t_map *map)
 		map->mode++;
 		map->mode = map->mode > 3 ? 1 : map->mode;
 	}
+	else if (func == 4)
+		map->color = map->color == 0 ? 1 : 0;
 }
 
 /*
@@ -39,7 +42,7 @@ void	actions1(int func, t_map *map)
 void	actions2(int func, t_map *map, float dir)
 {
 	if (func == 0)
-		map->cam.plan.vec[3] += dir > 0 ? 0.1 : -0.1;
+		map->cam.plan.vec[3] += dir > 0 ? 1 : -1;
 	else if (func == 1)
 		map->zoom = dir > 0 ? map->zoom * 1.2 : map->zoom / 1.2;
 	else if (func == 2 && map->mode > 1)

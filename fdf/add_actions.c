@@ -45,7 +45,7 @@ void	view_mode(t_mlx *mlx)
 }
 
 /*
-** rotation cube rendering
+** rotation cube calculation
 */
 
 t_loca	rotation_cube(t_vec4 loc, t_map *map, int color)
