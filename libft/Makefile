@@ -28,8 +28,8 @@ SRCS = ft_abs.c ft_atoi.c ft_bzero.c ft_isalnum.c ft_isalpha.c ft_isascii.c \
 	   ft_strsub.c ft_strtrim.c ft_tolower.c ft_toupper.c ft_strclen.c \
 	   ft_strrclen.c ft_putpointer.c get_next_line.c ft_strarrdel.c ft_rgb.c \
 	   ft_chrcount.c ft_itoa_base.c ft_atoi_base.c ft_power_to.c ft_keys.c \
-	   ft_keys2.c ft_strnchr.c ft_strrep.c ft_vecn.c ft_mat2.c ft_matn.c ft_mat4.c \
-	   ft_vec4.c
+	   ft_keys2.c ft_strnchr.c ft_strrep.c ft_vecn.c ft_mat4_pro.c ft_matn.c ft_mat4.c \
+	   ft_vec4.c ft_mat4_trans.c ft_matn_ini.c
 BIGO := $(SRCS:.c=.o)
 
 all : $(NAME)
