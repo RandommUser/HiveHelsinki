@@ -86,7 +86,6 @@ int				pos_test(float map[4], float start[4], float end[4])
 	t_vec4	b;
 	t_vec4	c;
 	t_vec4	d;
-	int		ret;
 
 	if (within_map(map, start) || within_map(map, end))
 		return (1);

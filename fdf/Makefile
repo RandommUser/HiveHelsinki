@@ -5,25 +5,33 @@
 #                                                     +:+ +:+         +:+      #
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2020/02/03 17:22:50 by phakakos          #+#    #+#              #
-#    Updated: 2020/02/19 17:45:06 by phakakos         ###   ########.fr        #
+#    Created: 2020/09/01 15:41:27 by phakakos          #+#    #+#              #
+#    Updated: 2020/09/01 15:41:30 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME=fdf
-
-FILES=main.c reader.c points.c drawing.c keys.c anim.c anim_helpers.c \
-actions.c add_actions.c projections.c map_misc.c resets.c map_resets.c \
-draw_line.c pos_test.c draw_helpers.c
-
-INCLUDES=-I ./libft -I ./minilibx
-
-LIBRARY=-L ./minilibx -lmlx -L libft -lft
-
+SRCS=actions.c add_actions.c anim.c anim_helpers.c draw_helpers.c draw_line.c\
+drawing.c keys.c main.c map_misc.c map_resets.c points.c pos_test.c \
+projections.c reader.c resets.c 
+BIGO=$(SRCS:.c=.o)
+INC=-I ./minilibx -I libft/ 
+LIB=-L ./minilibx -lmlx -L ./libft/ -lft 
 FRAMEWORK=-framework OpenGL -framework AppKit
 
 all : $(NAME)
 
 $(NAME) :
-	make -C ./libft mclean
-	cc $(INCLUDES) $(FILES) $(LIBRARY) $(FRAMEWORK)
+	make -C ./libft/
+	gcc -c -Wall -Wextra -Werror $(SRCS) $(INC)
+	gcc -Wall -Wextra -Werror -o $(NAME) $(BIGO) $(LIB) $(FRAMEWORK)
+
+clean :
+	rm -f $(BIGO)
+	make -C ./libft clean
+
+fclean : clean
+	rm -f $(NAME)
+	make -C ./libft fclean
+
+re: fclean all

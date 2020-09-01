@@ -15,8 +15,6 @@
 /*
 ** height coloring
 */
-// remove
-#include <stdio.h>
 
 int		height_color(float z, int min, int max, float depth)
 {
@@ -24,17 +22,13 @@ int		height_color(float z, int min, int max, float depth)
 	t_rgb	diff;
 	t_rgb	minc;
 
-	//depth *= depth < 0 ? -1 : 1;
 	depth = depth == 0 ? 0.001 : depth;
-	if (z < -(depth))
-		return (min);
-	else if (z > depth)
-		return (max);
 	diff = rgb_conv(max);
 	minc = rgb_conv(min);
-	rgb_calc(diff, minc, '-');
+	diff = rgb_calc(diff, minc, '-');
 	prog = (z + depth) / (depth * 2);
-//printf("%f\n", prog);
+	prog = prog > 1 ? 1 : prog;
+	prog = prog < 0 ? 0 : prog;
 	minc.red += diff.red * prog;
 	minc.green += diff.green * prog;
 	minc.blue += diff.blue * prog;
@@ -52,7 +46,9 @@ void	zoom_check(t_map *map)
 	float	width;
 
 	width = map->size.x * 2 * WIDTH * map->zoom;
-	height = map->size.y * WIDTH * map->zoom;
+	height = map->size.y * 2 * WIDTH * map->zoom;
+	if (!width || !height)
+		return ;
 	while (width < map->pos.vec[0] && height < map->pos.vec[1])
 	{
 		map->zoom *= 1.2;
@@ -114,7 +110,7 @@ t_map	*map_copy(t_mlx *mlx)
 	t_map	*new;
 
 	if (!(new = (t_map*)malloc(sizeof(t_map))))
-		exit(ERR_MEMORY);
+		mexit(ERR_MEMORY);
 	new->start = mlx->smap->start;
 	new->pos = mlx->smap->pos;
 	new->pos.vec[0] = mlx->width / 2 - 1;

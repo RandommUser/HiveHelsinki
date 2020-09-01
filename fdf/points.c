@@ -12,7 +12,7 @@
 
 #include "header.h"
 
-t_point	*find_point(t_point *curr, int x, int y)
+t_point		*find_point(t_point *curr, int x, int y)
 {
 	if (curr == NULL)
 		return (NULL);
@@ -29,7 +29,7 @@ t_point	*find_point(t_point *curr, int x, int y)
 	return (NULL);
 }
 
-void	point_conn(t_point *start, t_point *add, t_coord spot)
+void		point_conn(t_point *start, t_point *add, t_coord spot)
 {
 	t_point	*left;
 	t_point	*right;
@@ -50,7 +50,7 @@ void	point_conn(t_point *start, t_point *add, t_coord spot)
 	add->bottm = bottom;
 }
 
-t_point	*point_init(t_point *start, t_coord spot, int height, int color)
+t_point		*point_init(t_point *start, t_coord spot, int height, int color)
 {
 	t_point	*rtn;
 
@@ -70,20 +70,50 @@ t_point	*point_init(t_point *start, t_coord spot, int height, int color)
 	return (rtn);
 }
 
-t_point	*point_conv(t_point *start, char **str, int y)
+static void	map_valid(char **str)
 {
-	int	x;
-	int	height;
-	int	color;
+	size_t	i;
+	size_t	y;
+	int		hex;
 
+	y = -1;
+	while (str[++y] && (i = -1))
+	{
+		hex = -1;
+		while (str[y][++i])
+		{
+			if ((hex == 0 && str[y][i] != '0') || (hex == 1 && str[y][i]
+				!= 'x' && str[y][i] != 'X'))
+				mexit(ERR_MAP);
+			else if ((i > 0 && str[y][i] == COLOR_SPLIT && hex == -1) ||
+				hex == 0 || hex == 1)
+				hex++;
+			else if (hex >= 2 && hex < 8 && (ft_isdigit(str[y][i]) ||
+				((str[y][i] >= 'a' && str[y][i] <= 'f') ||
+				(str[y][i] >= 'A' && str[y][i] <= 'F'))))
+				hex++;
+			else if (hex == 8 || !(ft_isdigit(str[y][i])) || str[y][i] ==
+				COLOR_SPLIT)
+				mexit(ERR_MAP);
+		}
+	}
+}
+
+t_point		*point_conv(t_point *start, char **str, int y)
+{
+	int		x;
+	long	height;
+	int		color;
+
+	map_valid(str);
 	x = -1;
 	if (!start && !(++x))
 	{
-		height = ft_atoi(str[x]);
+		height = ft_atoi_base(str[x], 10);
 		color = ft_strchr(str[x], COLOR_SPLIT) ? ft_atoi_base(str[x] +
 		ft_strclen(str[x], COLOR_SPLIT) + 1, 16) : -1;
 		if (!(start = point_init(start, coords(x, y), height, color)))
-			exit(ERR_MEMORY);
+			mexit(ERR_MEMORY);
 	}
 	while (start && str[++x])
 	{
@@ -91,7 +121,7 @@ t_point	*point_conv(t_point *start, char **str, int y)
 		color = ft_strchr(str[x], COLOR_SPLIT) ? ft_atoi_base(str[x] +
 		ft_strclen(str[x], COLOR_SPLIT) + 1, 16) : -1;
 		if (!(point_init(start, coords(x, y), height, color)))
-			exit(ERR_MEMORY);
+			mexit(ERR_MEMORY);
 	}
 	ft_strarrdel(str);
 	return (start);

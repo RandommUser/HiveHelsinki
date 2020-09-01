@@ -13,6 +13,23 @@
 #include "header.h"
 
 /*
+** custom exit command
+*/
+
+void	mexit(int num)
+{
+	if (num == ERR_MAP)
+		ft_putstr("Error in the map\n");
+	if (num == ERR_MEMORY)
+		ft_putstr("Error allocating required memory\n");
+	if (num == ERR_MLX)
+		ft_putstr("Error with MLX connection\n");
+	if (num == ERR_READER)
+		ft_putstr("Error reading the input\n");
+	exit(num);
+}
+
+/*
 ** swapping between normal and 4view
 */
 

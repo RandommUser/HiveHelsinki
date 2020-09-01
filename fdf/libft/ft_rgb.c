@@ -20,10 +20,12 @@ static int		floor(long num)
 		return (num);
 }
 
-t_rgb			rgb_conv(int color)
+t_rgb			rgb_conv(long color)
 {
 	t_rgb	rtn;
 
+	color = color > 0xffffff ? 0xffffff : color;
+	color = color < 0 ? 0 : color;
 	rtn.blue = color % 16;
 	color = color / 16;
 	rtn.blue = rtn.blue + color % 16 * 16;

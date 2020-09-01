@@ -100,9 +100,8 @@ void			map_anim(t_mlx *mlx, t_map *start, t_map *end)
 	mlx->smap = end;
 	if (start->mode != end->mode)
 		return ;
-	if (!(end->thick = 0))
-		diff[3] = vec4_ini((float[4]){end->h_mod - start->h_mod,
-			end->zoom - start->zoom, end->thick, 0});
+	diff[3] = vec4_ini((float[4]){end->h_mod - start->h_mod,
+		end->zoom - start->zoom, end->thick, 0});
 	if (start->mode == 1)
 	{
 		diff[0] = diff_ini2(start->origin, end->origin);
@@ -119,5 +118,6 @@ void			map_anim(t_mlx *mlx, t_map *start, t_map *end)
 		if (!anim_diff_check(diff))
 			return ;
 	}
+	end->thick = 0;
 	play_anim(mlx, start, end, diff);
 }

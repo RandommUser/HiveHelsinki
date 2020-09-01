@@ -18,21 +18,21 @@
 **		draw_map
 */
 
-static void		draw_to_image(t_mlx *mlx, t_map *map, t_loca spot)
+void			draw_to_image(t_mlx *mlx, t_map *map, t_loca spot)
 {
-	int		writer;
+	long	writer;
 	int		*image;
 
 	if (!mlx->mlx_img)
 		return ;
 	if (spot.loc.vec[0] >= map->pos.vec[2] && spot.loc.vec[0] <= map->pos.vec[2]
-		+ map->pos.vec[0] && spot.loc.vec[1] >= map->pos.vec[3] &&
+		+ map->pos.vec[0] - 1 && spot.loc.vec[1] >= map->pos.vec[3] &&
 		spot.loc.vec[1] <= map->pos.vec[3] + map->pos.vec[1] && ((map->limit &&
 		map->mode > 1 && spot.loc.vec[2] >= map->cam.plan.vec[3]) || (map->mode
 		== 1 || !map->limit)))
 	{
-		writer = (int)spot.loc.vec[0] + ((mlx->size_line / 4) *
-			(int)spot.loc.vec[1]);
+		writer = ((mlx->size_line / 4) * (int)spot.loc.vec[1]) +
+			(int)spot.loc.vec[0];
 		image = (int*)mlx->img_dat;
 		image[writer] = mlx_get_color_value(mlx->mlx_ptr,
 			trgb_conv(spot.color));

@@ -21,32 +21,16 @@ static int		input(int key, void *param)
 	t_mlx		*mlx;
 
 	mlx = param;
+	if (mlx->verbose)
+	{
+		ft_putstr("pressed ");
+		ft_putnbr(key);
+		ft_putstr("\n");
+	}
 	if (key == ESC_KEY)
-		exit(0);
+		exit(ESC_EXIT);
 	contra(mlx, key);
 	keys(mlx, key);
-	// TO REMOVE
-	ft_putnbr(key);
-	ft_putstr("\n");
-	if (mlx->smap->mode > 1)
-	{
-		printf("current rota | x: %f y: %f z: %f zoom: %f\n", mlx->smap->cam.rot.vec[0], mlx->smap->cam.rot.vec[1], mlx->smap->cam.rot.vec[2], mlx->smap->zoom);
-		printf("cam x %f y %f z %f\n", mlx->smap->cam.loc.vec[0], mlx->smap->cam.loc.vec[1], mlx->smap->cam.loc.vec[2]);
-		printf("nP %f fP %f fov %f\n", mlx->smap->cam.plan.vec[0], mlx->smap->cam.plan.vec[1], mlx->smap->cam.plan.vec[2]);
-	}
-	else
-	{
-		printf("current rota | x: %f y: %f z: %f zoom: %f\nheight mod %f\n", mlx->smap->rot.vec[0], mlx->smap->rot.vec[1], mlx->smap->rot.vec[2], mlx->smap->zoom, mlx->smap->h_mod);
-		printf("x %f y %f\n", mlx->smap->origin.mat[0][3], mlx->smap->origin.mat[1][3]);
-		printf("w %f h %f x %f y %f\n", mlx->smap->pos.vec[0], mlx->smap->pos.vec[1], mlx->smap->pos.vec[2], mlx->smap->pos.vec[3]);
-		printf("stuff %f %f %f %f\n",mlx->smap->pos.vec[2] + mlx->smap->pos.vec[0], (mlx->smap->pos.vec[2] + mlx->smap->pos.vec[0]) / 4, mlx->smap->pos.vec[3] + mlx->smap->pos.vec[1], mlx->smap->pos.vec[3] + mlx->smap->pos.vec[1] / 4);
-	}
-	printf("view mode %d vanishing point %f\n", mlx->mode, mlx->smap->cam.plan.vec[3]);
-	if (mlx->mode == 2)
-	{
-		printf("map 1 %p map 2 %p map 3 %p map 4 %p\n", mlx->map[1], mlx->map[2], mlx->map[3], mlx->map[4]);
-		printf("smap %p\n", mlx->smap);
-	}
 	return (0);
 }
 
@@ -60,7 +44,16 @@ static int		mouse(int button, int x, int y, void *param)
 	t_mlx		*mlx;
 
 	mlx = param;
-	printf("\npressed %d at x %d y %d\n", button, x, y);
+	if (mlx->verbose)
+	{
+		ft_putstr("pressed ");
+		ft_putnbr(button);
+		ft_putstr(" at x ");
+		ft_putnbr(x);
+		ft_putstr(" y ");
+		ft_putnbr(y);
+		ft_putchar('\n');
+	}
 	if (button == MOU_L)
 		actions4(0, mlx, x, y);
 	else if (button == MOU_R)
@@ -72,26 +65,6 @@ static int		mouse(int button, int x, int y, void *param)
 	else
 		return (0);
 	draw_map(mlx);
-	// TO REMOVE
-	if (mlx->smap->mode > 1)
-	{
-		printf("current rota | x: %f y: %f z: %f zoom: %f\n", mlx->smap->cam.rot.vec[0], mlx->smap->cam.rot.vec[1], mlx->smap->cam.rot.vec[2], mlx->smap->zoom);
-		printf("cam x %f y %f z %f\n", mlx->smap->cam.loc.vec[0], mlx->smap->cam.loc.vec[1], mlx->smap->cam.loc.vec[2]);
-		printf("nP %f fP %f fov %f\n", mlx->smap->cam.plan.vec[0], mlx->smap->cam.plan.vec[1], mlx->smap->cam.plan.vec[2]);
-	}
-	else
-	{
-		printf("current rota | x: %f y: %f z: %f zoom: %f\nheight mod %f\n", mlx->smap->rot.vec[0], mlx->smap->rot.vec[1], mlx->smap->rot.vec[2], mlx->smap->zoom, mlx->smap->h_mod);
-		printf("x %f y %f\n", mlx->smap->origin.mat[0][3], mlx->smap->origin.mat[1][3]);
-		printf("w %f h %f x %f y %f\n", mlx->smap->pos.vec[0], mlx->smap->pos.vec[1], mlx->smap->pos.vec[2], mlx->smap->pos.vec[3]);
-		printf("stuff %f %f %f %f\n",mlx->smap->pos.vec[2] + mlx->smap->pos.vec[0], (mlx->smap->pos.vec[2] + mlx->smap->pos.vec[0]) / 4, mlx->smap->pos.vec[3] + mlx->smap->pos.vec[1], mlx->smap->pos.vec[3] + mlx->smap->pos.vec[1] / 4);
-	}
-	printf("view mode %d vanishing point %f\n", mlx->mode, mlx->smap->cam.plan.vec[3]);
-	if (mlx->mode == 2)
-	{
-		printf("map 1 %p map 2 %p map 3 %p map 4 %p\n", mlx->map[1], mlx->map[2], mlx->map[3], mlx->map[4]);
-		printf("smap %p\n", mlx->smap);
-	}
 	return (0);
 }
 
@@ -104,14 +77,14 @@ static t_mlx	*cont_init(int width, int height, char *title)
 	t_mlx	*rtn;
 
 	if (!(rtn = (t_mlx *)malloc(sizeof(t_mlx))))
-		exit(ERR_MEMORY);
+		mexit(ERR_MEMORY);
 	rtn->width = width;
 	rtn->height = height;
 	rtn->title = title;
 	if (!(rtn->mlx_ptr = mlx_init()))
-		exit (ERR_MLX);
+		mexit(ERR_MLX);
 	if (!(rtn->mlx_win = mlx_new_window(rtn->mlx_ptr, width, height, title)))
-		exit(ERR_MLX);
+		mexit(ERR_MLX);
 	rtn->mode = 1;
 	rtn->mlx_img = NULL;
 	rtn->img_dat = NULL;
@@ -126,29 +99,38 @@ static t_mlx	*cont_init(int width, int height, char *title)
 
 static void		mlx_startup(int argc, char **argv, t_mlx **mlx)
 {
-	if (argc == 4)
-		mlx[0] = cont_init(ft_atoi(argv[2]) <= MAX_WIDTH ? ft_atoi(argv[2]) :
-		MAX_WIDTH, ft_atoi(argv[3]) <= MAX_HEIGHT ? ft_atoi(argv[3]) :
-		MAX_HEIGHT, argv[1]);
-	else
-		mlx[0] = cont_init(WIN_WIDTH, WIN_HEIGHT, argv[1]);
+	int	width;
+	int	height;
+
+	width = WIN_WIDTH;
+	height = WIN_HEIGHT;
+	if (argc >= 4)
+	{
+		width = ft_atoi_base(argv[2], 10);
+		height = ft_atoi_base(argv[3], 10);
+		width = width > MAX_WIDTH ? MAX_WIDTH : width;
+		width = width < MIN_WIDTH ? MIN_WIDTH : width;
+		height = height > MAX_HEIGHT ? MAX_HEIGHT : height;
+		height = height < MIN_HEIGHT ? MIN_HEIGHT : height;
+		width += width == height ? 1 : 0;
+	}
+	mlx[0] = cont_init(width > height ? width : height, width > height ? height
+		: width, argv[1]);
+	mlx[0]->verbose = argc == 5 && ft_strcmp(argv[4], "true") == 0 ? 1 : 0;
 	mlx_key_hook(mlx[0]->mlx_win, input, *mlx);
 	mlx_mouse_hook(mlx[0]->mlx_win, mouse, *mlx);
-	if (!(mlx[0]->mlx_img = mlx_new_image(mlx[0]->mlx_ptr, mlx[0]->width, mlx[0]->width))
-		|| !(mlx[0]->img_dat = mlx_get_data_addr(mlx[0]->mlx_img, &mlx[0]->bpp,
-		&mlx[0]->size_line, &mlx[0]->endian)))
-		exit(ERR_MLX);
+	mlx[0]->mlx_img = NULL;
 	if (!map_reader(mlx[0], argv[1], &mlx[0]->map[0]))
-		exit(ERR_MAP);
+		mexit(ERR_MAP);
 }
 
 int				main(int argc, char **argv)
 {
 	t_mlx	*mlx;
 
-	if (argc < 2)
+	if (argc < 2 || argc > 5)
 	{
-		ft_putendl("usage: ./fdf [map.fdf] (width) (height)");
+		ft_putendl("usage: ./fdf [map.fdf] (width) (height) {verbose 'true'}");
 		return (1);
 	}
 	else

@@ -17,7 +17,6 @@
 # include "libft.h"
 
 # include <unistd.h>
-# include <stdio.h>
 # include <math.h>
 # include <stdlib.h>
 # include <fcntl.h>
@@ -82,8 +81,8 @@
 # define MODE_DEF 1
 # define DEF_COLOR 0x888888
 # define HEIGHT 20
-# define MAX_COLOR 0xff0000//0xffffff
-# define MIN_COLOR 0x0000ff//0x303030
+# define MAX_COLOR 0xff0000
+# define MIN_COLOR 0x0000ff
 # define H_MOD 0.2
 # define W_MOD 1
 # define ROTA_X -100
@@ -95,13 +94,16 @@
 # define ANIM_TIME 500000
 # define WIN_WIDTH 800
 # define WIN_HEIGHT 600
-# define MAX_WIDTH 5120
-# define MAX_HEIGHT 2880
+# define MIN_WIDTH 200
+# define MIN_HEIGHT 100
+# define MAX_WIDTH 2560
+# define MAX_HEIGHT 1440
 
 # define ERR_MEMORY 4
 # define ERR_MAP 5
 # define ERR_MLX 2
 # define ERR_READER 3
+# define ESC_EXIT 0
 
 /*
 ** point in map
@@ -115,7 +117,7 @@ typedef struct		s_point
 	struct s_point	*left;
 	struct s_point	*right;
 	struct s_point	*bottm;
-	int				color;
+	long			color;
 }					t_point;
 
 /*
@@ -202,6 +204,7 @@ typedef struct		s_mlx
 	t_map	*map[5];
 	t_map	*smap;
 	int		mode;
+	int		verbose;
 }					t_mlx;
 
 /*
@@ -238,6 +241,7 @@ void				draw_line(t_mlx *mlx, t_map *map, t_loca start, t_loca end);
 void				draw_linet(t_mlx *mlx, t_map *map, t_loca start,
 						t_loca end);
 void				draw_rota(t_mlx *mlx, t_map *map);
+void				draw_to_image(t_mlx *mlx, t_map *map, t_loca spot);
 int					pos_test(float map[4], float start[4], float end[4]);
 int					height_color(float z, int min, int max, float depth);
 
@@ -267,6 +271,7 @@ void				actions3(int func, t_map *map, int dir, int ang);
 void				actions4(int func, t_mlx *mlx, int x, int y);
 void				actions5(int func, t_map *map, int x, int y);
 void				view_mode(t_mlx *mlx);
+void				mexit(int num);
 
 /*
 ** control handling

@@ -22,7 +22,6 @@ static void	draw(t_map *map, t_mlx *mlx, t_mat4 matrix, void *fu_ptr)
 	t_point	*row;
 	t_point	*curr;
 	t_loca	this;
-	t_loca	next;
 	t_loca	(*loca)(t_point*, t_map*, t_mat4);
 
 	row = map->start;
@@ -32,6 +31,7 @@ static void	draw(t_map *map, t_mlx *mlx, t_mat4 matrix, void *fu_ptr)
 		while (curr)
 		{
 			this = (*loca)(curr, map, matrix);
+			draw_linet(mlx, map, this, this);
 			if (curr->right)
 				draw_linet(mlx, map, this, (*loca)(curr->right, map, matrix));
 			if (curr->bottm)
@@ -89,6 +89,8 @@ static void	fview_border(t_mlx *mlx, float map[4])
 void		draw_map(t_mlx *mlx)
 {
 	mlx_clear_window(mlx->mlx_ptr, mlx->mlx_win);
+	if (mlx->mlx_img)
+		mlx_destroy_image(mlx->mlx_ptr, mlx->mlx_img);
 	mlx->mlx_img = mlx_new_image(mlx->mlx_ptr, mlx->width, mlx->width);
 	mlx->img_dat = mlx_get_data_addr(mlx->mlx_img, &mlx->bpp, &mlx->size_line,
 		&mlx->endian);
