@@ -27,9 +27,9 @@ void			draw_to_image(t_mlx *mlx, t_map *map, t_loca spot)
 		return ;
 	if (spot.loc.vec[0] >= map->pos.vec[2] && spot.loc.vec[0] <= map->pos.vec[2]
 		+ map->pos.vec[0] - 1 && spot.loc.vec[1] >= map->pos.vec[3] &&
-		spot.loc.vec[1] <= map->pos.vec[3] + map->pos.vec[1] && ((map->limit &&
-		map->mode > 1 && spot.loc.vec[2] >= map->cam.plan.vec[3]) || (map->mode
-		== 1 || !map->limit)))
+		spot.loc.vec[1] <= map->pos.vec[3] + map->pos.vec[1] -1 && ((map->limit
+		&& map->mode > 1 && spot.loc.vec[2] >= map->cam.plan.vec[3]) ||
+		(map->mode == 1 || !map->limit)))
 	{
 		writer = ((mlx->size_line / 4) * (int)spot.loc.vec[1]) +
 			(int)spot.loc.vec[0];

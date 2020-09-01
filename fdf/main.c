@@ -112,10 +112,8 @@ static void		mlx_startup(int argc, char **argv, t_mlx **mlx)
 		width = width < MIN_WIDTH ? MIN_WIDTH : width;
 		height = height > MAX_HEIGHT ? MAX_HEIGHT : height;
 		height = height < MIN_HEIGHT ? MIN_HEIGHT : height;
-		width += width == height ? 1 : 0;
 	}
-	mlx[0] = cont_init(width > height ? width : height, width > height ? height
-		: width, argv[1]);
+	mlx[0] = cont_init(width, height, argv[1]);
 	mlx[0]->verbose = argc == 5 && ft_strcmp(argv[4], "true") == 0 ? 1 : 0;
 	mlx_key_hook(mlx[0]->mlx_win, input, *mlx);
 	mlx_mouse_hook(mlx[0]->mlx_win, mouse, *mlx);

@@ -91,7 +91,7 @@ void		draw_map(t_mlx *mlx)
 	mlx_clear_window(mlx->mlx_ptr, mlx->mlx_win);
 	if (mlx->mlx_img)
 		mlx_destroy_image(mlx->mlx_ptr, mlx->mlx_img);
-	mlx->mlx_img = mlx_new_image(mlx->mlx_ptr, mlx->width, mlx->width);
+	mlx->mlx_img = mlx_new_image(mlx->mlx_ptr, mlx->width, mlx->height);
 	mlx->img_dat = mlx_get_data_addr(mlx->mlx_img, &mlx->bpp, &mlx->size_line,
 		&mlx->endian);
 	if (mlx->mode == 2)
