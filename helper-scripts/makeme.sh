@@ -16,26 +16,29 @@
 
 
 # Set the names of the different variables in the Makefile
-CNAME="SRCS"		# all the .c files
-ONAME="BIGO"		# all the .o files
-INCNAME="INC"		# include folders
-LIBNAME="LIB"		# library folders
+CNAME="SRCS"				# all the .c files
+ONAME="BIGO"				# all the .o files
+INCNAME="INC"				# include folders
+LIBNAME="LIB"				# library folders
+FRAMEWORKNAM="FRAMEWORK"	# framework name
+FLAGSNAME="FLAGS"			# compile flags
 
 # Parse parameters
-FLAGS="-Wall -Wextra -Werror"	# flags
-NAME=""							# output name
-CFILES=""						# .c files
-OFILES="\$($CNAME:.c=.o)"		# set the .c files into .o files
-LIB=""							# libraries
-INCLUDES=""						# included folders
-EMAKE=""						# make commands to compile libraries
+FLAGS="-Wall -Wextra -Werror"		# flags
+NAME=""								# output name
+CFILES=""							# .c files
+OFILES="\$($CNAME:.c=.o)"			# set the .c files into .o files
+LIB=""								# libraries
+INCLUDES=""							# included folders
+EMAKE=""							# make commands to compile libraries
+FRAMEWORK=""						#mlx framework flags
 
 
 # Create the makefile
 print_make(){
 # move old makefile to Makefile1
 if [[ -f Makefile ]]
-then mv Makefile Makefile1; echo "Renamed old Makefile"
+then mv Makefile Makefile-$(date +%s); echo "Renamed old Makefile"
 fi
 
 echo "NAME=$NAME" > Makefile
@@ -43,22 +46,26 @@ echo "$CNAME=$CFILES" >> Makefile
 echo "$ONAME=$OFILES" >> Makefile
 echo "$INCNAME=$INCLUDES" >> Makefile
 echo "$LIBNAME=$LIB" >> Makefile
+echo "$FLAGSNAME=$FLAGS" >> Makefile
+echo "$FRAMEWORKNAM=$FRAMEWORK" >> Makefile
 echo "\n\nall : \$(NAME)" >> Makefile
 echo "" >> Makefile
 echo "\$(NAME) :" >> Makefile
-echo "$EMAKE"  >> Makefile
-echo "\tgcc -c $FLAGS \$($CNAME) \$($INCNAME)" >> Makefile
+echo "$EMAKE"  >> Makefile					# library make
+echo "\tgcc -c \$($FLAGSNAME) \$($CNAME) \$($INCNAME)" >> Makefile
 TEST=$(echo "$NAME" | grep "\.a$")
 if [[ $TEST == "" ]]						# if the desired output file is an .a file, change the final compilation
-then echo "\tgcc $FLAGS -o \$(NAME) \$($ONAME) \$($LIBNAME)" >> Makefile
+then echo "\tgcc \$($FLAGSNAME) -o \$(NAME) \$($ONAME) \$($LIBNAME) \$($FRAMEWORKNAM)" >> Makefile
 else 
 	echo "\tar rc \$(NAME) \$($ONAME)" >> Makefile; echo "\tranlib \$(NAME)" >> Makefile
 fi
 echo "" >> Makefile
 echo "clean :" >> Makefile
+echo "$EMAKE clean" >> Makefile				# library clean
 echo "\trm -f \$($ONAME)" >> Makefile
 echo "" >> Makefile
 echo "fclean : clean" >> Makefile
+echo "$EMAKE fclean" >> Makefile			# library fclean
 echo "\trm -f \$(NAME)" >> Makefile
 echo "" >> Makefile
 echo "re: fclean all" >> Makefile
@@ -79,6 +86,9 @@ do
 	if [[ $NAME == "" ]]
 	then NAME="$arg"; continue;
 	fi
+	if [[ $arg == "-mlx" ]]						# mlx framework tag
+	then FRAMEWORK+="-framework OpenGL -framework AppKit "; continue;
+	fi
 	TEST=$(echo "$arg" | grep ".c")
 	if [[ $TEST	!= "" ]] 						# Input is a .c file
 		then 
@@ -93,11 +103,14 @@ do
 		then TEST=$(cat $arg/Makefile | grep "NAME" | grep "\.a$")
 			if [[ $TEST  != "" ]]							# The Makefile compiles an .a file, add it to EMAKE to make before compling
 			then 
+				if [[ $EMAKE != "" ]]
+				then EMAKE+="\n";
+				fi
 				TEST=$(echo "$arg" | grep "^[\.]\{1,2\}\/\|^~\/")
 				if [[ $TEST != "" ]]						# if the arg has './' , '../'  or '~/' at the of the argument, otherwise add "./"
-				then LIB+="-L $arg "; EMAKE+="\tmake -C $arg\n";
+				then LIB+="-L $arg "; EMAKE+="\tmake -C $arg";
 				else
-					LIB+="-L ./$arg "; EMAKE+="\tmake -C ./$arg\n";
+					LIB+="-L ./$arg "; EMAKE+="\tmake -C ./$arg";
 				fi
 				TEST=$(cat $arg/Makefile | grep "\.a$" | sed -E "s/^.*=(.*)\.a/\1/g" | sed 's/ //g' | sed 's/^lib//g') # get the library name
 				LIB+="-l$TEST "
