@@ -80,7 +80,13 @@
 # define MAX_WIDTH 2560
 # define MAX_HEIGHT 1440
 
-# define THREADS 1
+# define THREADS 16
+# define ITER 1000
+
+# define MAN_MINX -2.5	// x 0
+# define MAN_MAXX 1 	// x = width
+# define MAN_MINY 1		// y = 0
+# define MAN_MAXY -1	// y = height
 
 # define ERR_MEMORY 4
 # define ERR_MAP 5
@@ -93,8 +99,8 @@ typedef struct		s_mlx
 {
 	void	*mlx_ptr;
 	void	*mlx_win;
-	void	*mlx_img;
-	int		*img_dat;
+	void	*mlx_img[THREADS];
+	int		*img_dat[THREADS];
 	int		bpp;
 	int		size_line;
 	int		endian;
@@ -106,8 +112,11 @@ typedef struct		s_mlx
 
 
 void				run_exit(int code, char *spot);
+void				draw(t_mlx *mlx);
+void				fractal_cpy(t_mlx *mlx, int *img_dat, int *arr, size_t n);
 
 t_mlx				*mlx_start(int argc, char **argv);
 
+double				normalize(double p, double arr[4]);
 
 #endif

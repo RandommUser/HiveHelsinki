@@ -1,5 +1,17 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2020/09/16 16:46:29 by phakakos          #+#    #+#              #
+#    Updated: 2020/09/16 16:46:32 by phakakos         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
 NAME=fractol
-SRCS=main.c draw.c mlx.c
+SRCS=main.c draw.c mlx.c helpers.c
 BIGO=$(SRCS:.c=.o)
 INC=-I ./minilibx -I libft 
 LIB=-L ./minilibx -lmlx -L ./libft -lft 
@@ -12,7 +24,7 @@ all : $(NAME)
 $(NAME) :
 	make -C ./libft
 	gcc -c $(FLAGS) $(SRCS) $(INC)
-	gcc $(FLAGS) -o $(NAME) $(BIGO) $(LIB) $(FRAMEWORK)
+	gcc $(FLAGS) -lpthread -pthread -o $(NAME) $(BIGO) $(LIB) $(FRAMEWORK)
 
 clean :
 	make -C ./libft clean

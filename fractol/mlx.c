@@ -24,8 +24,7 @@ static void	mlx_cast(t_mlx **mlx, char *name, int width, int height)
 
 t_mlx	*mlx_start(int argc, char **argv)
 {
-	int		width;
-	int		height;
+	int		width, height, i;
 	t_mlx	*mlx;
 
 	width = argc >= 4 ? ft_atoi_base(argv[2], 10) : WIN_WIDTH;
@@ -37,6 +36,8 @@ t_mlx	*mlx_start(int argc, char **argv)
 	mlx_cast(&mlx, argv[1], width, height);
 	mlx->width = width;
 	mlx->height = height;
-	mlx->mlx_img = NULL;
+	i = -1;
+	while (++i < THREADS)
+		mlx->mlx_img[i] = NULL;
 	return (mlx);
 }
