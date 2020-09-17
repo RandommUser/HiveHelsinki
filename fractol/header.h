@@ -81,7 +81,9 @@
 # define MAX_HEIGHT 1440
 
 # define THREADS 16
-# define ITER 1000
+# define ITER 100
+# define MIN_ITER 10
+# define MAX_ITER 20000
 
 # define MAN_MINX -2.5	// x 0
 # define MAN_MAXX 1 	// x = width
@@ -95,12 +97,28 @@
 # define ERR_THREAD_VAL 2
 # define ESC_EXIT 0
 
+typedef struct		s_frac
+{
+	int		*num;
+	double	zoom;
+	int		iter;
+	int		width;
+	int		height;
+	int		thread;
+	int		y;
+	int		lines;
+	int		size;
+	int		off[2];
+}					t_frac;
+
+
+
 typedef struct		s_mlx
 {
 	void	*mlx_ptr;
 	void	*mlx_win;
-	void	*mlx_img[THREADS];
-	int		*img_dat[THREADS];
+	void	*mlx_img[THREADS + 1];
+	int		*img_dat[THREADS + 1];
 	int		bpp;
 	int		size_line;
 	int		endian;
@@ -108,6 +126,12 @@ typedef struct		s_mlx
 	int		width;
 	int		mode;
 	int		verbose;
+	int		iter;
+	double	zoom;
+	int		cmin;
+	int		cmax;
+	int		offx;
+	int		offy;
 }					t_mlx;
 
 

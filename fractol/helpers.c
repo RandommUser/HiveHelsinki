@@ -19,7 +19,7 @@ void	fractal_cpy(t_mlx *mlx, int *img_dat, int *arr, size_t n)
 	i = -1;
 	while (++i < n)
 	{
-		img_dat[i] = mlx_get_color_value(mlx->mlx_ptr, (int)normalize(ITER - arr[i], (double[4]){0, ITER, 0x000000, 0xff0000}));
+		img_dat[i] = mlx_get_color_value(mlx->mlx_ptr, (int)normalize(mlx->iter - arr[i], (double[4]){0, mlx->iter, 0x000000, 0xff0000}));
 	//printf("[%d]", img_dat[i]);
 	}
 	//printf("\n");

@@ -18,17 +18,20 @@ static void	mlx_cast(t_mlx **mlx, char *name, int width, int height)
 		run_exit(ERR_MEMORY, "mlx.c mlx_init malloc(mlx)\n");
 	if (!((*mlx)->mlx_ptr = mlx_init()))
 		run_exit(ERR_MLX, "mlx.c mlx mlx_init()\n");
-	if (!((*mlx)->mlx_win = mlx_new_window((*mlx)->mlx_ptr, width, height, name)))
+	if (!((*mlx)->mlx_win = mlx_new_window((*mlx)->mlx_ptr, width, height,
+		name)))
 		run_exit(ERR_MLX, "mlx.c mlx line mlx_new_window()\n");
 }
 
-t_mlx	*mlx_start(int argc, char **argv)
+t_mlx		*mlx_start(int argc, char **argv)
 {
-	int		width, height, i;
+	int		width;
+	int		height;
+	int		i;
 	t_mlx	*mlx;
 
 	width = argc >= 4 ? ft_atoi_base(argv[2], 10) : WIN_WIDTH;
-	height = argc >= 4 ? ft_atoi_base(argv[3], 10): WIN_HEIGHT;
+	height = argc >= 4 ? ft_atoi_base(argv[3], 10) : WIN_HEIGHT;
 	width = width > MAX_WIDTH ? MAX_WIDTH : width;
 	width = width < MIN_WIDTH ? MIN_WIDTH : width;
 	height = height > MAX_HEIGHT ? MAX_HEIGHT : height;
@@ -36,8 +39,12 @@ t_mlx	*mlx_start(int argc, char **argv)
 	mlx_cast(&mlx, argv[1], width, height);
 	mlx->width = width;
 	mlx->height = height;
+	mlx->iter = ITER;
+	mlx->zoom = 1;
+	mlx->offx = 0;
+	mlx->offy = 0;
 	i = -1;
-	while (++i < THREADS)
+	while (++i <= THREADS)
 		mlx->mlx_img[i] = NULL;
 	return (mlx);
 }
