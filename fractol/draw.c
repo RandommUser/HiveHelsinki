@@ -14,17 +14,24 @@
 
 static double	mandel(int iter, double xs, double ys)
 {
-	double	x, y, xte;
+	double	x; 
+	double	y;
+	double	xte;
 	int		i;
+	double	last[2];
 
 	i = -1;
 	x = 0;
 	y = 0;
 	while (x * x + y * y <= 4 &&  ++i < iter)
 	{
+		last[0] = x;
+		last[1] = y;
 		xte = x * x - y * y + xs;
 		y = 2 * x * y + ys;
 		x = xte;
+		if (last[0] == x && last[1] == y) // check for looping
+			return (iter);
 	}
 	return (i);
 }
@@ -44,19 +51,24 @@ void	fractal1(void *para)
 //	ft_putchar('\n');
 //	ft_putpointer(frac->num);
 //	ft_putchar('\n');
+	frac->off[0] += frac->width / 2 * frac->zoom - frac->width / 2;
+	frac->off[1] += frac->height / 2 * frac->zoom - frac->height / 2;
+	if (frac->thread == 1)
+		printf("offx = %f offy = %f\n", frac->off[0], frac->off[1]);
 	val[1] = frac->y;
 	i = 0;
 	while (--frac->lines >= 0)
-	{
+	{ // (val[0] - frac->off[0])/* * frac->zoom*/   (val[1] - frac->off[1])/* * frac->zoom*/
 		val[0] = -1;
 		while (++val[0] < frac->width)
 		{
-			frac->num[i++] = mandel(frac->iter, normalize((val[0] - frac->off[0]) * frac->zoom , (double[4]){0, frac->width, MAN_MINX,
-			MAN_MAXX}), normalize((val[1] - frac->off[1]) * frac->zoom  , (double[4]){0, frac->height, MAN_MINY, MAN_MAXY}));
+			frac->num[i++] = mandel(frac->iter, normalize(val[0] * frac->zoom - frac->off[0], (double[4]){0, frac->width, MAN_MINX,
+			MAN_MAXX}), normalize(val[1] * frac->zoom - frac->off[1], (double[4]){0, frac->height, MAN_MINY, MAN_MAXY}));
 		}
 		val[1]++;
 	}
 	frac->lines = frac->size / frac->width;
+	fractal_norm(frac);
 //	ft_putstr("thread end ");
 //	ft_putnbr(frac->thread);
 //	ft_putchar('\n');
@@ -79,8 +91,15 @@ clock_t t = clock();
 //	printf("split sizes %d\n", (int)(mlx->height / THREADS) * mlx->width + THREADS);
 	while (i++ < THREADS)
 	{
+		slice[i].mlx = mlx;
 		parts[i][0] = mlx->height % THREADS - i > 0 ? 1 : 0; // need padding
 		slice[i].lines  = ((int)(mlx->height / THREADS) + parts[i][0]);// this block y size
+		if (!mlx->mlx_img[i])
+		{
+			mlx->mlx_img[i] = mlx_new_image(mlx->mlx_ptr, mlx->width, slice[i].lines);
+			mlx->img_dat[i] = (int*)mlx_get_data_addr(mlx->mlx_img[i], &mlx->bpp, &mlx->size_line,
+			&mlx->endian);
+		}
 		slice[i].width = mlx->width;
 		slice[i].height = mlx->height;
 		slice[i].size = slice[i].lines * mlx->width;// save the size
@@ -89,9 +108,10 @@ clock_t t = clock();
 		slice[i].iter = mlx->iter;
 		slice[i].thread = i;
 		slice[i].zoom = mlx->zoom;
-		slice[i].num = parts[i];
+		//slice[i].num = parts[i];
 		slice[i].off[0] = mlx->offx;
 		slice[i].off[1] = mlx->offy;
+		slice[i].num = mlx->img_dat[i];
 //		ft_putstr("creating a thread ");
 //		ft_putnbr(i);
 //		ft_putchar('\n');
@@ -121,11 +141,11 @@ clock_t t = clock();
 //				printf("\n");
 //		}
 	}
-	i = 0;
-	y = 0;
-	mlx_clear_window(mlx->mlx_ptr, mlx->mlx_win);
-	while (++i <= THREADS)
-	{
+//	i = 0;
+//	mlx_clear_window(mlx->mlx_ptr, mlx->mlx_win);
+//	while (++i <= THREADS)
+//	{
+		/*
 		printf("i %d | lines %d size %d\n", i, slice[i].lines, slice[i].size);
 		if (!mlx->mlx_img[i])
 		{
@@ -133,13 +153,25 @@ clock_t t = clock();
 			mlx->img_dat[i] = (int*)mlx_get_data_addr(mlx->mlx_img[i], &mlx->bpp, &mlx->size_line,
 				&mlx->endian);
 		}
-		fractal_cpy(mlx, mlx->img_dat[i], slice[i].num, slice[i].size);
+	//	fractal_cpy(mlx, mlx->img_dat[i], slice[i].num, slice[i].size);
 //		printf("last %d y %d\n", mlx->img_dat[i][slice[i +1].size - 1], y);
 		//mlx_string_put(mlx->mlx_ptr, mlx->mlx_win, y, y, 0xff0000, "first");
 		mlx_put_image_to_window(mlx->mlx_ptr, mlx->mlx_win, mlx->mlx_img[i], 0, y);
 		//mlx_string_put(mlx->mlx_ptr, mlx->mlx_win, 50, y, 0xff0000, "test");
+		*/
+//		pthread_create(&threads[i], NULL, (void*)fractal_norm, &slice[i]);
+//	}
+//	i = 0;
+//	while (i++ < THREADS)
+//		pthread_join(threads[i], NULL);
+	i = 0;
+	y = 0;
+	while (++i <= THREADS)
+	{
+		mlx_put_image_to_window(mlx->mlx_ptr, mlx->mlx_win, mlx->mlx_img[i], 0, y);
 		y += slice[i].lines;
 	}
+
 t = clock() - t;
 printf("draw() took %f seconds\n", ((double)t)/CLOCKS_PER_SEC);
 	mlx_string_put(mlx->mlx_ptr, mlx->mlx_win, 10, 0, 0x00ff00, "Threads");

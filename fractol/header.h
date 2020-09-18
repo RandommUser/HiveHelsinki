@@ -84,6 +84,7 @@
 # define ITER 100
 # define MIN_ITER 10
 # define MAX_ITER 20000
+# define PADDING 1000
 
 # define MAN_MINX -2.5	// x 0
 # define MAN_MAXX 1 	// x = width
@@ -96,21 +97,6 @@
 # define USAGE 1
 # define ERR_THREAD_VAL 2
 # define ESC_EXIT 0
-
-typedef struct		s_frac
-{
-	int		*num;
-	double	zoom;
-	int		iter;
-	int		width;
-	int		height;
-	int		thread;
-	int		y;
-	int		lines;
-	int		size;
-	int		off[2];
-}					t_frac;
-
 
 
 typedef struct		s_mlx
@@ -130,14 +116,29 @@ typedef struct		s_mlx
 	double	zoom;
 	int		cmin;
 	int		cmax;
-	int		offx;
-	int		offy;
+	double	offx;
+	double	offy;
 }					t_mlx;
 
+typedef struct		s_frac
+{
+	int		*num;
+	double	zoom;
+	int		iter;
+	int		width;
+	int		height;
+	int		thread;
+	int		y;
+	int		lines;
+	int		size;
+	double	off[2];
+	t_mlx	*mlx;
+}					t_frac;
 
 void				run_exit(int code, char *spot);
 void				draw(t_mlx *mlx);
 void				fractal_cpy(t_mlx *mlx, int *img_dat, int *arr, size_t n);
+void				fractal_norm(void *param);
 
 t_mlx				*mlx_start(int argc, char **argv);
 
