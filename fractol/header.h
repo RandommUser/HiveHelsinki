@@ -73,6 +73,11 @@
 # define MOU_S_U 5
 # define MOU_S_D 4
 
+# define ROT_X -90
+# define ROT_Y -90
+# define ROT_Z -180
+# define ROTA_STEP 5
+
 # define WIN_WIDTH 800
 # define WIN_HEIGHT 600
 # define MIN_WIDTH 200
@@ -118,6 +123,7 @@ typedef struct		s_mlx
 	int		cmax;
 	double	offx;
 	double	offy;
+	float	rot[4];
 }					t_mlx;
 
 typedef struct		s_frac
@@ -139,6 +145,9 @@ void				run_exit(int code, char *spot);
 void				draw(t_mlx *mlx);
 void				fractal_cpy(t_mlx *mlx, int *img_dat, int *arr, size_t n);
 void				fractal_norm(void *param);
+void				mlx_image_create(t_mlx *mlx, int i, int width, int height);
+void				mlx_image_wipe(t_mlx *mlx, int img, int width, int height);
+void				three_d(t_mlx *mlx, t_vec4 spot);
 
 t_mlx				*mlx_start(int argc, char **argv);
 

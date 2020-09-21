@@ -64,11 +64,15 @@ void	fractal1(void *para)
 		{
 			frac->num[i++] = mandel(frac->iter, normalize(val[0] * frac->zoom - frac->off[0], (double[4]){0, frac->width, MAN_MINX,
 			MAN_MAXX}), normalize(val[1] * frac->zoom - frac->off[1], (double[4]){0, frac->height, MAN_MINY, MAN_MAXY}));
+			if (frac->mlx->rot[0] != ROT_X || frac->mlx->rot[1] != ROT_Y || frac->mlx->rot[2] != ROT_Z)
+				three_d(frac->mlx, vec4_ini((float[4]){val[0], val[1], frac->num[i - 1], 1}));
 		}
 		val[1]++;
 	}
 	frac->lines = frac->size / frac->width;
-	fractal_norm(frac);
+	if (frac->mlx->rot[0] == ROT_X && frac->mlx->rot[1] == ROT_Y && frac->mlx->rot[2] == ROT_Z)
+		fractal_norm(frac);
+//	mlx_put_image_to_window(frac->mlx->mlx_ptr, frac->mlx->mlx_win, frac->mlx->mlx_img[frac->thread], 0, frac->y);
 //	ft_putstr("thread end ");
 //	ft_putnbr(frac->thread);
 //	ft_putchar('\n');
@@ -82,9 +86,12 @@ clock_t t = clock();
 	pthread_t		threads[THREADS + 1];
 	t_frac			slice[THREADS + 1];
 	int				i;
-	int				parts[THREADS + 1][(int)(mlx->height / THREADS) *
-		mlx->width + THREADS];
+	//int				parts[THREADS + 1][(int)(mlx->height / THREADS) *
+	//	mlx->width + THREADS];
 
+	mlx_clear_window(mlx->mlx_ptr, mlx->mlx_win);
+	if (mlx->rot[0] != ROT_X || mlx->rot[1] != ROT_Y || mlx->rot[2] != ROT_Z)
+		mlx_image_wipe(mlx, 0, mlx->width, mlx->height);
 	i = 0;
 	slice[0].y = 0;
 //	printf("width %d height %d threads %d\n", mlx->width, mlx->height, THREADS);
@@ -92,14 +99,16 @@ clock_t t = clock();
 	while (i++ < THREADS)
 	{
 		slice[i].mlx = mlx;
-		parts[i][0] = mlx->height % THREADS - i > 0 ? 1 : 0; // need padding
-		slice[i].lines  = ((int)(mlx->height / THREADS) + parts[i][0]);// this block y size
-		if (!mlx->mlx_img[i])
+		slice[i].y = mlx->height % THREADS - i > 0 ? 1 : 0;
+		//parts[i][0] = mlx->height % THREADS - i > 0 ? 1 : 0; // need padding
+		slice[i].lines  = ((int)(mlx->height / THREADS) + slice[i].y);// this block y size
+		mlx_image_create(mlx, i, mlx->width, slice[i].lines);
+		/*if (!mlx->mlx_img[i])
 		{
 			mlx->mlx_img[i] = mlx_new_image(mlx->mlx_ptr, mlx->width, slice[i].lines);
 			mlx->img_dat[i] = (int*)mlx_get_data_addr(mlx->mlx_img[i], &mlx->bpp, &mlx->size_line,
 			&mlx->endian);
-		}
+		}*/
 		slice[i].width = mlx->width;
 		slice[i].height = mlx->height;
 		slice[i].size = slice[i].lines * mlx->width;// save the size
@@ -142,7 +151,7 @@ clock_t t = clock();
 //		}
 	}
 //	i = 0;
-//	mlx_clear_window(mlx->mlx_ptr, mlx->mlx_win);
+	
 //	while (++i <= THREADS)
 //	{
 		/*
@@ -164,14 +173,25 @@ clock_t t = clock();
 //	i = 0;
 //	while (i++ < THREADS)
 //		pthread_join(threads[i], NULL);
-	i = 0;
-	y = 0;
-	while (++i <= THREADS)
+	
+	
+	if (mlx->rot[0] != ROT_X || mlx->rot[1] != ROT_Y || mlx->rot[2] != ROT_Z)
 	{
-		mlx_put_image_to_window(mlx->mlx_ptr, mlx->mlx_win, mlx->mlx_img[i], 0, y);
-		y += slice[i].lines;
+		mlx_put_image_to_window(mlx->mlx_ptr, mlx->mlx_win, mlx->mlx_img[0], 0, 0);
 	}
-
+	else
+	{
+		i = 0;
+		y = 0;
+		while (++i <= THREADS)
+		{
+			mlx_put_image_to_window(mlx->mlx_ptr, mlx->mlx_win, mlx->mlx_img[i], 0, y);
+			y += slice[i].lines;
+		}
+	}
+	
+	
+	
 t = clock() - t;
 printf("draw() took %f seconds\n", ((double)t)/CLOCKS_PER_SEC);
 	mlx_string_put(mlx->mlx_ptr, mlx->mlx_win, 10, 0, 0x00ff00, "Threads");

@@ -151,6 +151,32 @@ static int		input(int key, void *param)
 		printf("offx-- %f\n", mlx->offx);
 	}
 
+
+	if (key == NUM_4)
+	{
+		mlx->rot[1] += ROTA_STEP;
+		mlx->rot[1] -= mlx->rot[1] >= 360 ? 360 : 0;
+		draw(mlx);
+	}
+	if (key == NUM_6)
+	{
+		mlx->rot[1] -= ROTA_STEP;
+		mlx->rot[1] += mlx->rot[1] <= -360 ? 360 : 0;
+		draw(mlx);
+	}
+	if (key == NUM_2)
+	{
+		mlx->rot[0] += ROTA_STEP;
+		mlx->rot[0] -= mlx->rot[0] >= 360 ? 360 : 0;
+		draw(mlx);
+	}
+	if (key == NUM_8)
+	{
+		mlx->rot[0] -= ROTA_STEP;
+		mlx->rot[0] += mlx->rot[0] <= -360 ? 360 : 0;
+		draw(mlx);
+	}
+
 	return (0);
 }
 

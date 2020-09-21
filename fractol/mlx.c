@@ -12,6 +12,29 @@
 
 #include "header.h"
 
+void		mlx_image_wipe(t_mlx *mlx, int img, int width, int height)
+{
+	int	i;
+
+	width--;
+	height--;
+	i = -1;
+	while (++i <= width * height)
+		mlx->img_dat[img][i] = 0;
+}
+
+void		mlx_image_create(t_mlx *mlx, int i, int width, int height)
+{
+	if (!mlx->mlx_img[i])
+	{
+		mlx->mlx_img[i] = mlx_new_image(mlx->mlx_ptr, width, height);
+		if (!mlx->mlx_img[i])
+			run_exit(ERR_MLX, "mlx.c mlx_image_create mlx_img alloc error\n");
+		mlx->img_dat[i] = (int*)mlx_get_data_addr(mlx->mlx_img[i], &mlx->bpp, &mlx->size_line,
+		&mlx->endian);
+	}
+}
+
 static void	mlx_cast(t_mlx **mlx, char *name, int width, int height)
 {
 	if (!(*mlx = (t_mlx *)malloc(sizeof(t_mlx))))
@@ -43,8 +66,12 @@ t_mlx		*mlx_start(int argc, char **argv)
 	mlx->zoom = 1;
 	mlx->offx = 0;
 	mlx->offy = 0;
+	mlx->rot[0] = ROT_X;
+	mlx->rot[1] = ROT_Y;
+	mlx->rot[2] = ROT_Z;
 	i = -1;
 	while (++i <= THREADS)
 		mlx->mlx_img[i] = NULL;
+	mlx_image_create(mlx, 0, width, height);
 	return (mlx);
 }
