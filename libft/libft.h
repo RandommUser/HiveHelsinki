@@ -91,6 +91,7 @@ t_mat4			mat4_perps2(t_vec4 vec, float ar);
 t_mat4			mat4_pinhole(t_vec4 vec, float ar);
 t_mat4			mat4_mat4(t_mat4 mat1, t_mat4 mat2);
 t_vec4			mat4_vec4(t_mat4 mat4, t_vec4 vec4);
+t_mat4			mat4_rot_inverse(t_mat4 mat);
 
 t_matn			*matn_cpy(float *src, size_t n);
 t_matn			*matn_ini(size_t n);
@@ -215,5 +216,7 @@ long			atoi_conv(char c, int base);
 long			ft_atoi_base(char *str, int base);
 long			ft_power_to(long num, int power);
 long			ft_power_base(long num, int power, int base);
+
+float			ft_fabs(float c);
 
 #endif

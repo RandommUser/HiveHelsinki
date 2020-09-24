@@ -12,6 +12,11 @@
 
 #include "libft.h"
 
+float	ft_fabs(float c)
+{
+	return (c < 0 ? -(c) : c);
+}
+
 long	ft_abs(long c)
 {
 	if (c < 0)
