@@ -20,7 +20,7 @@ void		mlx_image_wipe(t_mlx *mlx, int img, int width, int height)
 	height--;
 	i = -1;
 	while (++i <= width * height)
-		mlx->img_dat[img][i] = 0;
+		mlx->img_dat[img][i] = 0xffffff;
 }
 
 void		mlx_image_create(t_mlx *mlx, int i, int width, int height)
@@ -69,7 +69,13 @@ t_mlx		*mlx_start(int argc, char **argv)
 	mlx->rot[0] = ROT_X;
 	mlx->rot[1] = ROT_Y;
 	mlx->rot[2] = ROT_Z;
+	mlx->jupt = 0;
+	mlx->jur = 0;
+	//mlx->jul = (double[4]){0, 0, 1, 1};
+	mlx->jul[2] = JULIA_MAX_R;
+	mlx->jul[3] = 0;
 	i = -1;
+	mlx->height_map = NULL;
 	while (++i <= THREADS)
 		mlx->mlx_img[i] = NULL;
 	mlx_image_create(mlx, 0, width, height);

@@ -11,7 +11,7 @@
 # **************************************************************************** #
 
 NAME=fractol
-SRCS=main.c draw.c mlx.c helpers.c 3d.c
+SRCS=main.c draw.c mlx.c helpers.c 3d.c draw_line.c
 BIGO=$(SRCS:.c=.o)
 INC=-I ./minilibx -I libft 
 LIB=-L ./minilibx -lmlx -L ./libft -lft 

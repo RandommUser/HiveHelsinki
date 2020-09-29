@@ -98,3 +98,29 @@ t_vec4	mat4_vec4(t_mat4 mat4, t_vec4 vec4)
 	}
 	return (ret);
 }
+
+t_mat4	mat4_rot_inverse(t_mat4 mat)
+{
+	t_mat4	ret;
+	float	det;
+	int		i;
+	int		y;
+
+	ret = mat4_ini();
+	i = -1;
+	while (++i < 3)
+		det = 0 + (mat.mat[0][i] * (mat.mat[1][(i + 1) % 3] *
+			mat.mat[2][(i + 2) % 3] - mat.mat[1][(i + 2) % 3] *
+			mat.mat[2][(i + 1) % 3]));
+	if (!(i = -1) || det == 0)
+		return (ret);
+	while (++i < 3 && (y = -1))
+	{
+		while (++y < 3)
+			ret.mat[i][y] = ((mat.mat[(y + 1) % 3][(i + 1) % 3] *
+				mat.mat[(y + 2) % 3][(i + 2) % 3]) -
+				(mat.mat[(y + 1) % 3][(i + 2) % 3] *
+				mat.mat[(y + 2) % 3][(i + 1) % 3])) / det;
+	}
+	return (ret);
+}

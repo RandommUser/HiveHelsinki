@@ -67,6 +67,7 @@
 # define K_SBS 33
 # define K_SBC 30
 # define K_TAB 48
+# define K_SPB 49
 
 # define MOU_L 1
 # define MOU_R 2
@@ -96,6 +97,9 @@
 # define MAN_MINY 1		// y = 0
 # define MAN_MAXY -1	// y = height
 
+# define JULIA_MAX_R 4
+
+
 # define ERR_MEMORY 4
 # define ERR_MAP 5
 # define ERR_MLX 3
@@ -110,6 +114,7 @@ typedef struct		s_mlx
 	void	*mlx_win;
 	void	*mlx_img[THREADS + 1];
 	int		*img_dat[THREADS + 1];
+	double	*height_map;
 	int		bpp;
 	int		size_line;
 	int		endian;
@@ -124,6 +129,10 @@ typedef struct		s_mlx
 	double	offx;
 	double	offy;
 	float	rot[4];
+	char	jupt;
+	char	jur;
+	int		mouse_pos[2];
+	double	jul[4]; // cx, cy, r, n
 }					t_mlx;
 
 typedef struct		s_frac
@@ -148,9 +157,19 @@ void				fractal_norm(void *param);
 void				mlx_image_create(t_mlx *mlx, int i, int width, int height);
 void				mlx_image_wipe(t_mlx *mlx, int img, int width, int height);
 void				three_d(t_mlx *mlx, t_vec4 spot);
+void				three_d_two(t_mlx *mlx, t_frac *frac);
+void				draw_line(t_mlx *mlx, t_vec4 start, t_vec4 end);
+void				height_reset(double *arr, double val, int width,
+						int height);
+void				to_image(t_mlx *mlx, t_vec4 spot);
 
 t_mlx				*mlx_start(int argc, char **argv);
 
+t_mat4				rot_matrix(float rot[4]);
+
 double				normalize(double p, double arr[4]);
+
+
+
 
 #endif

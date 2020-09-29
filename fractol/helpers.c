@@ -12,6 +12,17 @@
 
 #include "header.h"
 
+void	height_reset(double *arr, double val, int width, int height)
+{
+	int	i;
+
+	width--;
+	height--;
+	i = -1;
+	while (++i <= width * height)
+		arr[i] = val;
+}
+
 void	fractal_cpy(t_mlx *mlx, int *img_dat, int *arr, size_t n)
 {
 	size_t	i;

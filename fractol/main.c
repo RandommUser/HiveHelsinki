@@ -24,6 +24,36 @@ void	run_exit(int code, char *spot)
 	exit(code);
 }
 
+static int		mouse_live(int x, int y, void *param)
+{
+	t_mlx	*mlx;
+
+	mlx = param;
+
+	if (!(x >= 0 && x < mlx->width && y >= 0 && y < mlx->height))
+		return (-1);
+	if (mlx->jupt)
+	{
+		printf("x %d y %d\n", x, y);
+		if (!mlx->jur)
+		{
+			mlx->mouse_pos[0] = x;
+			mlx->mouse_pos[1] = y;
+		}
+		else
+		{
+			mlx->jul[2] = normalize(x, (double[4]){0, mlx->width, 1, sqrt(JULIA_MAX_R)});
+			mlx->jul[2] *= normalize(y, (double[4]){0, mlx->height, 1, sqrt(JULIA_MAX_R)});
+		}
+
+		mlx->jul[0] = normalize(mlx->mouse_pos[0] - mlx->width / 2, (double[4]){-(mlx->width / 2), mlx->width / 2, -(mlx->jul[2]), mlx->jul[2]});
+		mlx->jul[1] = normalize(mlx->mouse_pos[1] - mlx->height / 2, (double[4]){-(mlx->height / 2), mlx->height / 2, -(mlx->jul[2]), mlx->jul[2]});
+		draw(mlx);
+		printf("n %f r %f cx %f cy %f\n", mlx->jul[3], mlx->jul[2], mlx->jul[0], mlx->jul[1]);
+	}
+	return (0);
+}
+
 static int		mouse(int button, int x, int y, void *param)
 {
 	t_mlx		*mlx;
@@ -86,10 +116,11 @@ static int		input(int key, void *param)
 {
 	t_mlx	*mlx;
 
+	printf("key %d\n", key);
 	mlx = param;
 	if (key == ESC_KEY)
 		run_exit(0, "");
-	if (key == NUM_1)
+	if (key == K_ENT)
 		draw(mlx);
 	if (key == K_R)
 	{
@@ -176,7 +207,32 @@ static int		input(int key, void *param)
 		mlx->rot[0] += mlx->rot[0] <= -360 ? 360 : 0;
 		draw(mlx);
 	}
-
+	if (key == NUM_9)
+	{
+		mlx->rot[2] += ROTA_STEP;
+		mlx->rot[2] -= mlx->rot[2] >= 360 ? 360 : 0;
+		draw(mlx);
+	}
+	if (key == NUM_1)
+	{
+		mlx->rot[2] -= ROTA_STEP;
+		mlx->rot[2] += mlx->rot[2] <= -360 ? 360 : 0;
+		draw(mlx);
+	}
+	if (key == K_SPB)
+		mlx->jupt = mlx->jupt ? 0 : 1;
+	if (key == K_LCN)
+		mlx->jur = mlx->jur ? 0 : 1;
+	if (key == K_COM)
+	{
+		mlx->jul[3] -= 2;
+		draw(mlx);
+	}
+	if (key == K_DOT)
+	{
+		mlx->jul[3] += 2;
+		draw(mlx);
+	}
 	return (0);
 }
 
@@ -191,6 +247,7 @@ int	main(int argc, char ** argv)
 	mlx = mlx_start(argc, argv);
 	mlx_key_hook(mlx->mlx_win, input, mlx);
 	mlx_mouse_hook(mlx->mlx_win, mouse, mlx);
+	mlx_hook(mlx->mlx_win, 6, 0 , mouse_live, mlx);
 	mlx_loop(mlx->mlx_ptr);
 	return (0);
 }
