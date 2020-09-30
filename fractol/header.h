@@ -91,6 +91,7 @@
 # define MIN_ITER 10
 # define MAX_ITER 20000
 # define PADDING 1000
+# define DEF_BG 0xffffff
 
 # define MAN_MINX -2.5	// x 0
 # define MAN_MAXX 1 	// x = width
@@ -133,6 +134,7 @@ typedef struct		s_mlx
 	char	jur;
 	int		mouse_pos[2];
 	double	jul[4]; // cx, cy, r, n
+	void	(*func)(void*);
 }					t_mlx;
 
 typedef struct		s_frac

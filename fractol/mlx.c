@@ -20,7 +20,7 @@ void		mlx_image_wipe(t_mlx *mlx, int img, int width, int height)
 	height--;
 	i = -1;
 	while (++i <= width * height)
-		mlx->img_dat[img][i] = 0xffffff;
+		mlx->img_dat[img][i] = DEF_BG;
 }
 
 void		mlx_image_create(t_mlx *mlx, int i, int width, int height)
@@ -32,6 +32,7 @@ void		mlx_image_create(t_mlx *mlx, int i, int width, int height)
 			run_exit(ERR_MLX, "mlx.c mlx_image_create mlx_img alloc error\n");
 		mlx->img_dat[i] = (int*)mlx_get_data_addr(mlx->mlx_img[i], &mlx->bpp, &mlx->size_line,
 		&mlx->endian);
+		mlx_image_wipe(mlx, i, width, height);
 	}
 }
 

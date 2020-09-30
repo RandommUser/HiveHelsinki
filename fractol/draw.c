@@ -119,7 +119,7 @@ void	barnsley(float *val)
 void	fractal31(void *para)
 {
 	float	val[2]; // x, y
-	int		i;
+	int		i, y;
 	t_frac	*frac;
 	t_vec4	point;
 
@@ -128,37 +128,27 @@ void	fractal31(void *para)
 	//frac->off[1] += frac->height / 2 * frac->zoom - frac->height / 2;
 	if (frac->thread == 1)
 		printf("offx = %f offy = %f\n", frac->off[0], frac->off[1]);
-	else
-		return ;
 	i = -1;
+	y = 0;
 	val[0] = 0;
 	val[1] = 0;
-	while (++i < frac->iter * 100)//frac->iter)
+	while (++i < frac->iter * 100)// && y < frac->iter)//frac->iter)
 	{
-		//if (frac->mlx->rot[0] != ROT_X || frac->mlx->rot[1] != ROT_Y || frac->mlx->rot[2] != ROT_Z)
-		point = vec4_ini((float[4]){normalize(val[0], (double[4]){-2.1820, 2.6558, 0, frac->width}) * frac->zoom + frac->off[0],
-		normalize(val[1], (double[4]){0, 9.9983, 0, frac->height}) * frac->zoom + frac->off[1], 0, 1}); // not good with zoom
+		point = vec4_ini((float[4]){normalize(val[0], (double[4]){-2.1820 / frac->zoom, 2.6558 / frac->zoom, 0, frac->width}) * frac->zoom,
+		normalize(val[1], (double[4]){0 / frac->zoom, 9.9983 / frac->zoom, frac->height, 0}) * frac->zoom, 0, 1}); // not good with zoom
 		point.vec[0] -= frac->width / 2;
 		point.vec[1] -= frac->width / 2;
 		point = mat4_vec4(rot_matrix(frac->mlx->rot), point);
-		point.vec[0] += frac->width / 2;
-		point.vec[1] += frac->height / 2;
+		point.vec[0] += frac->width / 2 + frac->off[0];
+		point.vec[1] += frac->height / 2 + frac->off[1];
 		point.vec[3] = 0x00ff00;
 		to_image(frac->mlx, point);
 		barnsley(val);
-		//printf("x %f y %f\n", val[0], val[1]);
-		/*
-		point =  vec4_ini((float[4]){val[0] * frac->zoom - frac->off[0],
-		 val[1] * frac->zoom - frac->off[1], 0, 1});
-		point.vec[0] -= frac->width / 2;
-		point.vec[1] -= frac->width / 2;
-		point = mat4_vec4(rot_matrix(frac->mlx->rot), point);
-		point.vec[0] += frac->width / 2;
-		point.vec[1] += frac->height / 2;*/
+
 	}
 }
 
-
+//julia
 void	fractal22(void *para)
 {
 	int		val[2]; // x, y
@@ -346,7 +336,7 @@ clock_t t = clock();
 	mlx_clear_window(mlx->mlx_ptr, mlx->mlx_win);
 	/*if (mlx->rot[0] != ROT_X || mlx->rot[1] != ROT_Y || mlx->rot[2] != ROT_Z)
 	{*/
-		mlx_image_wipe(mlx, 0, mlx->width, mlx->height);
+		//mlx_image_wipe(mlx, 0, mlx->width, mlx->height);
 		if (!(mlx->height_map = (double*)malloc((sizeof(double) * mlx->width * mlx->height))))
 			run_exit(ERR_MEMORY, "draw.c draw() height_map alloc\n");
 		height_reset(mlx->height_map, -21474863647, mlx->width, mlx->height); // good default height
@@ -459,4 +449,58 @@ printf("draw() took %f seconds\n", ((double)t)/CLOCKS_PER_SEC);
 	mlx_string_put(mlx->mlx_ptr, mlx->mlx_win, 10, 20, 0x0000ff, "Iter");
 	mlx_string_put(mlx->mlx_ptr, mlx->mlx_win, 120, 20, 0x0000ff, ft_itoa_base(mlx->iter, 10));
 	//pthread_exit(NULL);
+}
+
+static t_frac	slice_ini(t_mlx *mlx, int i, int y)
+{
+	t_frac	ret;
+
+	ret.mlx = mlx;
+	ret.y = mlx->height % THREADS - i > 0 ? 1 : 0;
+	ret.lines  = ((int)(mlx->height / THREADS) + ret.y);// this block y size
+	ret.width = mlx->width;
+	ret.height = mlx->height;
+	ret.size = ret.lines * mlx->width;// save the size
+	ret.y = y; // add to total Y done so far
+	ret.iter = mlx->iter;
+	ret.thread = i;
+	ret.zoom = mlx->zoom;
+	ret.off[0] = mlx->offx;
+	ret.off[1] = mlx->offy;
+	ret.num = mlx->img_dat[i];
+	return (ret);
+}
+
+void	draw_uni(t_mlx *mlx)
+{
+clock_t t = clock();
+	pthread_t		threads[THREADS];
+	t_frac			slice[THREADS];
+	int				i;
+	int				y;
+
+
+	mlx_clear_window(mlx->mlx_ptr, mlx->mlx_win);
+	mlx_image_wipe(mlx, 0, mlx->width, mlx->height);
+	i = -1;
+	y = 0;
+	while (++i < THREADS)
+	{
+		slice[i] = slice_ini(mlx, i + 1 ,y);
+		y += slice[i].lines;
+		pthread_create(&threads[i], NULL, (void*)mlx->func, &slice[i]);
+	}
+	y = i;
+	i = -1;
+	while (++i < THREADS)
+		pthread_join(threads[i], NULL);
+	mlx_put_image_to_window(mlx->mlx_ptr, mlx->mlx_win, mlx->mlx_img[0], 0, 0);
+
+t = clock() - t;
+printf("draw() took %f seconds\n", ((double)t)/CLOCKS_PER_SEC);
+mlx_string_put(mlx->mlx_ptr, mlx->mlx_win, 10, 0, 0x00ff00, "Threads");
+mlx_string_put(mlx->mlx_ptr, mlx->mlx_win, 120, 0, 0x00ff00, ft_itoa_base(THREADS, 10));
+mlx_string_put(mlx->mlx_ptr, mlx->mlx_win, 10, 20, 0x0000ff, "Iter");
+mlx_string_put(mlx->mlx_ptr, mlx->mlx_win, 120, 20, 0x0000ff, ft_itoa_base(mlx->iter, 10));
+
 }

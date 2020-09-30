@@ -51,6 +51,11 @@ static int		mouse_live(int x, int y, void *param)
 		draw(mlx);
 		printf("n %f r %f cx %f cy %f\n", mlx->jul[3], mlx->jul[2], mlx->jul[0], mlx->jul[1]);
 	}
+	else
+	{
+		draw(mlx);
+	}
+	
 	return (0);
 }
 
@@ -59,6 +64,7 @@ static int		mouse(int button, int x, int y, void *param)
 	t_mlx		*mlx;
 
 	mlx = param;
+	mlx_image_wipe(mlx, 0, mlx->width, mlx->height);
 	if (mlx->verbose)
 	{
 		ft_putstr("pressed ");
@@ -118,6 +124,7 @@ static int		input(int key, void *param)
 
 	printf("key %d\n", key);
 	mlx = param;
+	mlx_image_wipe(mlx, 0, mlx->width, mlx->height);
 	if (key == ESC_KEY)
 		run_exit(0, "");
 	if (key == K_ENT)
@@ -128,6 +135,9 @@ static int		input(int key, void *param)
 		mlx->offx = 0;
 		mlx->offy = 0;
 		mlx->zoom = 1;
+		mlx->rot[0] = ROT_X;
+		mlx->rot[1] = ROT_Y;
+		mlx->rot[2] = ROT_Z;
 		draw(mlx);
 	}
 	if (key == NUM_P)
