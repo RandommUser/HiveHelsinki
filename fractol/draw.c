@@ -124,8 +124,8 @@ void	fractal31(void *para)
 	t_vec4	point;
 
 	frac = para;
-	//frac->off[0] += frac->width / 2 * frac->zoom - frac->width / 2;
-	//frac->off[1] += frac->height / 2 * frac->zoom - frac->height / 2;
+	frac->off[0] += frac->width / 2 * frac->zoom - frac->width / 2;
+	frac->off[1] += frac->height / 2 * frac->zoom - frac->height / 2;
 	if (frac->thread == 1)
 		printf("offx = %f offy = %f\n", frac->off[0], frac->off[1]);
 	i = -1;
@@ -134,13 +134,20 @@ void	fractal31(void *para)
 	val[1] = 0;
 	while (++i < frac->iter * 100)// && y < frac->iter)//frac->iter)
 	{
-		point = vec4_ini((float[4]){normalize(val[0], (double[4]){-2.1820 / frac->zoom, 2.6558 / frac->zoom, 0, frac->width}) * frac->zoom,
-		normalize(val[1], (double[4]){0 / frac->zoom, 9.9983 / frac->zoom, frac->height, 0}) * frac->zoom, 0, 1}); // not good with zoom
+		//if (frac->thread == 1)
+		//	printf("offx %f zoom %f x %f\nx_min %f x_max %f\n", 
+		//		frac->off[0], frac->zoom, val[0], BARN_X_MIN + (((BARN_X_MAX - BARN_X_MIN) * (frac->off[0] / frac->width)) * frac->zoom), BARN_X_MAX  + (((BARN_X_MAX - BARN_X_MIN) * (frac->off[0] / frac->width)) * frac->zoom));
+		point = vec4_ini((float[4]){normalize(val[0], (double[4])
+		{BARN_X_MIN - (((BARN_X_MAX - BARN_X_MIN) * (frac->off[0] / frac->width)) * frac->zoom), 
+		BARN_X_MAX  - (((BARN_X_MAX - BARN_X_MIN) * (frac->off[0] / frac->width)) * frac->zoom), 0, frac->width}) * frac->zoom,
+		normalize(val[1], (double[4])
+		{BARN_Y_MIN - (((BARN_Y_MAX - BARN_Y_MIN) * (frac->off[1] / frac->height)) * frac->zoom), 
+		BARN_Y_MAX - (((BARN_Y_MAX - BARN_Y_MIN) * (frac->off[1] / frac->height)) * frac->zoom), 0, frac->height}) * frac->zoom, 0, 1}); // not good with zoom
 		point.vec[0] -= frac->width / 2;
 		point.vec[1] -= frac->width / 2;
 		point = mat4_vec4(rot_matrix(frac->mlx->rot), point);
-		point.vec[0] += frac->width / 2 + frac->off[0];
-		point.vec[1] += frac->height / 2 + frac->off[1];
+		point.vec[0] += frac->width / 2;// + frac->off[0] * 2;
+		point.vec[1] += frac->height / 2;//  + frac->off[1] * 2;
 		point.vec[3] = 0x00ff00;
 		to_image(frac->mlx, point);
 		barnsley(val);
@@ -189,10 +196,6 @@ void	fractal22(void *para)
 	//	three_d_two(frac->mlx, frac);
 	}
 }
-
-
-
-
 
 // mandel
 void	fractal11(void *para)
@@ -323,8 +326,122 @@ void	fractal1(void *para)
 //	printf("[0] = %d\n", frac->num[0]);
 	//pthread_exit(NULL);
 }
+
+
+// barnsley
+void	fractal_barn(void *para)
+{
+	float	val[2]; // x, y
+	int		i, y;
+	t_frac	*frac;
+	t_vec4	point;
+
+	frac = para;
+	frac->off[0] += frac->width / 2 * frac->zoom - frac->width / 2;
+	frac->off[1] += frac->height / 2 * frac->zoom - frac->height / 2;
+	if (frac->thread == 1)
+		printf("offx = %f offy = %f\n", frac->off[0], frac->off[1]);
+	i = -1;
+	y = 0;
+	val[0] = 0;
+	val[1] = 0;
+	while (++i < frac->iter * 100)
+	{
+		point = vec4_ini((float[4]){normalize(val[0], (double[4])
+		{BARN_X_MIN - (((BARN_X_MAX - BARN_X_MIN) * (frac->off[0] / frac->width)) * frac->zoom), 
+		BARN_X_MAX  - (((BARN_X_MAX - BARN_X_MIN) * (frac->off[0] / frac->width)) * frac->zoom), 0, frac->width}) * frac->zoom,
+		normalize(val[1], (double[4])
+		{BARN_Y_MIN - (((BARN_Y_MAX - BARN_Y_MIN) * (frac->off[1] / frac->height)) * frac->zoom), 
+		BARN_Y_MAX - (((BARN_Y_MAX - BARN_Y_MIN) * (frac->off[1] / frac->height)) * frac->zoom), 0, frac->height}) * frac->zoom, 0, 1}); // not good with zoom
+		point.vec[0] -= frac->width / 2;
+		point.vec[1] -= frac->width / 2;
+		point = mat4_vec4(rot_matrix(frac->mlx->rot), point);
+		point.vec[0] += frac->width / 2;
+		point.vec[1] += frac->height / 2;
+		point.vec[3] = BARN_COLOR;
+		to_image(frac->mlx, point);
+		barnsley(val);
+	}
+}
+
+// julia
+// ZOOM ORIGIN NEEDS FIXING
+void	fractal_jul(void *para)
+{
+	int		val[2]; // x, y
+	int		i;
+	t_frac	*frac;
+	t_vec4	point;
+
+	frac = para;
+	frac->off[0] += frac->width / 2 * frac->zoom - frac->width / 2;
+	frac->off[1] += frac->height / 2 * frac->zoom - frac->height / 2;
+	if (frac->thread == 1)
+		printf("offx = %f offy = %f\n", frac->off[0], frac->off[1]);
+	val[1] = frac->y;
+	i = 0;
+	while (--frac->lines >= 0)
+	{
+		val[0] = -1;
+		while (++val[0] < frac->width)
+		{
+			//point =  vec4_ini((float[4]){val[0] * frac->zoom - frac->off[0],
+			// val[1] * frac->zoom - frac->off[1], 0, 1});
+			point = mat4_vec4(rot_matrix(frac->mlx->rot), vec4_ini((float[4]){(val[0] - frac->mlx->width / 2), (val[1] - frac->mlx->height / 2), 0, 1}));
+			//point.vec[0] -= frac->width / 2;
+			//point.vec[1] -= frac->width / 2;
+			//point = mat4_vec4(rot_matrix(frac->mlx->rot), point);
+			point.vec[0] += frac->width / 2;
+			point.vec[1] += frac->height / 2;
+			//point.vec[3] = julia_flex(frac->iter, (double[6]){(point.vec[0] - frac->off[0]), (point.vec[1] - frac->off[1]), frac->mlx->jul[2], frac->mlx->jul[0], frac->mlx->jul[1], frac->mlx->jul[3]}, frac->width, frac->height);
+			point.vec[3] = julia_flex(frac->iter, (double[6]){(point.vec[0] - frac->off[0]) / frac->zoom, (point.vec[1] - frac->off[1]) / frac->zoom, frac->mlx->jul[2], frac->mlx->jul[0], frac->mlx->jul[1], frac->mlx->jul[3]}, frac->width, frac->height);
+			point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr, (int)normalize(frac->iter - point.vec[3], (double[4]){0, frac->iter, 0x000000, 0xff0000}));
+			point.vec[0] = val[0];
+			point.vec[1] = val[1];
+			to_image(frac->mlx, point);
+		}
+		val[1]++;
+	}
+	frac->lines = frac->size / frac->width;
+}
+
+// mandel
+void	fractal_man(void *para)
+{
+	int		val[2]; // x, y
+	int		i;
+	t_frac	*frac;
+	t_vec4	point;
+	t_mat4	rot;
+
+	frac = para;
+	frac->off[0] += frac->width / 2 * frac->zoom - frac->width / 2;
+	frac->off[1] += frac->height / 2 * frac->zoom - frac->height / 2;
+	val[1] = frac->y;
+	i = 0;
+	rot = mat4_rot_inverse(rot_matrix(frac->mlx->rot));
+	while (--frac->lines >= 0)
+	{
+		val[0] = -1;
+		while (++val[0] < frac->width)
+		{
+			point = mat4_vec4(rot, vec4_ini((float[4]){val[0] - frac->mlx->width / 2, val[1] - frac->mlx->height / 2, 0, 1}));
+			point.vec[0] += frac->mlx->width / 2;
+			point.vec[1] += frac->mlx->height / 2;
+			point.vec[3] = mandel(frac->iter, normalize((point.vec[0] + frac->off[0]) / frac->zoom, (double[4]){0, frac->width, MAN_MINX,
+			MAN_MAXX}), normalize((point.vec[1] + frac->off[1]) / frac->zoom, (double[4]){0, frac->height, MAN_MINY, MAN_MAXY}));
+			point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr, (int)normalize(frac->iter - point.vec[3], (double[4]){0, frac->iter, 0x000000, 0xff0000}));
+			point.vec[0] = val[0];
+			point.vec[1] = val[1];
+			to_image(frac->mlx, point);
+		}
+		val[1]++;
+	}
+	frac->lines = frac->size / frac->width;
+}
+
 #include <time.h>
-void	draw(t_mlx *mlx)
+void	draw_old(t_mlx *mlx)
 {
 clock_t t = clock();
 	pthread_t		threads[THREADS + 1];
@@ -470,15 +587,14 @@ static t_frac	slice_ini(t_mlx *mlx, int i, int y)
 	ret.num = mlx->img_dat[i];
 	return (ret);
 }
-
-void	draw_uni(t_mlx *mlx)
+// new draw
+void	draw(t_mlx *mlx)
 {
 clock_t t = clock();
 	pthread_t		threads[THREADS];
 	t_frac			slice[THREADS];
 	int				i;
 	int				y;
-
 
 	mlx_clear_window(mlx->mlx_ptr, mlx->mlx_win);
 	mlx_image_wipe(mlx, 0, mlx->width, mlx->height);
@@ -490,17 +606,15 @@ clock_t t = clock();
 		y += slice[i].lines;
 		pthread_create(&threads[i], NULL, (void*)mlx->func, &slice[i]);
 	}
-	y = i;
 	i = -1;
 	while (++i < THREADS)
 		pthread_join(threads[i], NULL);
 	mlx_put_image_to_window(mlx->mlx_ptr, mlx->mlx_win, mlx->mlx_img[0], 0, 0);
 
 t = clock() - t;
-printf("draw() took %f seconds\n", ((double)t)/CLOCKS_PER_SEC);
+printf("draw_uni() took %f seconds\n", ((double)t)/CLOCKS_PER_SEC);
 mlx_string_put(mlx->mlx_ptr, mlx->mlx_win, 10, 0, 0x00ff00, "Threads");
 mlx_string_put(mlx->mlx_ptr, mlx->mlx_win, 120, 0, 0x00ff00, ft_itoa_base(THREADS, 10));
 mlx_string_put(mlx->mlx_ptr, mlx->mlx_win, 10, 20, 0x0000ff, "Iter");
 mlx_string_put(mlx->mlx_ptr, mlx->mlx_win, 120, 20, 0x0000ff, ft_itoa_base(mlx->iter, 10));
-
 }

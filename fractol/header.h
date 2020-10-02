@@ -93,6 +93,10 @@
 # define PADDING 1000
 # define DEF_BG 0xffffff
 
+# define NAME_MAN "mandelbrot"
+# define NAME_JULIA "julia"
+# define NAME_BARN "barnsley"
+
 # define MAN_MINX -2.5	// x 0
 # define MAN_MAXX 1 	// x = width
 # define MAN_MINY 1		// y = 0
@@ -100,6 +104,11 @@
 
 # define JULIA_MAX_R 4
 
+# define BARN_X_MIN -2.1820
+# define BARN_X_MAX 2.6558
+# define BARN_Y_MIN 9.9983
+# define BARN_Y_MAX 0
+# define BARN_COLOR 0x00ff00
 
 # define ERR_MEMORY 4
 # define ERR_MAP 5
@@ -164,6 +173,11 @@ void				draw_line(t_mlx *mlx, t_vec4 start, t_vec4 end);
 void				height_reset(double *arr, double val, int width,
 						int height);
 void				to_image(t_mlx *mlx, t_vec4 spot);
+void				aim_rec(t_mlx *mlx);
+
+void				fractal_man(void *para);
+void				fractal_jul(void *para);
+void				fractal_barn(void *para);
 
 t_mlx				*mlx_start(int argc, char **argv);
 

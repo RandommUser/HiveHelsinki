@@ -12,6 +12,24 @@
 
 #include "header.h"
 
+void	aim_rec(t_mlx *mlx)
+{
+	int	w;
+	int h;
+
+	w = mlx->width / 2;
+	h = mlx->height / 2;
+	mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, w - 2, h, 0xffffff);
+	mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, w - 1, h, 0xffffff);
+	mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, w, h, 0xffffff);
+	mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, w + 1, h, 0xffffff);
+	mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, w + 2, h, 0xffffff);
+	mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, w, h - 2, 0xffffff);
+	mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, w, h - 1, 0xffffff);
+	mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, w, h + 1, 0xffffff);
+	mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, w, h + 2, 0xffffff);
+}
+
 void	height_reset(double *arr, double val, int width, int height)
 {
 	int	i;

@@ -17,19 +17,36 @@ void	run_exit(int code, char *spot)
 	if (!code)
 		exit(0);
 	if (code == USAGE)
-		ft_putstr("usage: ./fractol map (width height)\n");
+		ft_putstr("usage: ./fractol map mandelbrot|julia|barnsley (width height)\n");
 	else if (code == ERR_THREAD_VAL)
 		ft_putstr("Invalid THREAD value. Min 1, max 8, int only\n");
 	ft_putstr(spot);
 	exit(code);
 }
 
+static int		window_close(void *param)
+{
+	t_mlx	*mlx;
+
+	mlx = param;
+	run_exit(10, "Pressed X\n");
+	return (0);
+}
+/*
+static int		draw_leaf(void *param)
+{
+	t_mlx	*mlx;
+
+	mlx = param;
+	draw(mlx);
+	return (0);
+}
+*/
 static int		mouse_live(int x, int y, void *param)
 {
 	t_mlx	*mlx;
 
 	mlx = param;
-
 	if (!(x >= 0 && x < mlx->width && y >= 0 && y < mlx->height))
 		return (-1);
 	if (mlx->jupt)
@@ -53,7 +70,7 @@ static int		mouse_live(int x, int y, void *param)
 	}
 	else
 	{
-		draw(mlx);
+		//draw(mlx);
 	}
 	
 	return (0);
@@ -62,6 +79,7 @@ static int		mouse_live(int x, int y, void *param)
 static int		mouse(int button, int x, int y, void *param)
 {
 	t_mlx		*mlx;
+	
 
 	mlx = param;
 	mlx_image_wipe(mlx, 0, mlx->width, mlx->height);
@@ -75,6 +93,19 @@ static int		mouse(int button, int x, int y, void *param)
 		ft_putnbr(y);
 		ft_putchar('\n');
 	}
+	/*		MOUSE CLICK COORDINATE "FIX" TESTING
+	t_vec4		mous;
+	mous = vec4_ini((float[4]){x, y, 0, 1});
+	mous.vec[0] -= mlx->width / 2;
+	mous.vec[1] -= mlx->height /2;
+	mous = mat4_vec4(rot_matrix(mlx->rot), mous);
+	mous.vec[0] += mlx->width / 2;
+	mous.vec[1] += mlx->height / 2;
+	printf("og coords x %d y %d\n", x, y);
+	x = mous.vec[0];
+	y = mous.vec[1];
+	printf("rotated coords x %d y %d\n", x, y);
+	*/
 	if (button == MOU_L)
 	{
 		mlx->offx += (int)(mlx->width / 2 - x) * mlx->zoom;
@@ -105,16 +136,7 @@ static int		mouse(int button, int x, int y, void *param)
 		draw(mlx);
 		printf("zoom %f offx %f off y %f\n", mlx->zoom, mlx->offx, mlx->offy);
 	}
-
-	mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, mlx->width / 2 - 2, mlx->height /2, 0xffffff);
-	mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, mlx->width / 2 - 1, mlx->height /2, 0xffffff);
-	mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, mlx->width / 2, mlx->height /2, 0xffffff);
-	mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, mlx->width / 2 + 1, mlx->height /2, 0xffffff);
-	mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, mlx->width / 2 + 2, mlx->height /2, 0xffffff);
-	mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, mlx->width / 2, mlx->height /2 - 2, 0xffffff);
-	mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, mlx->width / 2, mlx->height /2 - 1, 0xffffff);
-	mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, mlx->width / 2, mlx->height /2 + 1, 0xffffff);
-	mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, mlx->width / 2, mlx->height /2 + 2, 0xffffff);
+	aim_rec(mlx);
 	return (0);
 }
 
@@ -258,6 +280,8 @@ int	main(int argc, char ** argv)
 	mlx_key_hook(mlx->mlx_win, input, mlx);
 	mlx_mouse_hook(mlx->mlx_win, mouse, mlx);
 	mlx_hook(mlx->mlx_win, 6, 0 , mouse_live, mlx);
+	mlx_hook(mlx->mlx_win, 17, 0 , window_close, mlx);
+	//mlx_loop_hook(mlx->mlx_ptr, draw_leaf, mlx);
 	mlx_loop(mlx->mlx_ptr);
 	return (0);
 }

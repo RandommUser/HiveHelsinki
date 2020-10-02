@@ -61,6 +61,14 @@ t_mlx		*mlx_start(int argc, char **argv)
 	height = height > MAX_HEIGHT ? MAX_HEIGHT : height;
 	height = height < MIN_HEIGHT ? MIN_HEIGHT : height;
 	mlx_cast(&mlx, argv[1], width, height);
+	if (!ft_strcmp(argv[1], NAME_MAN))
+		mlx->func = &fractal_man;
+	else if (!ft_strcmp(argv[1], NAME_JULIA))
+		mlx->func = &fractal_jul;
+	else if (!ft_strcmp(argv[1], NAME_BARN))
+		mlx->func = &fractal_barn;
+	else
+		run_exit(USAGE, "mlx.c mlx_start() invalid fractal name\n");
 	mlx->width = width;
 	mlx->height = height;
 	mlx->iter = ITER;
