@@ -16,8 +16,6 @@ void		mlx_image_wipe(t_mlx *mlx, int img, int width, int height)
 {
 	int	i;
 
-	width--;
-	height--;
 	i = -1;
 	while (++i <= width * height)
 		mlx->img_dat[img][i] = DEF_BG;

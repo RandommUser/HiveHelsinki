@@ -124,7 +124,7 @@ static int		mouse(int button, int x, int y, void *param)
 	{
 		mlx->offx += (mlx->width / 2 - x) * mlx->zoom;
 		mlx->offy += (mlx->height / 2 - y) * mlx->zoom;
-		mlx->zoom = mlx->zoom < 0.1 ? mlx->zoom * 10 : mlx->zoom + 0.1;
+		mlx->zoom = mlx->zoom < 0.1 ? mlx->zoom * 10 : mlx->zoom * 1.1;//+ 0.1;
 		draw(mlx);
 		printf("zoom %f offx %f off y %f\n", mlx->zoom, mlx->offx, mlx->offy);
 	}
@@ -132,7 +132,7 @@ static int		mouse(int button, int x, int y, void *param)
 	{
 		mlx->offx += (mlx->width / 2 - x) * mlx->zoom;
 		mlx->offy += (mlx->height / 2 - y) * mlx->zoom;
-		mlx->zoom = mlx->zoom < 0.2 ? mlx->zoom / 10 : mlx->zoom - 0.1;
+		mlx->zoom = mlx->zoom < 0.2 ? mlx->zoom / 10 : mlx->zoom * 0.9;//- 0.1;
 		draw(mlx);
 		printf("zoom %f offx %f off y %f\n", mlx->zoom, mlx->offx, mlx->offy);
 	}
@@ -178,13 +178,13 @@ static int		input(int key, void *param)
 	}
 	if (key == PG_UP)
 	{
-		mlx->zoom = mlx->zoom < 0.1 ? mlx->zoom * 2 : mlx->zoom + 0.1;
+		mlx->zoom = mlx->zoom < 0.1 ? mlx->zoom * 2 : mlx->zoom * 1.1;//+ 0.1;
 		draw(mlx);
 		printf("zoom++ %f\n", mlx->zoom);
 	}
 	if (key == PG_DW)
 	{
-		mlx->zoom = mlx->zoom < 0.2 ? mlx->zoom / 2 : mlx->zoom - 0.1;
+		mlx->zoom = mlx->zoom < 0.2 ? mlx->zoom / 2 : mlx->zoom * 0.9;//- 0.1;
 		//mlx->zoom = mlx->zoom < 0.000001 ? mlx->zoom = 0.000001 : mlx->zoom; // make it not reach 0 | not needed(?)
 		draw(mlx);
 		printf("zoom-- %f\n", mlx->zoom);

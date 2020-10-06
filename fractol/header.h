@@ -172,7 +172,7 @@ void				three_d_two(t_mlx *mlx, t_frac *frac);
 void				draw_line(t_mlx *mlx, t_vec4 start, t_vec4 end);
 void				height_reset(double *arr, double val, int width,
 						int height);
-void				to_image(t_mlx *mlx, t_vec4 spot);
+int					to_image(t_mlx *mlx, t_vec4 spot);
 void				aim_rec(t_mlx *mlx);
 
 void				fractal_man(void *para);

@@ -337,8 +337,6 @@ void	fractal_barn(void *para)
 	t_vec4	point;
 
 	frac = para;
-	frac->off[0] += frac->width / 2 * frac->zoom - frac->width / 2;
-	frac->off[1] += frac->height / 2 * frac->zoom - frac->height / 2;
 	if (frac->thread == 1)
 		printf("offx = %f offy = %f\n", frac->off[0], frac->off[1]);
 	i = -1;
@@ -347,17 +345,19 @@ void	fractal_barn(void *para)
 	val[1] = 0;
 	while (++i < frac->iter * 100)
 	{
+		point = vec4_ini((float[4]){normalize(val[0], (double[4]){BARN_X_MIN, BARN_X_MAX , -(frac->width / 2), frac->width / 2}),
+		normalize(val[1], (double[4]){BARN_Y_MIN, BARN_Y_MAX, -(frac->height / 2), frac->height / 2}), 0, 1});
+		/*
 		point = vec4_ini((float[4]){normalize(val[0], (double[4])
-		{BARN_X_MIN - (((BARN_X_MAX - BARN_X_MIN) * (frac->off[0] / frac->width)) * frac->zoom), 
-		BARN_X_MAX  - (((BARN_X_MAX - BARN_X_MIN) * (frac->off[0] / frac->width)) * frac->zoom), 0, frac->width}) * frac->zoom,
+		{BARN_X_MIN - (((BARN_X_MAX - BARN_X_MIN) * (frac->off[0] / (frac->width / 2))) * frac->zoom), 
+		BARN_X_MAX  - (((BARN_X_MAX - BARN_X_MIN) * (frac->off[0] / (frac->width / 2))) * frac->zoom), 0, frac->width}) * frac->zoom,
 		normalize(val[1], (double[4])
-		{BARN_Y_MIN - (((BARN_Y_MAX - BARN_Y_MIN) * (frac->off[1] / frac->height)) * frac->zoom), 
-		BARN_Y_MAX - (((BARN_Y_MAX - BARN_Y_MIN) * (frac->off[1] / frac->height)) * frac->zoom), 0, frac->height}) * frac->zoom, 0, 1}); // not good with zoom
-		point.vec[0] -= frac->width / 2;
-		point.vec[1] -= frac->width / 2;
+		{BARN_Y_MIN - (((BARN_Y_MAX - BARN_Y_MIN) * (frac->off[1] / (frac->height / 2))) * frac->zoom), 
+		BARN_Y_MAX - (((BARN_Y_MAX - BARN_Y_MIN) * (frac->off[1] / (frac->height / 2))) * frac->zoom), 0, frac->height}) * frac->zoom, 0, 1}); // not good with zoom
+		*/
 		point = mat4_vec4(rot_matrix(frac->mlx->rot), point);
-		point.vec[0] += frac->width / 2;
-		point.vec[1] += frac->height / 2;
+		point.vec[0] = (point.vec[0] + frac->off[0]) / frac->zoom + frac->width / 2;
+		point.vec[1] = (point.vec[1] + frac->off[1]) / frac->zoom + frac->height / 2;
 		point.vec[3] = BARN_COLOR;
 		to_image(frac->mlx, point);
 		barnsley(val);
@@ -365,7 +365,6 @@ void	fractal_barn(void *para)
 }
 
 // julia
-// ZOOM ORIGIN NEEDS FIXING
 void	fractal_jul(void *para)
 {
 	int		val[2]; // x, y
@@ -374,8 +373,6 @@ void	fractal_jul(void *para)
 	t_vec4	point;
 
 	frac = para;
-	frac->off[0] += frac->width / 2 * frac->zoom - frac->width / 2;
-	frac->off[1] += frac->height / 2 * frac->zoom - frac->height / 2;
 	if (frac->thread == 1)
 		printf("offx = %f offy = %f\n", frac->off[0], frac->off[1]);
 	val[1] = frac->y;
@@ -385,16 +382,10 @@ void	fractal_jul(void *para)
 		val[0] = -1;
 		while (++val[0] < frac->width)
 		{
-			//point =  vec4_ini((float[4]){val[0] * frac->zoom - frac->off[0],
-			// val[1] * frac->zoom - frac->off[1], 0, 1});
 			point = mat4_vec4(rot_matrix(frac->mlx->rot), vec4_ini((float[4]){(val[0] - frac->mlx->width / 2), (val[1] - frac->mlx->height / 2), 0, 1}));
-			//point.vec[0] -= frac->width / 2;
-			//point.vec[1] -= frac->width / 2;
-			//point = mat4_vec4(rot_matrix(frac->mlx->rot), point);
-			point.vec[0] += frac->width / 2;
-			point.vec[1] += frac->height / 2;
-			//point.vec[3] = julia_flex(frac->iter, (double[6]){(point.vec[0] - frac->off[0]), (point.vec[1] - frac->off[1]), frac->mlx->jul[2], frac->mlx->jul[0], frac->mlx->jul[1], frac->mlx->jul[3]}, frac->width, frac->height);
-			point.vec[3] = julia_flex(frac->iter, (double[6]){(point.vec[0] - frac->off[0]) / frac->zoom, (point.vec[1] - frac->off[1]) / frac->zoom, frac->mlx->jul[2], frac->mlx->jul[0], frac->mlx->jul[1], frac->mlx->jul[3]}, frac->width, frac->height);
+			point.vec[0] = point.vec[0] * frac->zoom + frac->width / 2 - frac->off[0] * 2;
+			point.vec[1] = point.vec[1] * frac->zoom + frac->height / 2 - frac->off[1] * 2;
+			point.vec[3] = julia_flex(frac->iter, (double[6]){point.vec[0], point.vec[1], frac->mlx->jul[2], frac->mlx->jul[0], frac->mlx->jul[1], frac->mlx->jul[3]}, frac->width, frac->height);
 			point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr, (int)normalize(frac->iter - point.vec[3], (double[4]){0, frac->iter, 0x000000, 0xff0000}));
 			point.vec[0] = val[0];
 			point.vec[1] = val[1];
@@ -597,7 +588,7 @@ clock_t t = clock();
 	int				y;
 
 	mlx_clear_window(mlx->mlx_ptr, mlx->mlx_win);
-	mlx_image_wipe(mlx, 0, mlx->width, mlx->height);
+	//mlx_image_wipe(mlx, 0, mlx->width, mlx->height);
 	i = -1;
 	y = 0;
 	while (++i < THREADS)
