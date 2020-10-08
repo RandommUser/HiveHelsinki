@@ -74,9 +74,9 @@
 # define MOU_S_U 5
 # define MOU_S_D 4
 
-# define ROT_X -90
-# define ROT_Y -90
-# define ROT_Z -180
+# define ROT_X -180//-90
+# define ROT_Y 180//-90
+# define ROT_Z -180//-180
 # define ROTA_STEP 5
 
 # define WIN_WIDTH 800
@@ -101,54 +101,54 @@
 # define MAN_MAXX 1 	// x = width
 # define MAN_MINY 1		// y = 0
 # define MAN_MAXY -1	// y = height
+# define MAN_HEIGHT 400 // width = (int)(height * 1.75)
 
 # define JULIA_MAX_R 4
+# define JULIA_HEIGHT 400 // width = height
 
 # define BARN_X_MIN -2.1820
 # define BARN_X_MAX 2.6558
 # define BARN_Y_MIN 9.9983
 # define BARN_Y_MAX 0
 # define BARN_COLOR 0x00ff00
+# define BARN_HEIGHT 400 // width = height
 
 # define ERR_MEMORY 4
-# define ERR_MAP 5
+# define ERR_PARA 5
 # define ERR_MLX 3
 # define USAGE 1
 # define ERR_THREAD_VAL 2
 # define ESC_EXIT 0
-
-
 typedef struct		s_mlx
 {
-	void	*mlx_ptr;
-	void	*mlx_win;
-	void	*mlx_img[THREADS + 1];
-	int		*img_dat[THREADS + 1];
-	double	*height_map;
-	int		bpp;
-	int		size_line;
-	int		endian;
-	int		height;
-	int		width;
-	int		mode;
-	int		verbose;
-	int		iter;
-	double	zoom;
-	int		cmin;
-	int		cmax;
-	double	offx;
-	double	offy;
-	float	rot[4];
-	char	jupt;
-	char	jur;
-	int		mouse_pos[2];
-	double	jul[4]; // cx, cy, r, n
-	void	(*func)(void*);
+	void		*mlx_ptr;
+	void		*mlx_win;
+	void		*mlx_img;
+	int			*img_dat;
+	int			bpp;
+	int			size_line;
+	int			endian;
+	int			height;
+	int			width;
+	int			mode;
+	int			verbose;
+	int			iter;
+	double		zoom;
+	int			cmin;
+	int			cmax;
+	double		offx;
+	double		offy;
+	float		rot[4];
+	char		jupt;
+	char		jur;
+	int			mouse_pos[2];
+	double		jul[4]; // cx, cy, r, n
+	void		(*func)(void*);
+	int			*windows;
 }					t_mlx;
 
 typedef struct		s_frac
 {
-	int		*num;
 	double	zoom;
 	int		iter;
 	int		width;
@@ -161,12 +161,20 @@ typedef struct		s_frac
 	t_mlx	*mlx;
 }					t_frac;
 
+typedef struct		s_params
+{
+	int		argc;
+	char	**argv;
+	int		i;
+	int		*windows;
+}					t_params;
+
 void				run_exit(int code, char *spot);
 void				draw(t_mlx *mlx);
 void				fractal_cpy(t_mlx *mlx, int *img_dat, int *arr, size_t n);
-void				fractal_norm(void *param);
-void				mlx_image_create(t_mlx *mlx, int i, int width, int height);
-void				mlx_image_wipe(t_mlx *mlx, int img, int width, int height);
+///void				fractal_norm(void *param);
+void				mlx_image_create(t_mlx *mlx, int width, int height);
+void				mlx_image_wipe(t_mlx *mlx, int width, int height);
 void				three_d(t_mlx *mlx, t_vec4 spot);
 void				three_d_two(t_mlx *mlx, t_frac *frac);
 void				draw_line(t_mlx *mlx, t_vec4 start, t_vec4 end);
@@ -179,13 +187,13 @@ void				fractal_man(void *para);
 void				fractal_jul(void *para);
 void				fractal_barn(void *para);
 
-t_mlx				*mlx_start(int argc, char **argv);
+t_mlx				*mlx_start(int arr[2], char **argv, void *mlx_ptr, int *windows);
 
 t_mat4				rot_matrix(float rot[4]);
 
 double				normalize(double p, double arr[4]);
 
-
+void	mlx_print(t_mlx *mlx);
 
 
 #endif
