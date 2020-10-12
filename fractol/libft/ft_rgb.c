@@ -15,7 +15,9 @@
 static int		floor(long num)
 {
 	if (num > 255)
-		return (num % 256);
+		return (255);
+	else if (num < 0)
+		return (0);
 	else
 		return (num);
 }
@@ -44,15 +46,15 @@ t_rgb			rgb_calc(t_rgb color1, t_rgb color2, char type)
 {
 	if (type == '+')
 	{
-		color1.red += color2.red;
-		color1.green += color2.green;
-		color1.blue += color2.blue;
+		floor(color1.red += color2.red);
+		floor(color1.green += color2.green);
+		floor(color1.blue += color2.blue);
 	}
 	else if (type == '-')
 	{
-		color1.red -= color2.red;
-		color1.green -= color2.green;
-		color1.blue -= color2.blue;
+		floor(color1.red -= color2.red);
+		floor(color1.green -= color2.green);
+		floor(color1.blue -= color2.blue);
 	}
 	return (color1);
 }

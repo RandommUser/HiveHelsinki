@@ -73,3 +73,16 @@ double	normalize(double p, double arr[4])
 	p = (arr[3] - arr[2]) * p + arr[2];
 	return (p);
 }
+
+int		map_color(double p, double arr[4])
+{
+	t_rgb colors[2];
+
+	colors[0] = rgb_conv((long)arr[2]);
+	colors[1] = rgb_conv((long)arr[3]);
+	p = (p - arr[0])/(arr[1] - arr[0]);
+	colors[0].red = (colors[1].red  - colors[0].red ) * p + colors[0].red;
+	colors[0].green = (colors[1].green  - colors[0].green ) * p + colors[0].green;
+	colors[0].blue = (colors[1].blue  - colors[0].blue ) * p + colors[0].blue;
+	return (trgb_conv(colors[0]));
+}

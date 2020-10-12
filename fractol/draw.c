@@ -12,6 +12,47 @@
 
 #include "header.h"
 
+static void		color_show(t_mlx *mlx)
+{
+	t_rgb	color;
+	t_dot	coord;
+
+	color = rgb_conv(mlx->color[mlx->colort - 1]);
+	coord.x = COLOR_OUTL - 1;
+	while (++coord.x < COLOR_OUTL * 1 + COLOR_WID * 1)
+	{
+		coord.y = COLOR_OUTL - 1;
+		while (++coord.y <= 255 + COLOR_OUTL)
+		{
+			to_color(mlx, vec4_ini((float[4]){coord.x, coord.y, 0, rgb_color(255 - coord.y + COLOR_OUTL, 0, 0)}));
+			if (255 - coord.y + COLOR_OUTL == color.red)
+				to_color(mlx, vec4_ini((float[4]){coord.x, coord.y, 0, rgb_color(255 - color.red, 0, 0)}));
+		}	
+	}
+	coord.x += COLOR_OUTL - 1;
+	while (++coord.x < COLOR_OUTL * 2 + COLOR_WID * 2)
+	{
+		coord.y = COLOR_OUTL - 1;
+		while (++coord.y <= 255 + COLOR_OUTL)
+		{
+			to_color(mlx, vec4_ini((float[4]){coord.x, coord.y, 0, rgb_color(0, 255 - coord.y + COLOR_OUTL, 0)}));
+			if (255 - coord.y + COLOR_OUTL == color.green)
+				to_color(mlx, vec4_ini((float[4]){coord.x, coord.y, 0, rgb_color(0, 255 - color.green, 0)}));
+		}
+	}
+	coord.x += COLOR_OUTL - 1;
+	while (++coord.x < COLOR_OUTL * 3 + COLOR_WID * 3)
+	{
+		coord.y = COLOR_OUTL - 1;
+		while (++coord.y <= 255 + COLOR_OUTL)
+		{
+			to_color(mlx, vec4_ini((float[4]){coord.x, coord.y, 0, rgb_color(0, 0, 255 - coord.y + COLOR_OUTL)}));
+			if (255 - coord.y + COLOR_OUTL == color.blue)
+				to_color(mlx, vec4_ini((float[4]){coord.x, coord.y, 0, rgb_color(0, 0, 255 - color.blue)}));
+		}
+	}
+}
+
 // julia, base		x(s), y(s), r, cx, cy, (n)
 static double	julia(int iter, double val[6], int width, int height) //double xs, double ys, double r)
 {
@@ -376,7 +417,8 @@ void	fractal_jul(void *para)
 			point.vec[0] = point.vec[0] * frac->zoom + frac->width / 2 - frac->off[0] * 2;
 			point.vec[1] = point.vec[1] * frac->zoom + frac->height / 2 - frac->off[1] * 2;
 			point.vec[3] = julia_flex(frac->iter, (double[6]){point.vec[0], point.vec[1], frac->mlx->jul[2], frac->mlx->jul[0], frac->mlx->jul[1], frac->mlx->jul[3]}, frac->width, frac->height);
-			point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr, (int)normalize(frac->iter - point.vec[3], (double[4]){0, frac->iter, 0x000000, 0xff0000}));
+			point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr, map_color(frac->iter - point.vec[3], (double[4]){0, frac->iter, frac->mlx->color[0], frac->mlx->color[1]}));
+			//(int)normalize(frac->iter - point.vec[3], (double[4]){0, frac->iter, frac->mlx->color[0], frac->mlx->color[1]}));
 			point.vec[0] = val[0];
 			point.vec[1] = val[1];
 			to_image(frac->mlx, point);
@@ -403,17 +445,18 @@ void	fractal_man(void *para)
 		while (++val[0] < frac->width)
 		{
 			point = mat4_vec4(rot, vec4_ini((float[4]){val[0] - frac->mlx->width / 2, val[1] - frac->mlx->height / 2, 0, 1}));
-			//point.vec[0] = (point.vec[0]) - frac->off[0] * 2 + frac->width / 2;
-			//point.vec[1] = (point.vec[1]) - frac->off[1] * 2 + frac->height / 2;
-				point.vec[0] = (point.vec[0]) / frac->zoom - frac->off[0] * 2 + frac->width / 2;
-				point.vec[1] = (point.vec[1]) / frac->zoom - frac->off[1] * 2 + frac->height / 2;
-			//point.vec[0] = point.vec[0] * frac->zoom + frac->width / 2 - frac->off[0] * 2;
-			//point.vec[1] = point.vec[1] * frac->zoom + frac->height / 2 - frac->off[1] * 2;
-			point.vec[3] = mandel(frac->iter, normalize(val[0]/*point.vec[0]*/, (double[4]){0, frac->width, MAN_MINX,
-			MAN_MAXX}), normalize(val[1]/*point.vec[1]*/, (double[4]){0, frac->height, MAN_MINY, MAN_MAXY}));
-			point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr, (int)normalize(frac->iter - point.vec[3], (double[4]){0, frac->iter, 0x000000, 0xff0000}));
-			//point.vec[0] = val[0];
-			//point.vec[1] = val[1];
+				//point.vec[0] = (point.vec[0]) - frac->off[0] * 2 + frac->width / 2;
+				//point.vec[1] = (point.vec[1]) - frac->off[1] * 2 + frac->height / 2;
+					//point.vec[0] = (point.vec[0]) / frac->zoom - frac->off[0] * 2 + frac->width / 2;
+					//point.vec[1] = (point.vec[1]) / frac->zoom - frac->off[1] * 2 + frac->height / 2;
+			point.vec[0] = point.vec[0] * frac->zoom + frac->width / 2 - frac->off[0] * 2;
+			point.vec[1] = point.vec[1] * frac->zoom + frac->height / 2 - frac->off[1] * 2;
+			point.vec[3] = mandel(frac->iter, normalize(/*val[0]*/point.vec[0], (double[4]){0, frac->width, MAN_MINX,
+			MAN_MAXX}), normalize(/*val[1]*/point.vec[1], (double[4]){0, frac->height, MAN_MINY, MAN_MAXY}));
+			point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr, map_color(frac->iter - point.vec[3], (double[4]){0, frac->iter, frac->mlx->color[0], frac->mlx->color[1]}));
+			//(int)normalize(frac->iter - point.vec[3], (double[4]){0, frac->iter, frac->mlx->color[0], frac->mlx->color[1]}));
+			point.vec[0] = val[0];
+			point.vec[1] = val[1];
 			to_image(frac->mlx, point);
 		}
 		val[1]++;
@@ -463,7 +506,13 @@ clock_t t = clock();
 	while (++i < THREADS)
 		pthread_join(threads[i], NULL);
 	mlx_put_image_to_window(mlx->mlx_ptr, mlx->mlx_win, mlx->mlx_img, 0, 0);
-
+	if (mlx->colort)
+	{
+		color_show(mlx);
+		mlx_put_image_to_window(mlx->mlx_ptr, mlx->mlx_win, mlx->clr_swat,
+			mlx->width / 2 - (3 * COLOR_WID + 4 * COLOR_OUTL) / 2,
+			mlx->height / 2 - (255 + 2 * COLOR_OUTL) / 2);
+	}
 t = clock() - t;
 printf("draw_uni() took %f seconds\n", ((double)t)/CLOCKS_PER_SEC);
 mlx_string_put(mlx->mlx_ptr, mlx->mlx_win, 10, 0, 0x00ff00, "Threads");

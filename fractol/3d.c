@@ -23,6 +23,12 @@ t_mat4		rot_matrix(float rot[4])
 	return (trans);
 }
 
+void		to_color(t_mlx *mlx, t_vec4 spot)
+{
+	mlx->clr_dat[((mlx->clr_line / 4) * (int)spot.vec[1]) +
+	(int)spot.vec[0]] = spot.vec[3];
+}
+
 int			to_image(t_mlx *mlx, t_vec4 spot)
 {
 	if (spot.vec[0] >= 0 && spot.vec[0] < mlx->width && spot.vec[1] >= 0 && spot.vec[1] < mlx->height)

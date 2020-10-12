@@ -23,6 +23,35 @@ void		mlx_image_wipe(t_mlx *mlx, int width, int height)
 		mlx->img_dat[i] = DEF_BG;
 }
 
+void		mlx_image_set(int *img_dat, int width, int height, int color)
+{
+	int	i;
+
+	if (!img_dat)
+		return ;
+	i = -1;
+	while (++i <= width * height)
+		img_dat[i] = color;
+}
+
+void		mlx_color_create(t_mlx *mlx)
+{
+	int	width;
+	int	height;
+
+	if (!mlx->clr_swat)
+	{
+		width = 3 * COLOR_WID + 4 * COLOR_OUTL;
+		height = 255 + 2 * COLOR_OUTL;
+		mlx->clr_swat = mlx_new_image(mlx->mlx_ptr, width, height);
+		if (!mlx->clr_swat)
+			run_exit(ERR_MLX, "mlx.c mlx_color_create clr_swat alloc error\n");
+		mlx->clr_dat = (int*)mlx_get_data_addr(mlx->clr_swat, &mlx->bpp, &mlx->clr_line,
+		&mlx->endian);
+		mlx_image_set(mlx->clr_dat, width, height, COLOR_BG);
+	}
+}
+
 void		mlx_image_create(t_mlx *mlx, int width, int height)
 {
 	if (!mlx->mlx_img)
@@ -103,7 +132,9 @@ printf("mlx iter and off for window %d\n", arr[1]);
 printf("mlx rot for window %d\n", arr[1]);
 	mlx->jupt = 0;
 	mlx->jur = 0;
-
+	mlx->color[0] = COLOR_START;
+	mlx->color[1] = COLOR_END;
+	mlx->colort = 0;
 	//mlx->jul = (double[4]){0, 0, 1, 1};
 	mlx->jul[2] = JULIA_MAX_R;
 	mlx->jul[3] = 0;
@@ -111,6 +142,8 @@ printf("mlx julia var for window %d\n", arr[1]);
 	mlx->windows = windows;
 printf("mlx windows *p for window %d\n", arr[1]);
 	mlx->mlx_img = NULL;
+	mlx->clr_swat = NULL;
+	mlx_color_create(mlx);
 	mlx_image_create(mlx, width, height);
 printf("mlx_img created for window %d\n", arr[1]);
 mlx_print(mlx);

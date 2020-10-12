@@ -113,12 +113,19 @@
 # define BARN_COLOR 0x00ff00
 # define BARN_HEIGHT 400 // width = height
 
+# define COLOR_BG 0xffffff
+# define COLOR_OUTL 5
+# define COLOR_WID 20
+# define COLOR_START 0x000000
+# define COLOR_END 0xff0000
+
 # define ERR_MEMORY 4
 # define ERR_PARA 5
 # define ERR_MLX 3
 # define USAGE 1
 # define ERR_THREAD_VAL 2
 # define ESC_EXIT 0
+
 typedef struct		s_mlx
 {
 	void		*mlx_ptr;
@@ -145,6 +152,11 @@ typedef struct		s_mlx
 	double		jul[4]; // cx, cy, r, n
 	void		(*func)(void*);
 	int			*windows;
+	int			color[2];
+	char		colort; // 0 off, 1 start, 2 end
+	void		*clr_swat;
+	int			clr_line;
+	int			*clr_dat;
 }					t_mlx;
 
 typedef struct		s_frac
@@ -169,6 +181,13 @@ typedef struct		s_params
 	int		*windows;
 }					t_params;
 
+typedef struct		s_dot
+{
+	int	x;
+	int	y;
+}					t_dot;
+
+
 void				run_exit(int code, char *spot);
 void				draw(t_mlx *mlx);
 void				fractal_cpy(t_mlx *mlx, int *img_dat, int *arr, size_t n);
@@ -182,16 +201,20 @@ void				height_reset(double *arr, double val, int width,
 						int height);
 int					to_image(t_mlx *mlx, t_vec4 spot);
 void				aim_rec(t_mlx *mlx);
+void				to_color(t_mlx *mlx, t_vec4 spot);
+void				mlx_image_set(int *img_dat, int width, int height, int color);
 
 void				fractal_man(void *para);
 void				fractal_jul(void *para);
 void				fractal_barn(void *para);
+
 
 t_mlx				*mlx_start(int arr[2], char **argv, void *mlx_ptr, int *windows);
 
 t_mat4				rot_matrix(float rot[4]);
 
 double				normalize(double p, double arr[4]);
+int					map_color(double p, double arr[4]);
 
 void	mlx_print(t_mlx *mlx);
 

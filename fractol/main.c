@@ -26,6 +26,30 @@ void	run_exit(int code, char *spot)
 	exit(code);
 }
 
+void	color_pick(t_mlx *mlx, int x, int y)
+{
+	t_rgb color;
+
+	color = rgb_conv(mlx->color[mlx->colort - 1]);
+	if (x >= mlx->width / 2 - (3 * COLOR_WID + 2 * COLOR_OUTL) / 2 &&
+	x <= mlx->width / 2 + (3 * COLOR_WID + 2 * COLOR_OUTL) / 2 &&
+	y >= mlx->height / 2 - (255) / 2 &&
+	y <= mlx->height / 2 + (255) / 2 + 1)
+	{
+		x -= mlx->width / 2 - (3 * COLOR_WID + 2 * COLOR_OUTL) / 2;
+		y -= mlx->height / 2 - (255) / 2;
+		printf("color pressed at x %d y %d\n", x, y);
+		if (x < COLOR_WID * 1 + COLOR_OUTL * 0)
+			mlx->color[mlx->colort - 1] = rgb_color(255 - y, color.green, color.blue);
+		else if (x > COLOR_WID * 1 + COLOR_OUTL * 1 && x < COLOR_WID * 2 + COLOR_OUTL * 1)
+			mlx->color[mlx->colort - 1] = rgb_color(color.red, 255 - y, color.blue);
+		else if (x > COLOR_WID * 2 + COLOR_OUTL * 2 &&x < COLOR_WID * 3 + COLOR_OUTL * 2)
+			mlx->color[mlx->colort - 1] = rgb_color(color.red, color.green, 255 - y);
+		if (trgb_conv(color) != mlx->color[mlx->colort - 1])
+			draw(mlx);
+	}
+}
+
 void	close_window(t_mlx *mlx)
 {
 	mlx_destroy_image(mlx->mlx_ptr, mlx->mlx_img);
@@ -123,6 +147,12 @@ static int		mouse(int button, int x, int y, void *param)
 	y = mous.vec[1];
 	printf("rotated coords x %d y %d\n", x, y);
 	*/
+	if (mlx->colort)
+	{
+		if (button == MOU_L)
+			color_pick(mlx, x, y);
+		return (0);
+	}
 	if (button == MOU_L)
 	{
 		mlx->offx += (int)(mlx->width / 2 - x) * mlx->zoom;
@@ -174,9 +204,16 @@ static int		input(int key, void *param)
 		mlx->offx = 0;
 		mlx->offy = 0;
 		mlx->zoom = 1;
+		mlx->jul[0] = 1;
+		mlx->jul[1] = 1;
+		mlx->jul[2] = JULIA_MAX_R;
+		mlx->jul[3] = 0;
 		mlx->rot[0] = ROT_X;
 		mlx->rot[1] = ROT_Y;
 		mlx->rot[2] = ROT_Z;
+		mlx->color[0] = COLOR_START;
+		mlx->color[1] = COLOR_END;
+		mlx->colort = 0;
 		draw(mlx);
 	}
 	if (key == NUM_P)
@@ -280,6 +317,11 @@ static int		input(int key, void *param)
 	if (key == K_DOT)
 	{
 		mlx->jul[3] += 2;
+		draw(mlx);
+	}
+	if (key == K_T)
+	{
+		mlx->colort = mlx->colort == 2 ? 0 : mlx->colort + 1;
 		draw(mlx);
 	}
 	printf("rot x %f y %f z %f\n", mlx->rot[0], mlx->rot[1], mlx->rot[2]);
