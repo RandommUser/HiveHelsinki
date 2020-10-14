@@ -79,6 +79,7 @@ printf("mlx window initialized for window\n");
 	(*mlx)->func = val[2] == 1 ? &fractal_man : NULL;
 	(*mlx)->func = val[2] == 2 ? &fractal_jul : (*mlx)->func;
 	(*mlx)->func = val[2] == 3 ? &fractal_barn : (*mlx)->func;
+	(*mlx)->func = val[2] == 4 ? &fractal_mult : (*mlx)->func;
 }
 
 // argc, i
@@ -102,6 +103,8 @@ t_mlx		*mlx_start(int arr[2], char **argv, void *mlx_ptr, int *windows)
 		y = 2;//mlx->func = &fractal_jul;
 	else if (!ft_strcmp(argv[arr[1]], NAME_BARN))
 		y = 3;//mlx->func = &fractal_barn;
+	else if (!ft_strcmp(argv[arr[1]], NAME_MULT))
+		y = 4;
 	else
 		run_exit(USAGE, "mlx.c mlx_start() invalid fractal name\n");
 printf("fractal #%d\n", y);
@@ -112,9 +115,10 @@ printf("fractal #%d\n", y);
 		height = y == 1 ? MAN_HEIGHT : 0;
 		height = y == 2 ? JULIA_HEIGHT : height;
 		height = y == 3 ? BARN_HEIGHT : height;
+		height = y == 4 ? MULT_HEIGHT : height;
 	}
 	height = height > MAX_HEIGHT ? MAX_HEIGHT : height;
-	width = y == 1 ? (int)(height * 1.75) : height;
+	width = y == 1 || y == 4 ? (int)(height * 1.75) : height;
 printf("window width %d height %d\n", width, height);
 	mlx_cast(&mlx, mlx_ptr, argv[arr[1]], (int[3]){width, height, y});//width, height);
 printf("mlx created for window %d\n", arr[1]);
@@ -143,6 +147,7 @@ printf("mlx julia var for window %d\n", arr[1]);
 printf("mlx windows *p for window %d\n", arr[1]);
 	mlx->mlx_img = NULL;
 	mlx->clr_swat = NULL;
+	mlx->clr_func = &map_color;
 	mlx_color_create(mlx);
 	mlx_image_create(mlx, width, height);
 printf("mlx_img created for window %d\n", arr[1]);

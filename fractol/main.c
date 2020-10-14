@@ -100,8 +100,13 @@ static int		mouse_live(int x, int y, void *param)
 		}
 		else
 		{
-			mlx->jul[2] = normalize(x, (double[4]){0, mlx->width, 1, sqrt(JULIA_MAX_R)});
-			mlx->jul[2] *= normalize(y, (double[4]){0, mlx->height, 1, sqrt(JULIA_MAX_R)});
+			if (mlx->func == &fractal_jul)
+			{
+				mlx->jul[2] = normalize(x, (double[4]){0, mlx->width, 1, sqrt(JULIA_MAX_R)});
+				mlx->jul[2] *= normalize(y, (double[4]){0, mlx->height, 1, sqrt(JULIA_MAX_R)});
+			}
+			else if (mlx->func == &fractal_mult)
+				mlx->jul[2] = normalize(x, (double[4]){0, mlx->width, MULT_MIN, MULT_MAX});
 		}
 
 		mlx->jul[0] = normalize(mlx->mouse_pos[0] - mlx->width / 2, (double[4]){-(mlx->width / 2), mlx->width / 2, -(mlx->jul[2]), mlx->jul[2]});
@@ -214,6 +219,7 @@ static int		input(int key, void *param)
 		mlx->color[0] = COLOR_START;
 		mlx->color[1] = COLOR_END;
 		mlx->colort = 0;
+		mlx->clr_func = &map_color;
 		draw(mlx);
 	}
 	if (key == NUM_P)
@@ -311,17 +317,28 @@ static int		input(int key, void *param)
 		mlx->jur = mlx->jur ? 0 : 1;
 	if (key == K_COM)
 	{
-		mlx->jul[3] -= 2;
+		if (mlx->func == &fractal_jul)
+			mlx->jul[3] -= JULIA_STEP;
+		else if (mlx->func == &fractal_mult)
+			mlx->jul[2] -= MULT_STEP;
 		draw(mlx);
 	}
 	if (key == K_DOT)
 	{
-		mlx->jul[3] += 2;
+		if (mlx->func == &fractal_jul)
+			mlx->jul[3] += JULIA_STEP;
+		else if (mlx->func == &fractal_mult)
+			mlx->jul[2] += MULT_STEP;
 		draw(mlx);
 	}
 	if (key == K_T)
 	{
 		mlx->colort = mlx->colort == 2 ? 0 : mlx->colort + 1;
+		draw(mlx);
+	}
+	if (key == K_C)
+	{
+		mlx->clr_func = mlx->clr_func == &map_color ? &normalize : &map_color;
 		draw(mlx);
 	}
 	printf("rot x %f y %f z %f\n", mlx->rot[0], mlx->rot[1], mlx->rot[2]);
@@ -339,7 +356,7 @@ int	valid_params(int argc, char **argv)
 	frac = 0;
 	while (++i < argc)
 	{
-		if (!ft_strcmp(argv[i], NAME_MAN) || !ft_strcmp(argv[i], NAME_JULIA) || !ft_strcmp(argv[i], NAME_BARN))
+		if (!ft_strcmp(argv[i], NAME_MAN) || !ft_strcmp(argv[i], NAME_JULIA) || !ft_strcmp(argv[i], NAME_BARN) || !ft_strcmp(argv[i], NAME_MULT))
 		{
 			name = 1;
 			frac++;

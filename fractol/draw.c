@@ -53,6 +53,8 @@ static void		color_show(t_mlx *mlx)
 	}
 }
 
+
+
 // julia, base		x(s), y(s), r, cx, cy, (n)
 static double	julia(int iter, double val[6], int width, int height) //double xs, double ys, double r)
 {
@@ -75,7 +77,6 @@ static double	julia(int iter, double val[6], int width, int height) //double xs,
 	}
 	return (i == -1 ? 0 : i);
 }
-
 
 // julia flex		x(s), y(s), r, cx, cy, n
 static double	julia_flex(int iter, double val[6], int width, int height) //double xs, double ys, double r)
@@ -121,6 +122,61 @@ static double	mandel(int iter, double xs, double ys)
 		y = 2 * x * y + ys;
 		x = xte;
 		if (last[0] == x && last[1] == y) // check for looping // add "too close to 0?"
+			return (iter);
+	}
+	return (i == -1 ? 0 : i);
+}
+
+// val = x, y, xs, xy
+static double	multibrot_neg(int iter, double val[4], double n)//double x, double y, int n)
+{
+	double	x;
+	double	y;
+	double	xte;
+	int		i;
+	double	last[2];
+	double	d, in_n;
+
+	x = 0;
+	y = 0;
+	i = -1;
+	in_n = -(n);
+	d = pow(pow(val[2], 2) + pow(val[3], 2), in_n);
+	while (x * x + y * y <= n * n &&  ++i < iter)
+	{
+		if (!d)
+			return (i);
+		xte = pow((x * x + y * y), (in_n / 2)) * cos(in_n * atan2(y, x)) / d + val[2];
+		y = -(pow((x * x + y * y), (in_n / 2))) * sin(in_n * atan2(y, x)) / d + val[3];
+		x = xte;
+		if ((last[0] == x && last[1] == y))
+			return (iter);
+		d = pow(pow(x, 2) + pow(y, 2), in_n);
+	}
+	return (i == -1 ? 0 : i);
+}
+
+// val = x, y, xs, xy
+static double	multibrot(int iter, double val[4], double n)//double x, double y, int n)
+{
+	double	x;
+	double	y;
+	double	xte;
+	int		i;
+	double	last[2];
+
+	if (n < 0)
+		return (multibrot_neg(iter, val, n));
+	x = 0;//val[0];
+	y = 0;//val[1];
+	i = -1;
+	while (x * x + y * y <= n * n &&  ++i < iter)
+	{
+		//printf("x %f y %f\n", x, y);
+		xte = pow((x * x + y * y), (n / 2)) * cos(n * atan2(y, x)) + val[2];
+		y = pow((x * x + y * y), (n / 2)) * sin(n * atan2(y, x)) + val[3];
+		x = xte;
+		if ((last[0] == x && last[1] == y) || y == 0 || x == 0)
 			return (iter);
 	}
 	return (i == -1 ? 0 : i);
@@ -417,8 +473,47 @@ void	fractal_jul(void *para)
 			point.vec[0] = point.vec[0] * frac->zoom + frac->width / 2 - frac->off[0] * 2;
 			point.vec[1] = point.vec[1] * frac->zoom + frac->height / 2 - frac->off[1] * 2;
 			point.vec[3] = julia_flex(frac->iter, (double[6]){point.vec[0], point.vec[1], frac->mlx->jul[2], frac->mlx->jul[0], frac->mlx->jul[1], frac->mlx->jul[3]}, frac->width, frac->height);
-			point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr, map_color(frac->iter - point.vec[3], (double[4]){0, frac->iter, frac->mlx->color[0], frac->mlx->color[1]}));
-			//(int)normalize(frac->iter - point.vec[3], (double[4]){0, frac->iter, frac->mlx->color[0], frac->mlx->color[1]}));
+			point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr,  (int)frac->mlx->clr_func(frac->iter - point.vec[3], (double[4]){0, frac->iter, frac->mlx->color[0], frac->mlx->color[1]}));
+			//map_color(frac->iter - point.vec[3], (double[4]){0, frac->iter, frac->mlx->color[0], frac->mlx->color[1]}));
+			point.vec[0] = val[0];
+			point.vec[1] = val[1];
+			to_image(frac->mlx, point);
+		}
+		val[1]++;
+	}
+	frac->lines = frac->size / frac->width;
+}
+
+// multibrot
+void	fractal_mult(void *para)
+{
+	int		val[2]; // x, y
+	t_frac	*frac;
+	t_vec4	point;
+	t_mat4	rot;
+
+	frac = para;
+	val[1] = frac->y;
+	rot = rot_matrix(frac->mlx->rot);
+	while (--frac->lines >= 0)
+	{
+		val[0] = -1;
+		while (++val[0] < frac->width)
+		{
+			/*
+			point = vec4_ini((float[4]){val[0], val[1], 0, 1});
+			point.vec[3] = multibrot(frac->iter, (double[4]){point.vec[0], point.vec[1], normalize(point.vec[0], (double[4]){0, frac->width, MAN_MINX,
+			MAN_MAXX}), normalize(point.vec[1], (double[4]){0, frac->height, MAN_MINY, MAN_MAXY})}, frac->mlx->jul[2]);
+			point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr, (int)frac->mlx->clr_func(frac->iter - point.vec[3], (double[4]){0, frac->iter, frac->mlx->color[0], frac->mlx->color[1]}));
+			*/
+			
+			point = mat4_vec4(rot, vec4_ini((float[4]){val[0] - frac->mlx->width / 2, val[1] - frac->mlx->height / 2, 0, 1}));
+			point.vec[0] = point.vec[0] * frac->zoom + frac->width / 2 - frac->off[0] * 2;
+			point.vec[1] = point.vec[1] * frac->zoom + frac->height / 2 - frac->off[1] * 2;
+			point.vec[3] = multibrot(frac->iter, (double[4]){point.vec[0], point.vec[1], normalize(point.vec[0], (double[4]){0, frac->width, MAN_MINX,
+			MAN_MAXX}), normalize(point.vec[1], (double[4]){0, frac->height, MAN_MINY, MAN_MAXY})}, frac->mlx->jul[2]);
+			point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr, (int)frac->mlx->clr_func(frac->iter - point.vec[3], (double[4]){0, frac->iter, frac->mlx->color[0], frac->mlx->color[1]}));
+			
 			point.vec[0] = val[0];
 			point.vec[1] = val[1];
 			to_image(frac->mlx, point);
@@ -453,8 +548,8 @@ void	fractal_man(void *para)
 			point.vec[1] = point.vec[1] * frac->zoom + frac->height / 2 - frac->off[1] * 2;
 			point.vec[3] = mandel(frac->iter, normalize(/*val[0]*/point.vec[0], (double[4]){0, frac->width, MAN_MINX,
 			MAN_MAXX}), normalize(/*val[1]*/point.vec[1], (double[4]){0, frac->height, MAN_MINY, MAN_MAXY}));
-			point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr, map_color(frac->iter - point.vec[3], (double[4]){0, frac->iter, frac->mlx->color[0], frac->mlx->color[1]}));
-			//(int)normalize(frac->iter - point.vec[3], (double[4]){0, frac->iter, frac->mlx->color[0], frac->mlx->color[1]}));
+			point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr, (int)frac->mlx->clr_func(frac->iter - point.vec[3], (double[4]){0, frac->iter, frac->mlx->color[0], frac->mlx->color[1]}));
+			//map_color(frac->iter - point.vec[3], (double[4]){0, frac->iter, frac->mlx->color[0], frac->mlx->color[1]}));
 			point.vec[0] = val[0];
 			point.vec[1] = val[1];
 			to_image(frac->mlx, point);

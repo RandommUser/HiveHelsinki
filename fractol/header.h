@@ -59,6 +59,7 @@
 # define K_P 35
 # define K_T 17
 # define K_R 15
+# define K_C 8
 # define K_ENT 36
 # define K_COM 43
 # define K_DOT 47
@@ -96,6 +97,7 @@
 # define NAME_MAN "mandelbrot"
 # define NAME_JULIA "julia"
 # define NAME_BARN "barnsley"
+# define NAME_MULT "multibrot"
 
 # define MAN_MINX -2.5	// x 0
 # define MAN_MAXX 1 	// x = width
@@ -104,6 +106,7 @@
 # define MAN_HEIGHT 400 // width = (int)(height * 1.75)
 
 # define JULIA_MAX_R 4
+# define JULIA_STEP 2
 # define JULIA_HEIGHT 400 // width = height
 
 # define BARN_X_MIN -2.1820
@@ -112,6 +115,11 @@
 # define BARN_Y_MAX 0
 # define BARN_COLOR 0x00ff00
 # define BARN_HEIGHT 400 // width = height
+
+# define MULT_HEIGHT 400
+# define MULT_STEP 0.1
+# define MULT_MIN -4//0.5
+# define MULT_MAX 20
 
 # define COLOR_BG 0xffffff
 # define COLOR_OUTL 5
@@ -157,6 +165,7 @@ typedef struct		s_mlx
 	void		*clr_swat;
 	int			clr_line;
 	int			*clr_dat;
+	double		(*clr_func)(double, double[4]);
 }					t_mlx;
 
 typedef struct		s_frac
@@ -207,6 +216,7 @@ void				mlx_image_set(int *img_dat, int width, int height, int color);
 void				fractal_man(void *para);
 void				fractal_jul(void *para);
 void				fractal_barn(void *para);
+void				fractal_mult(void *para);
 
 
 t_mlx				*mlx_start(int arr[2], char **argv, void *mlx_ptr, int *windows);
@@ -214,7 +224,7 @@ t_mlx				*mlx_start(int arr[2], char **argv, void *mlx_ptr, int *windows);
 t_mat4				rot_matrix(float rot[4]);
 
 double				normalize(double p, double arr[4]);
-int					map_color(double p, double arr[4]);
+double				map_color(double p, double arr[4]);
 
 void	mlx_print(t_mlx *mlx);
 

@@ -74,7 +74,7 @@ double	normalize(double p, double arr[4])
 	return (p);
 }
 
-int		map_color(double p, double arr[4])
+double	map_color(double p, double arr[4])
 {
 	t_rgb colors[2];
 
