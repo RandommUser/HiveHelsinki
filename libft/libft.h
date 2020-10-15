@@ -37,7 +37,7 @@ typedef	struct	s_vec2
 
 typedef	struct	s_vec4
 {
-	float	vec[4];
+	long double	vec[4];
 }				t_vec4;
 
 typedef	struct	s_mat2
@@ -47,7 +47,7 @@ typedef	struct	s_mat2
 
 typedef	struct	s_mat4
 {
-	float	mat[4][4];
+	long double	mat[4][4];
 }				t_mat4;
 
 typedef	struct	s_matn
@@ -72,23 +72,23 @@ t_mat2			*mat2_rota(double theta);
 t_mat2			*mat2_flip(void);
 t_vec2			*mat2_vec(t_mat2 *mat2, t_vec2 *vec2);
 
-t_vec4			vec4_ini(float in[4]);
+t_vec4			vec4_ini(long double in[4]);
 t_vec4			vec4m_vec4(t_vec4 vec1, t_vec4 vec2);
-double			vec4_ccw(t_vec4 vec1, t_vec4 vec2, t_vec4 vec3);
+long double		vec4_ccw(t_vec4 vec1, t_vec4 vec2, t_vec4 vec3);
 t_vecn			*vecn_ini(size_t n);
 t_vecn			*vecn_cpy(float *vecn, size_t n);
 
 t_mat4			mat4_rotz(double theta);
 t_mat4			mat4_roty(double theta);
 t_mat4			mat4_rotx(double theta);
-t_mat4			mat4_trans(float s[3]);
-t_mat4			mat4_scales(float s[4]);
+t_mat4			mat4_trans(long double s[3]);
+t_mat4			mat4_scales(long double s[4]);
 t_mat4			mat4_ini(void);
 t_mat4			mat4_iden(void);
 t_mat4			mat4_pro(void);
 t_mat4			mat4_perps(t_vec4 vec);
-t_mat4			mat4_perps2(t_vec4 vec, float ar);
-t_mat4			mat4_pinhole(t_vec4 vec, float ar);
+t_mat4			mat4_perps2(t_vec4 vec, long double ar);
+t_mat4			mat4_pinhole(t_vec4 vec, long double ar);
 t_mat4			mat4_mat4(t_mat4 mat1, t_mat4 mat2);
 t_vec4			mat4_vec4(t_mat4 mat4, t_vec4 vec4);
 t_mat4			mat4_rot_inverse(t_mat4 mat);

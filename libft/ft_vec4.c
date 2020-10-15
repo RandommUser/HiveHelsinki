@@ -27,16 +27,16 @@
 ** }
 */
 
-double		vec4_ccw(t_vec4 vec1, t_vec4 vec2, t_vec4 vec3)
+long double		vec4_ccw(t_vec4 vec1, t_vec4 vec2, t_vec4 vec3)
 {
-	double	ret;
+	long double	ret;
 
 	ret = (vec2.vec[0] - vec1.vec[0]) * (vec3.vec[1] - vec1.vec[1]);
 	ret = ret - (vec2.vec[1] - vec1.vec[1]) * (vec3.vec[0] - vec1.vec[0]);
 	return (ret);
 }
 
-t_vec4		vec4_ini(float in[4])
+t_vec4		vec4_ini(long double in[4])
 {
 	t_vec4	ret;
 	size_t	i;
@@ -54,7 +54,7 @@ t_vec4		vec4m_vec4(t_vec4 vec1, t_vec4 vec2)
 	t_vec4	ret;
 	size_t	i;
 
-	ret = vec4_ini((float[4]){0, 0, 0, 1});
+	ret = vec4_ini((long double[4]){0, 0, 0, 1});
 	i = -1;
 	while (++i < 3)
 		ret.vec[i] = vec1.vec[i] - vec2.vec[i];

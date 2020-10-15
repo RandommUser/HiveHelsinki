@@ -13,7 +13,7 @@
 #include "libft.h"
 #include <math.h>
 
-t_mat4	mat4_scales(float s[4])
+t_mat4	mat4_scales(long double s[4])
 {
 	t_mat4	ret;
 	size_t	i;
@@ -63,7 +63,7 @@ t_mat4	mat4_roty(double theta)
 
 t_mat4	mat4_rotz(double theta)
 {
-	t_mat4	rota;
+	t_mat4		rota;
 	double	sint;
 	double	cost;
 
@@ -79,11 +79,11 @@ t_mat4	mat4_rotz(double theta)
 	return (rota);
 }
 
-t_mat4	mat4_trans(float s[3])
+t_mat4	mat4_trans(long double s[3])
 {
 	t_mat4	tran;
 
-	tran = mat4_scales((float[4]){1, 1, 1, 1});
+	tran = mat4_scales((long double[4]){1, 1, 1, 1});
 	tran.mat[0][3] = s[0];
 	tran.mat[1][3] = s[1];
 	tran.mat[2][3] = s[2];
