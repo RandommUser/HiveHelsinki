@@ -91,20 +91,19 @@ t_vec4	mat4_vec4(t_mat4 mat4, t_vec4 vec4)
 
 	n = 4;
 	row = -1;
+	ret = vec4_ini((long double[4]){0, 0, 0, 0});
 	while (++row < n && (col = -1))
-	{
 		while (++col < n)
 			ret.vec[row] += mat4.mat[row][col] * vec4.vec[col];
-	}
 	return (ret);
 }
 
 t_mat4	mat4_rot_inverse(t_mat4 mat)
 {
-	t_mat4	ret;
-	float	det;
-	int		i;
-	int		y;
+	t_mat4		ret;
+	long double	det;
+	int			i;
+	int			y;
 
 	ret = mat4_ini();
 	i = -1;

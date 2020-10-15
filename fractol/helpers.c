@@ -48,7 +48,7 @@ void	fractal_cpy(t_mlx *mlx, int *img_dat, int *arr, size_t n)
 	i = -1;
 	while (++i < n)
 	{
-		img_dat[i] = mlx_get_color_value(mlx->mlx_ptr, (int)normalize(mlx->iter - arr[i], (double[4]){0, mlx->iter, 0x000000, 0xff0000}));
+		img_dat[i] = mlx_get_color_value(mlx->mlx_ptr, (int)normalize(mlx->iter - arr[i], (long double[4]){0, mlx->iter, 0x000000, 0xff0000}));
 	//printf("[%d]", img_dat[i]);
 	}
 	//printf("\n");
@@ -67,14 +67,14 @@ void	fractal_norm(void *param)
 	}
 }
 */
-double	normalize(double p, double arr[4])
+long double	normalize(long double p, long double arr[4])
 {
 	p = (p - arr[0])/(arr[1] - arr[0]);
 	p = (arr[3] - arr[2]) * p + arr[2];
 	return (p);
 }
 
-double	map_color(double p, double arr[4])
+long double	map_color(long double p, long double arr[4])
 {
 	t_rgb colors[2];
 

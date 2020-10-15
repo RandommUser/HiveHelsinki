@@ -12,7 +12,7 @@
 
 #include "header.h"
 
-t_mat4		rot_matrix(float rot[4])
+t_mat4		rot_matrix(long double rot[4])
 {
 	t_mat4	trans;
 
@@ -64,7 +64,7 @@ void		three_d(t_mlx *mlx, t_vec4 spot)
 {
 	int		color;
 
-	color = mlx_get_color_value(mlx->mlx_ptr, (int)normalize(mlx->iter - spot.vec[2], (double[4]){0, mlx->iter, 0x000000, 0xff0000}));
+	color = mlx_get_color_value(mlx->mlx_ptr, (int)normalize(mlx->iter - spot.vec[2], (long double[4]){0, mlx->iter, 0x000000, 0xff0000}));
 	spot.vec[0] -= mlx->width / 2;
 	spot.vec[1] -= mlx->height / 2;
 	spot.vec[2] /= 2;

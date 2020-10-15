@@ -75,8 +75,8 @@
 # define MOU_S_U 5
 # define MOU_S_D 4
 
-# define ROT_X -180//-90
-# define ROT_Y 180//-90
+# define ROT_X -90//-180//-90
+# define ROT_Y 270//180//-90
 # define ROT_Z -180//-180
 # define ROTA_STEP 5
 
@@ -91,7 +91,7 @@
 # define ITER 100
 # define MIN_ITER 10
 # define MAX_ITER 20000
-# define PADDING 1000
+# define WINDOWS 10
 # define DEF_BG 0xffffff
 
 # define NAME_MAN "mandelbrot"
@@ -148,12 +148,12 @@ typedef struct		s_mlx
 	int			mode;
 	int			verbose;
 	int			iter;
-	double		zoom;
+	long double	zoom;
 	int			cmin;
 	int			cmax;
-	double		offx;
-	double		offy;
-	float		rot[4];
+	long double	offx;
+	long double	offy;
+	long double	rot[4];
 	char		jupt;
 	char		jur;
 	int			mouse_pos[2];
@@ -165,20 +165,20 @@ typedef struct		s_mlx
 	void		*clr_swat;
 	int			clr_line;
 	int			*clr_dat;
-	double		(*clr_func)(double, double[4]);
+	long double	(*clr_func)(long double, long double[4]);
 }					t_mlx;
 
 typedef struct		s_frac
 {
-	double	zoom;
-	int		iter;
-	int		width;
-	int		height;
-	int		thread;
-	int		y;
-	int		lines;
-	int		size;
-	double	off[2];
+	long double	zoom;
+	int			iter;
+	int			width;
+	int			height;
+	int			thread;
+	int			y;
+	int			lines;
+	int			size;
+	long double	off[2];
 	t_mlx	*mlx;
 }					t_frac;
 
@@ -221,10 +221,10 @@ void				fractal_mult(void *para);
 
 t_mlx				*mlx_start(int arr[2], char **argv, void *mlx_ptr, int *windows);
 
-t_mat4				rot_matrix(float rot[4]);
+t_mat4				rot_matrix(long double rot[4]);
 
-double				normalize(double p, double arr[4]);
-double				map_color(double p, double arr[4]);
+long double			normalize(long double p, long double arr[4]);
+long double			map_color(long double p, long double arr[4]);
 
 void	mlx_print(t_mlx *mlx);
 

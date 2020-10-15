@@ -102,15 +102,15 @@ static int		mouse_live(int x, int y, void *param)
 		{
 			if (mlx->func == &fractal_jul)
 			{
-				mlx->jul[2] = normalize(x, (double[4]){0, mlx->width, 1, sqrt(JULIA_MAX_R)});
-				mlx->jul[2] *= normalize(y, (double[4]){0, mlx->height, 1, sqrt(JULIA_MAX_R)});
+				mlx->jul[2] = normalize(x, (long double[4]){0, mlx->width, 1, sqrt(JULIA_MAX_R)});
+				mlx->jul[2] *= normalize(y, (long double[4]){0, mlx->height, 1, sqrt(JULIA_MAX_R)});
 			}
 			else if (mlx->func == &fractal_mult)
-				mlx->jul[2] = normalize(x, (double[4]){0, mlx->width, MULT_MIN, MULT_MAX});
+				mlx->jul[2] = normalize(x, (long double[4]){0, mlx->width, MULT_MIN, MULT_MAX});
 		}
 
-		mlx->jul[0] = normalize(mlx->mouse_pos[0] - mlx->width / 2, (double[4]){-(mlx->width / 2), mlx->width / 2, -(mlx->jul[2]), mlx->jul[2]});
-		mlx->jul[1] = normalize(mlx->mouse_pos[1] - mlx->height / 2, (double[4]){-(mlx->height / 2), mlx->height / 2, -(mlx->jul[2]), mlx->jul[2]});
+		mlx->jul[0] = normalize(mlx->mouse_pos[0] - mlx->width / 2, (long double[4]){-(mlx->width / 2), mlx->width / 2, -(mlx->jul[2]), mlx->jul[2]});
+		mlx->jul[1] = normalize(mlx->mouse_pos[1] - mlx->height / 2, (long double[4]){-(mlx->height / 2), mlx->height / 2, -(mlx->jul[2]), mlx->jul[2]});
 		draw(mlx);
 		printf("n %f r %f cx %f cy %f\n", mlx->jul[3], mlx->jul[2], mlx->jul[0], mlx->jul[1]);
 	}
@@ -160,17 +160,17 @@ static int		mouse(int button, int x, int y, void *param)
 	}
 	if (button == MOU_L)
 	{
-		mlx->offx += (int)(mlx->width / 2 - x) * mlx->zoom;
-		mlx->offy += (int)(mlx->height / 2 - y) * mlx->zoom;
+		mlx->offx += (mlx->width / 2 - x) * mlx->zoom;
+		mlx->offy += (mlx->height / 2 - y) * mlx->zoom;
 		draw(mlx);
-		printf("offx %f offy %f\n", mlx->offx, mlx->offy);
+		printf("offx %Lf offy %Lf\n", mlx->offx, mlx->offy);
 	}
 	if (button == MOU_R)
 	{
 		mlx->offx = (x - mlx->width / 2) * mlx->zoom;
 		mlx->offy = (y - mlx->height / 2) * mlx->zoom;
 		draw(mlx);
-		printf("offx %f offy %f\n", mlx->offx, mlx->offy);
+		printf("offx %Lf offy %Lf\n", mlx->offx, mlx->offy);
 	}
 	if (button == MOU_S_U)
 	{
@@ -178,7 +178,7 @@ static int		mouse(int button, int x, int y, void *param)
 		mlx->offy += (mlx->height / 2 - y) * mlx->zoom;
 		mlx->zoom = mlx->zoom < 0.1 ? mlx->zoom * 10 : mlx->zoom * 1.1;//+ 0.1;
 		draw(mlx);
-		printf("zoom %f offx %f off y %f\n", mlx->zoom, mlx->offx, mlx->offy);
+		printf("zoom %Lf offx %Lf off y %Lf\n", mlx->zoom, mlx->offx, mlx->offy);
 	}
 	if (button == MOU_S_D)
 	{
@@ -186,7 +186,7 @@ static int		mouse(int button, int x, int y, void *param)
 		mlx->offy += (mlx->height / 2 - y) * mlx->zoom;
 		mlx->zoom = mlx->zoom < 0.2 ? mlx->zoom / 10 : mlx->zoom * 0.9;//- 0.1;
 		draw(mlx);
-		printf("zoom %f offx %f off y %f\n", mlx->zoom, mlx->offx, mlx->offy);
+		printf("zoom %Lf offx %Lf offy %Lf\n", mlx->zoom, mlx->offx, mlx->offy);
 	}
 	aim_rec(mlx);
 	return (0);
@@ -240,38 +240,38 @@ static int		input(int key, void *param)
 	{
 		mlx->zoom = mlx->zoom < 0.1 ? mlx->zoom * 2 : mlx->zoom * 1.1;//+ 0.1;
 		draw(mlx);
-		printf("zoom++ %f\n", mlx->zoom);
+		printf("zoom++ %.30Lf\n", mlx->zoom);
 	}
 	if (key == PG_DW)
 	{
 		mlx->zoom = mlx->zoom < 0.2 ? mlx->zoom / 2 : mlx->zoom * 0.9;//- 0.1;
 		//mlx->zoom = mlx->zoom < 0.000001 ? mlx->zoom = 0.000001 : mlx->zoom; // make it not reach 0 | not needed(?)
 		draw(mlx);
-		printf("zoom-- %f\n", mlx->zoom);
+		printf("zoom-- %.30Lf\n", mlx->zoom);
 	}
 	if (key == AR_DW)
 	{
 		mlx->offy += 5 * mlx->zoom;
 		draw(mlx);
-		printf("offy++ %f\n", mlx->offy);
+		printf("offy++ %Lf\n", mlx->offy);
 	}
 	if (key == AR_UP)
 	{
 		mlx->offy -= 5 * mlx->zoom;
 		draw(mlx);
-		printf("offy-- %f\n", mlx->offy);
+		printf("offy-- %Lf\n", mlx->offy);
 	}
 	if (key == AR_RG)
 	{
 		mlx->offx += 5 * mlx->zoom;
 		draw(mlx);
-		printf("offx++ %f\n", mlx->offx);
+		printf("offx++ %Lf\n", mlx->offx);
 	}
 	if (key == AR_LF)
 	{
 		mlx->offx -= 5 * mlx->zoom;
 		draw(mlx);
-		printf("offx-- %f\n", mlx->offx);
+		printf("offx-- %Lf\n", mlx->offx);
 	}
 
 
@@ -341,7 +341,7 @@ static int		input(int key, void *param)
 		mlx->clr_func = mlx->clr_func == &map_color ? &normalize : &map_color;
 		draw(mlx);
 	}
-	printf("rot x %f y %f z %f\n", mlx->rot[0], mlx->rot[1], mlx->rot[2]);
+	printf("rot x %Lf y %Lf z %Lf\n", mlx->rot[0], mlx->rot[1], mlx->rot[2]);
 	return (0);
 }
 
@@ -419,15 +419,15 @@ int	main(int argc, char **argv)
 	int			windows;
 	int			i;
 //	pthread_t	threads[THREADS];
-	t_params	param[THREADS];
-	t_mlx		*mlxs[THREADS + 1];
+	t_params	param[WINDOWS];
+	t_mlx		*mlxs[WINDOWS + 1];
 	void		*mlx_ptr;
 
 	if (argc < 2)
 		run_exit(USAGE, "main.c main() arg amount\n");
 	else if (THREADS < 0 || THREADS > 64 || THREADS != (int)THREADS)
 		run_exit(ERR_THREAD_VAL, "main main() THREAD check\n");
-	if ((windows = valid_params(argc, argv)) > THREADS)
+	if ((windows = valid_params(argc, argv)) > WINDOWS)
 		run_exit(ERR_PARA, "main.c main() too many fractals\n");
 	if (!(mlx_ptr = mlx_init()))
 		run_exit(ERR_MLX, "main main() mlx_init failed\n");
