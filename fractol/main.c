@@ -63,6 +63,22 @@ void	close_window(t_mlx *mlx)
 	//pthread_exit(NULL);
 }
 
+static int		iter_anim(void *param)
+{
+	t_mlx	*mlx;
+	int		iter;
+
+	mlx = param;
+	iter = mlx->iter;
+	if (!mlx->colort && ++mlx->anim_iter <= mlx->iter)
+	{
+		mlx->iter = mlx->anim_iter;
+		draw(mlx);
+		mlx->iter = iter;
+	}
+	return (0);
+}
+
 static int		window_close(void *param)
 {
 	t_mlx	*mlx;
@@ -90,8 +106,10 @@ static int		mouse_live(int x, int y, void *param)
 	mlx = param;
 	if (!(x >= 0 && x < mlx->width && y >= 0 && y < mlx->height))
 		return (-1);
+	mlx->anim_iter = mlx->iter;
 	if (mlx->jupt)
 	{
+		mlx_image_wipe(mlx, mlx->width, mlx->height);
 		printf("x %d y %d\n", x, y);
 		if (!mlx->jur)
 		{
@@ -129,6 +147,7 @@ static int		mouse(int button, int x, int y, void *param)
 
 	mlx = param;
 	mlx_image_wipe(mlx, mlx->width, mlx->height);
+	mlx->anim_iter = mlx->iter;
 	if (mlx->verbose)
 	{
 		ft_putstr("pressed ");
@@ -199,6 +218,7 @@ static int		input(int key, void *param)
 	printf("key %d\n", key);
 	mlx = param;
 	mlx_image_wipe(mlx, mlx->width, mlx->height);
+	mlx->anim_iter = mlx->iter;
 	if (key == ESC_KEY)
 		run_exit(0, "");
 	if (key == K_ENT)
@@ -341,7 +361,12 @@ static int		input(int key, void *param)
 		mlx->clr_func = mlx->clr_func == &map_color ? &normalize : &map_color;
 		draw(mlx);
 	}
+	if (key == K_P)
+	{
+		mlx->anim_iter = ANIM_IT_START;
+	}
 	printf("rot x %Lf y %Lf z %Lf\n", mlx->rot[0], mlx->rot[1], mlx->rot[2]);
+	mat4_put(rot_matrix(mlx->rot));
 	return (0);
 }
 
@@ -398,6 +423,7 @@ printf("starting mlx hook %p\n", para);
 	mlx_hook(mlx->mlx_win, 17, 0 , window_close, mlx);
 	if (mlx->func == &fractal_barn)
 		mlx_loop_hook(mlx->mlx_ptr, draw_leaf, mlx);
+	mlx_loop_hook(mlx->mlx_ptr, iter_anim, mlx);
 printf("action hooks done\n");
 //	mlx_loop(mlx->mlx_ptr);
 //printf("window loop done\n");

@@ -176,7 +176,7 @@ static double	multibrot(int iter, long double val[4], long double n)//double x, 
 		xte = pow((x * x + y * y), (n / 2)) * cos(n * atan2(y, x)) + val[2];
 		y = pow((x * x + y * y), (n / 2)) * sin(n * atan2(y, x)) + val[3];
 		x = xte;
-		if ((last[0] == x && last[1] == y) || y == 0 || x == 0)
+		if ((last[0] == x && last[1] == y))// || y == 0 || x == 0)
 			return (iter);
 	}
 	return (i == -1 ? 0 : i);
@@ -443,11 +443,13 @@ void	fractal_barn(void *para)
 	while (++i < frac->iter * 100)
 	{
 		point = vec4_ini((long double[4]){normalize(val[0], (long double[4]){BARN_X_MIN, BARN_X_MAX , -(frac->width / 2), frac->width / 2}),
-		normalize(val[1], (long double[4]){BARN_Y_MIN, BARN_Y_MAX, -(frac->height / 2), frac->height / 2}), 0, 1});
+		normalize(val[1], (long double[4]){BARN_Y_MIN, BARN_Y_MAX, -(frac->height / 2), frac->height / 2}), i / 100 - frac->iter * 50 / 100, 1});
 		point = mat4_vec4(rot_matrix(frac->mlx->rot), point);
 		point.vec[0] = (point.vec[0] + frac->off[0]) / frac->zoom + frac->width / 2;
 		point.vec[1] = (point.vec[1] + frac->off[1]) / frac->zoom + frac->height / 2;
-		point.vec[3] = BARN_COLOR;
+		point.vec[2] += frac->iter * 50 / 100;
+		point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr,  (int)frac->mlx->clr_func(frac->iter - point.vec[2], (long double[4]){0, frac->iter, frac->mlx->color[0], frac->mlx->color[1]}));
+		//point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr, BARN_COLOR);
 		to_image(frac->mlx, point);
 		barnsley(val);
 	}
@@ -473,8 +475,8 @@ void	fractal_jul(void *para)
 			point = vec4_ini((long double[4]){(val[0] - frac->mlx->width / 2), (val[1] - frac->mlx->height / 2), 0, 1});
 			point.vec[0] = point.vec[0] * frac->zoom + frac->width / 2 - frac->off[0];// * 2;
 			point.vec[1] = point.vec[1] * frac->zoom + frac->height / 2 - frac->off[1];// * 2;
-			point.vec[3] = julia_flex(frac->iter, (long double[6]){point.vec[0], point.vec[1], frac->mlx->jul[2], frac->mlx->jul[0], frac->mlx->jul[1], frac->mlx->jul[3]}, frac->width, frac->height);
-			point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr,  (int)frac->mlx->clr_func(frac->iter - point.vec[3], (long double[4]){0, frac->iter, frac->mlx->color[0], frac->mlx->color[1]}));
+			point.vec[2] = julia_flex(frac->iter, (long double[6]){point.vec[0], point.vec[1], frac->mlx->jul[2], frac->mlx->jul[0], frac->mlx->jul[1], frac->mlx->jul[3]}, frac->width, frac->height);
+			point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr,  (int)frac->mlx->clr_func(frac->iter - point.vec[2], (long double[4]){0, frac->iter, frac->mlx->color[0], frac->mlx->color[1]}));
 			//map_color(frac->iter - point.vec[3], (double[4]){0, frac->iter, frac->mlx->color[0], frac->mlx->color[1]}));
 			point.vec[0] = val[0];
 			point.vec[1] = val[1];
@@ -510,12 +512,11 @@ void	fractal_mult(void *para)
 			
 			//point = mat4_vec4(rot, vec4_ini((long double[4]){val[0] - frac->mlx->width / 2, val[1] - frac->mlx->height / 2, 0, 1}));
 			point = vec4_ini((long double[4]){val[0] - frac->mlx->width / 2, val[1] - frac->mlx->height / 2, 0, 1});
-			point.vec[0] = point.vec[0] * frac->zoom + frac->width / 2 - frac->off[0];// * 2;
-			point.vec[1] = point.vec[1] * frac->zoom + frac->height / 2 - frac->off[1];// * 2;
-			point.vec[3] = multibrot(frac->iter, (long double[4]){point.vec[0], point.vec[1], normalize(point.vec[0], (long double[4]){0, frac->width, MAN_MINX,
+			point.vec[0] = point.vec[0] * frac->zoom + frac->width / 2 - frac->off[0];
+			point.vec[1] = point.vec[1] * frac->zoom + frac->height / 2 - frac->off[1];
+			point.vec[2] = multibrot(frac->iter, (long double[4]){point.vec[0], point.vec[1], normalize(point.vec[0], (long double[4]){0, frac->width, MAN_MINX,
 			MAN_MAXX}), normalize(point.vec[1], (long double[4]){0, frac->height, MAN_MINY, MAN_MAXY})}, frac->mlx->jul[2]);
-			point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr, (int)frac->mlx->clr_func(frac->iter - point.vec[3], (long double[4]){0, frac->iter, frac->mlx->color[0], frac->mlx->color[1]}));
-			
+			point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr, (int)frac->mlx->clr_func(frac->iter - point.vec[2], (long double[4]){0, frac->iter, frac->mlx->color[0], frac->mlx->color[1]}));
 			point.vec[0] = val[0];
 			point.vec[1] = val[1];
 			to_image(frac->mlx, point);
@@ -541,7 +542,7 @@ void	fractal_man(void *para)
 		val[0] = -1;
 		while (++val[0] < frac->width)
 		{
-			//point = mat4_vec4(rot, vec4_ini((double[4]){val[0] - frac->mlx->width / 2, val[1] - frac->mlx->height / 2, 0, 1}));
+			//point = mat4_vec4(rot, vec4_ini((long double[4]){val[0] - frac->mlx->width / 2, val[1] - frac->mlx->height / 2, 0, 1}));
 				//point.vec[0] = (point.vec[0]) - frac->off[0] * 2 + frac->width / 2;
 				//point.vec[1] = (point.vec[1]) - frac->off[1] * 2 + frac->height / 2;
 					//point.vec[0] = (point.vec[0]) / frac->zoom - frac->off[0] * 2 + frac->width / 2;
@@ -549,9 +550,9 @@ void	fractal_man(void *para)
 			point = vec4_ini((long double[4]){val[0] - frac->mlx->width / 2, val[1] - frac->mlx->height / 2, 0, 1});
 			point.vec[0] = point.vec[0] * frac->zoom + frac->width / 2 - frac->off[0];// * 2;
 			point.vec[1] = point.vec[1] * frac->zoom + frac->height / 2 - frac->off[1];// * 2;
-			point.vec[3] = mandel(frac->iter, normalize(/*val[0]*/point.vec[0], (long double[4]){0, frac->width, MAN_MINX,
+			point.vec[2] = mandel(frac->iter, normalize(/*val[0]*/point.vec[0], (long double[4]){0, frac->width, MAN_MINX,
 			MAN_MAXX}), normalize(/*val[1]*/point.vec[1], (long double[4]){0, frac->height, MAN_MINY, MAN_MAXY}));
-			point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr, (int)frac->mlx->clr_func(frac->iter - point.vec[3], (long double[4]){0, frac->iter, frac->mlx->color[0], frac->mlx->color[1]}));
+			point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr, (int)frac->mlx->clr_func(frac->iter - point.vec[2], (long double[4]){0, frac->iter, frac->mlx->color[0], frac->mlx->color[1]}));
 			//map_color(frac->iter - point.vec[3], (long double[4]){0, frac->iter, frac->mlx->color[0], frac->mlx->color[1]}));
 			point.vec[0] = val[0];
 			point.vec[1] = val[1];
@@ -592,6 +593,8 @@ clock_t t = clock();
 	char			*print;
 
 	mlx_clear_window(mlx->mlx_ptr, mlx->mlx_win);
+	if (mlx->height_map)
+		height_reset(mlx->height_map, -1000000000000, mlx->width, mlx->height);
 	//mlx_image_wipe(mlx, 0, mlx->width, mlx->height);
 	i = -1;
 	y = 0;

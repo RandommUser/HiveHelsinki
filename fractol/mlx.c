@@ -80,6 +80,10 @@ printf("mlx window initialized for window\n");
 	(*mlx)->func = val[2] == 2 ? &fractal_jul : (*mlx)->func;
 	(*mlx)->func = val[2] == 3 ? &fractal_barn : (*mlx)->func;
 	(*mlx)->func = val[2] == 4 ? &fractal_mult : (*mlx)->func;
+	(*mlx)->height_map = NULL;
+	if (val[2] != 3)
+		if (!((*mlx)->height_map = (long double*)malloc(sizeof(long double) * (val[0] * val[1]))))
+			run_exit(ERR_MEMORY, "mlx.c mlx_cast height_map casting failed\n");
 }
 
 // argc, i
@@ -148,6 +152,7 @@ printf("mlx windows *p for window %d\n", arr[1]);
 	mlx->mlx_img = NULL;
 	mlx->clr_swat = NULL;
 	mlx->clr_func = &map_color;
+	mlx->anim_iter = ITER;
 	mlx_color_create(mlx);
 	mlx_image_create(mlx, width, height);
 printf("mlx_img created for window %d\n", arr[1]);

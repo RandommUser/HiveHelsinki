@@ -121,6 +121,9 @@
 # define MULT_MIN -4//0.5
 # define MULT_MAX 20
 
+# define ANIM_IT_START 0
+# define ANIM_IT_END 250
+
 # define COLOR_BG 0xffffff
 # define COLOR_OUTL 5
 # define COLOR_WID 20
@@ -143,17 +146,19 @@ typedef struct		s_mlx
 	int			bpp;
 	int			size_line;
 	int			endian;
-	int			height;
+	long double *height_map;
 	int			width;
+	int			height;
 	int			mode;
 	int			verbose;
 	int			iter;
+	int			anim_iter;
 	long double	zoom;
 	int			cmin;
 	int			cmax;
 	long double	offx;
 	long double	offy;
-	long double	rot[4];
+	long double	rot[3];
 	char		jupt;
 	char		jur;
 	int			mouse_pos[2];
@@ -206,9 +211,9 @@ void				mlx_image_wipe(t_mlx *mlx, int width, int height);
 void				three_d(t_mlx *mlx, t_vec4 spot);
 void				three_d_two(t_mlx *mlx, t_frac *frac);
 void				draw_line(t_mlx *mlx, t_vec4 start, t_vec4 end);
-void				height_reset(double *arr, double val, int width,
+void				height_reset(long double *arr, long double val, int width,
 						int height);
-int					to_image(t_mlx *mlx, t_vec4 spot);
+void				to_image(t_mlx *mlx, t_vec4 spot);
 void				aim_rec(t_mlx *mlx);
 void				to_color(t_mlx *mlx, t_vec4 spot);
 void				mlx_image_set(int *img_dat, int width, int height, int color);
@@ -221,12 +226,12 @@ void				fractal_mult(void *para);
 
 t_mlx				*mlx_start(int arr[2], char **argv, void *mlx_ptr, int *windows);
 
-t_mat4				rot_matrix(long double rot[4]);
+t_mat4				rot_matrix(long double rot[3]);
 
 long double			normalize(long double p, long double arr[4]);
 long double			map_color(long double p, long double arr[4]);
 
-void	mlx_print(t_mlx *mlx);
-
+void	mlx_print(t_mlx *mlx);//
+void	mat4_put(t_mat4 mat4);//
 
 #endif

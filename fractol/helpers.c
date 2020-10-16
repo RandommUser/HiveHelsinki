@@ -30,12 +30,10 @@ void	aim_rec(t_mlx *mlx)
 	mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, w, h + 2, 0xffffff);
 }
 
-void	height_reset(double *arr, double val, int width, int height)
+void	height_reset(long double *arr, long double val, int width, int height)
 {
 	int	i;
 
-	width--;
-	height--;
 	i = -1;
 	while (++i <= width * height)
 		arr[i] = val;
@@ -49,9 +47,7 @@ void	fractal_cpy(t_mlx *mlx, int *img_dat, int *arr, size_t n)
 	while (++i < n)
 	{
 		img_dat[i] = mlx_get_color_value(mlx->mlx_ptr, (int)normalize(mlx->iter - arr[i], (long double[4]){0, mlx->iter, 0x000000, 0xff0000}));
-	//printf("[%d]", img_dat[i]);
 	}
-	//printf("\n");
 }
 /*
 void	fractal_norm(void *param)

@@ -12,7 +12,7 @@
 
 #include "header.h"
 
-t_mat4		rot_matrix(long double rot[4])
+t_mat4		rot_matrix(long double rot[3])
 {
 	t_mat4	trans;
 
@@ -29,35 +29,58 @@ void		to_color(t_mlx *mlx, t_vec4 spot)
 	(int)spot.vec[0]] = spot.vec[3];
 }
 
-int			to_image(t_mlx *mlx, t_vec4 spot)
+void	mat4_put(t_mat4 mat4)
 {
+	size_t	row;
+	size_t	col;
+	size_t	n;
+
+	row = -1;
+	n = 4;
+	while (++row < n && (col = -1))
+	{
+		while (++col < n)
+			printf("[%Lf]", mat4.mat[row][col]);
+		printf("\n");
+	}
+	printf("\n");
+}
+
+
+t_vec4		do_rot(t_mlx *mlx, t_vec4 spot)
+{
+	long double	w;
+	long double	h;
+
+	w = mlx->width / 2;
+	h = mlx->height / 2;
+	spot.vec[0] -= w;
+	spot.vec[1] -= h;
+	spot = mat4_vec4(rot_matrix(mlx->rot), spot);
+	spot.vec[0] += w;
+	spot.vec[1] += h;
+	if (spot.vec[0] - (int)spot.vec[0] >= 0.5)
+		spot.vec[0]++;
+	if (spot.vec[1] - (int)spot.vec[1] >= 0.5)
+		spot.vec[1]++;
+	return (spot);
+}
+
+void		to_image(t_mlx *mlx, t_vec4 spot)
+{
+	if (mlx->func != &fractal_barn && (mlx->rot[0] != ROT_X || mlx->rot[1] != ROT_Y || mlx->rot[2] != ROT_Z))
+		spot = do_rot(mlx, spot);
 	if (spot.vec[0] >= 0 && spot.vec[0] < mlx->width && spot.vec[1] >= 0 && spot.vec[1] < mlx->height)
 	{
-		//if (mlx->height_map[((mlx->size_line / 4) * (int)spot.vec[1]) +
-		//	(int)spot.vec[0]] < spot.vec[2])
-		//{
-			mlx->img_dat[((mlx->size_line / 4) * (int)spot.vec[1]) +
+		mlx->img_dat[((mlx->size_line / 4) * (int)spot.vec[1]) +
 			(int)spot.vec[0]] = spot.vec[3];
-			return (1);
-		//	mlx->height_map[((mlx->size_line / 4) * (int)spot.vec[1]) +
-		//	(int)spot.vec[0]] = spot.vec[2];
-		//}
-		/*
-		spot.vec[0] = spot.vec[0] - (int)spot.vec[0] >= 0.5 ? (int)spot.vec[0] + 1 : (int)spot.vec[0];
-		spot.vec[1] = spot.vec[1] - (int)spot.vec[1] >= 0.5 ? (int)spot.vec[1] + 1 : (int)spot.vec[1];
-		if (spot.vec[0] >= 0 && spot.vec[0] < mlx->width && spot.vec[1] >= 0 && spot.vec[1] < mlx->height)
+		if (mlx->height_map && mlx->height_map[((mlx->size_line / 4) * (int)spot.vec[1]) +
+			(int)spot.vec[0]] < spot.vec[2])
 		{
-			if (mlx->height_map[((mlx->size_line / 4) * (int)spot.vec[1]) +
-				(int)spot.vec[0]] < spot.vec[2])
-			{
-				mlx->img_dat[0][((mlx->size_line / 4) * (int)spot.vec[1]) +
-				(int)spot.vec[0]] = spot.vec[3];
-				mlx->height_map[((mlx->size_line / 4) * (int)spot.vec[1]) +
-				(int)spot.vec[0]] = spot.vec[2];
-			}
-		}*/
+			mlx->height_map[((mlx->size_line / 4) * (int)spot.vec[1]) +
+			(int)spot.vec[0]] = spot.vec[2];
+		}
 	}
-	return (0);
 }
 
 void		three_d(t_mlx *mlx, t_vec4 spot)
