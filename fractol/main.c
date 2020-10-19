@@ -12,14 +12,12 @@
 
 #include "header.h"
 
-
-
 void	run_exit(int code, char *spot)
 {
 	if (!code)
 		exit(0);
 	if (code == USAGE)
-		ft_putstr("usage: ./fractol "NAME_MAN"|"NAME_JULIA"|"NAME_BARN" (height)\n");
+		ft_putstr("usage: ./fractol "NAMES" (height)\n");// "NAME_MAN"|"NAME_JULIA"|"NAME_BARN"|"NAME_MULT"
 	else if (code == ERR_THREAD_VAL)
 		ft_putstr("Invalid THREAD value. Min 1, max 8, int only\n");
 	ft_putstr(spot);
@@ -57,10 +55,8 @@ void	close_window(t_mlx *mlx)
 	(*mlx->windows)--;
 	if (!(*mlx->windows))
 		run_exit(ESC_EXIT, "main.c close_window() last window\n");
-	//ft_memdel((void**)mlx);
 	free(mlx);
 	mlx = NULL;
-	//pthread_exit(NULL);
 }
 
 static int		iter_anim(void *param)
@@ -84,7 +80,6 @@ static int		window_close(void *param)
 	t_mlx	*mlx;
 
 	mlx = param;
-	//run_exit(10, "Pressed X\n");
 	close_window(mlx);
 	return (0);
 }
@@ -120,17 +115,17 @@ static int		mouse_live(int x, int y, void *param)
 		{
 			if (mlx->func == &fractal_jul)
 			{
-				mlx->jul[2] = normalize(x, (long double[4]){0, mlx->width, 1, sqrt(JULIA_MAX_R)});
-				mlx->jul[2] *= normalize(y, (long double[4]){0, mlx->height, 1, sqrt(JULIA_MAX_R)});
+				mlx->jul.r = map(x, (long double[4]){0, mlx->width, 1, sqrt(JULIA_MAX_R)});
+				mlx->jul.r *= map(y, (long double[4]){0, mlx->height, 1, sqrt(JULIA_MAX_R)});
 			}
 			else if (mlx->func == &fractal_mult)
-				mlx->jul[2] = normalize(x, (long double[4]){0, mlx->width, MULT_MIN, MULT_MAX});
+				mlx->jul.r = map(x, (long double[4]){0, mlx->width, MULT_MIN, MULT_MAX});
 		}
 
-		mlx->jul[0] = normalize(mlx->mouse_pos[0] - mlx->width / 2, (long double[4]){-(mlx->width / 2), mlx->width / 2, -(mlx->jul[2]), mlx->jul[2]});
-		mlx->jul[1] = normalize(mlx->mouse_pos[1] - mlx->height / 2, (long double[4]){-(mlx->height / 2), mlx->height / 2, -(mlx->jul[2]), mlx->jul[2]});
+		mlx->jul.cx = map(mlx->mouse_pos[0] - mlx->width / 2, (long double[4]){-(mlx->width / 2), mlx->width / 2, -(mlx->jul.r), mlx->jul.r});
+		mlx->jul.cy = map(mlx->mouse_pos[1] - mlx->height / 2, (long double[4]){-(mlx->height / 2), mlx->height / 2, -(mlx->jul.r), mlx->jul.r});
 		draw(mlx);
-		printf("n %f r %f cx %f cy %f\n", mlx->jul[3], mlx->jul[2], mlx->jul[0], mlx->jul[1]);
+		printf("n %f r %f cx %f cy %f\n", mlx->jul.n, mlx->jul.r, mlx->jul.cx, mlx->jul.cy);
 	}
 	else
 	{
@@ -158,19 +153,6 @@ static int		mouse(int button, int x, int y, void *param)
 		ft_putnbr(y);
 		ft_putchar('\n');
 	}
-	/*		MOUSE CLICK COORDINATE "FIX" TESTING
-	t_vec4		mous;
-	mous = vec4_ini((float[4]){x, y, 0, 1});
-	mous.vec[0] -= mlx->width / 2;
-	mous.vec[1] -= mlx->height /2;
-	mous = mat4_vec4(rot_matrix(mlx->rot), mous);
-	mous.vec[0] += mlx->width / 2;
-	mous.vec[1] += mlx->height / 2;
-	printf("og coords x %d y %d\n", x, y);
-	x = mous.vec[0];
-	y = mous.vec[1];
-	printf("rotated coords x %d y %d\n", x, y);
-	*/
 	if (mlx->colort)
 	{
 		if (button == MOU_L)
@@ -226,13 +208,14 @@ static int		input(int key, void *param)
 	if (key == K_R)
 	{
 		mlx->iter = ITER;
+		mlx->anim_iter = mlx->iter;
 		mlx->offx = 0;
 		mlx->offy = 0;
 		mlx->zoom = 1;
-		mlx->jul[0] = 1;
-		mlx->jul[1] = 1;
-		mlx->jul[2] = JULIA_MAX_R;
-		mlx->jul[3] = 0;
+		mlx->jul.cx = 1;
+		mlx->jul.cy = 1;
+		mlx->jul.r = JULIA_MAX_R;
+		mlx->jul.n = 0;
 		mlx->rot[0] = ROT_X;
 		mlx->rot[1] = ROT_Y;
 		mlx->rot[2] = ROT_Z;
@@ -240,12 +223,14 @@ static int		input(int key, void *param)
 		mlx->color[1] = COLOR_END;
 		mlx->colort = 0;
 		mlx->clr_func = &map_color;
+		mlx->extra = 0;
 		draw(mlx);
 	}
 	if (key == NUM_P)
 	{
 		mlx->iter += 50;
 		mlx->iter = mlx->iter > MAX_ITER ? MAX_ITER : mlx->iter;
+		mlx->anim_iter = mlx->iter;
 		draw(mlx);
 		printf("iter++ %d\n", mlx->iter);
 	}
@@ -253,6 +238,7 @@ static int		input(int key, void *param)
 	{
 		mlx->iter -= 50;
 		mlx->iter = mlx->iter <= 0 ? MIN_ITER : mlx->iter;
+		mlx->anim_iter = mlx->iter;
 		draw(mlx);
 		printf("iter-- %d\n", mlx->iter);
 	}
@@ -338,17 +324,17 @@ static int		input(int key, void *param)
 	if (key == K_COM)
 	{
 		if (mlx->func == &fractal_jul)
-			mlx->jul[3] -= JULIA_STEP;
+			mlx->jul.n -= JULIA_STEP;
 		else if (mlx->func == &fractal_mult)
-			mlx->jul[2] -= MULT_STEP;
+			mlx->jul.r -= MULT_STEP;
 		draw(mlx);
 	}
 	if (key == K_DOT)
 	{
 		if (mlx->func == &fractal_jul)
-			mlx->jul[3] += JULIA_STEP;
+			mlx->jul.n += JULIA_STEP;
 		else if (mlx->func == &fractal_mult)
-			mlx->jul[2] += MULT_STEP;
+			mlx->jul.r += MULT_STEP;
 		draw(mlx);
 	}
 	if (key == K_T)
@@ -358,12 +344,22 @@ static int		input(int key, void *param)
 	}
 	if (key == K_C)
 	{
-		mlx->clr_func = mlx->clr_func == &map_color ? &normalize : &map_color;
+		mlx->clr_func = mlx->clr_func == &map_color ? &map : &map_color;
 		draw(mlx);
 	}
 	if (key == K_P)
 	{
 		mlx->anim_iter = ANIM_IT_START;
+	}
+	if (key == K_SBS)
+	{
+		mlx->extra--;
+		draw(mlx);
+	}
+	if (key == K_SBC)
+	{
+		mlx->extra++;
+		draw(mlx);
 	}
 	printf("rot x %Lf y %Lf z %Lf\n", mlx->rot[0], mlx->rot[1], mlx->rot[2]);
 	mat4_put(rot_matrix(mlx->rot));
@@ -393,24 +389,7 @@ int	valid_params(int argc, char **argv)
 	}
 	return (frac);
 }
-/*
-void	mlx_start_loop(void *para)
-{
-	t_params	*param;
-	t_mlx		*mlx;
 
-	param = para;
-	printf("going into mlx_start\n");
-	mlx = mlx_start(param->argc, param->argv, param->i, param->windows);
-	printf("mlx made\n");
-	mlx_key_hook(mlx->mlx_win, input, mlx);
-	mlx_mouse_hook(mlx->mlx_win, mouse, mlx);
-	mlx_hook(mlx->mlx_win, 6, 0 , mouse_live, mlx);
-	mlx_hook(mlx->mlx_win, 17, 0 , window_close, mlx);
-	mlx_loop(mlx->mlx_ptr);
-	printf("created the window\n");
-}
-*/
 void	mlx_tloops(void *para)
 {
 	t_mlx	*mlx;
@@ -425,8 +404,6 @@ printf("starting mlx hook %p\n", para);
 		mlx_loop_hook(mlx->mlx_ptr, draw_leaf, mlx);
 	mlx_loop_hook(mlx->mlx_ptr, iter_anim, mlx);
 printf("action hooks done\n");
-//	mlx_loop(mlx->mlx_ptr);
-//printf("window loop done\n");
 }
 
 void	mlx_print(t_mlx *mlx)

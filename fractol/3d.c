@@ -29,7 +29,7 @@ void		to_color(t_mlx *mlx, t_vec4 spot)
 	(int)spot.vec[0]] = spot.vec[3];
 }
 
-void	mat4_put(t_mat4 mat4)
+void	mat4_put(t_mat4 mat4)//
 {
 	size_t	row;
 	size_t	col;
@@ -49,16 +49,15 @@ void	mat4_put(t_mat4 mat4)
 
 t_vec4		do_rot(t_mlx *mlx, t_vec4 spot)
 {
-	long double	w;
-	long double	h;
+	t_box	box;
 
-	w = mlx->width / 2;
-	h = mlx->height / 2;
-	spot.vec[0] -= w;
-	spot.vec[1] -= h;
+	box.w = mlx->width / 2;
+	box.h = mlx->height / 2;
+	spot.vec[0] -= box.w;
+	spot.vec[1] -= box.h;
 	spot = mat4_vec4(rot_matrix(mlx->rot), spot);
-	spot.vec[0] += w;
-	spot.vec[1] += h;
+	spot.vec[0] += box.w;
+	spot.vec[1] += box.h;
 	if (spot.vec[0] - (int)spot.vec[0] >= 0.5)
 		spot.vec[0]++;
 	if (spot.vec[1] - (int)spot.vec[1] >= 0.5)
@@ -72,28 +71,15 @@ void		to_image(t_mlx *mlx, t_vec4 spot)
 		spot = do_rot(mlx, spot);
 	if (spot.vec[0] >= 0 && spot.vec[0] < mlx->width && spot.vec[1] >= 0 && spot.vec[1] < mlx->height)
 	{
-		mlx->img_dat[((mlx->size_line / 4) * (int)spot.vec[1]) +
-			(int)spot.vec[0]] = spot.vec[3];
 		if (mlx->height_map && mlx->height_map[((mlx->size_line / 4) * (int)spot.vec[1]) +
 			(int)spot.vec[0]] < spot.vec[2])
 		{
 			mlx->height_map[((mlx->size_line / 4) * (int)spot.vec[1]) +
 			(int)spot.vec[0]] = spot.vec[2];
 		}
+		else if (mlx->height_map)
+			return ;
+		mlx->img_dat[((mlx->size_line / 4) * (int)spot.vec[1]) +
+			(int)spot.vec[0]] = spot.vec[3];
 	}
-}
-
-void		three_d(t_mlx *mlx, t_vec4 spot)
-{
-	int		color;
-
-	color = mlx_get_color_value(mlx->mlx_ptr, (int)normalize(mlx->iter - spot.vec[2], (long double[4]){0, mlx->iter, 0x000000, 0xff0000}));
-	spot.vec[0] -= mlx->width / 2;
-	spot.vec[1] -= mlx->height / 2;
-	spot.vec[2] /= 2;
-	//spot = mat4_vec4(rot_matrix(mlx->rot), spot);
-	spot.vec[0] += mlx->width / 2;
-	spot.vec[1] += mlx->height / 2;
-	spot.vec[3] = color;
-	to_image(mlx, spot);
 }

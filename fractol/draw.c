@@ -12,477 +12,274 @@
 
 #include "header.h"
 
+int				iter_color(t_frac *frac, t_vec4 point)
+{
+	return (mlx_get_color_value(frac->mlx->mlx_ptr, (int)frac->mlx->clr_func(
+		frac->iter - point.vec[2], (long double[4]){0, frac->iter,
+		frac->mlx->color[0], frac->mlx->color[1]})));
+}
+
+static void		color_spot(t_mlx *mlx, t_dot coord, t_rgb color, char c)
+{
+	if (c == 1)
+	{
+		to_color(mlx, vec4_ini((long double[4]){coord.x, coord.y, 0,
+			rgb_color(255 - coord.y + COLOR_OUTL, 0, 0)}));
+		if (255 - coord.y + COLOR_OUTL == color.red)
+			to_color(mlx, vec4_ini((long double[4]){coord.x, coord.y, 0,
+				rgb_color(255 - color.red, 0, 0)}));
+	}
+	else if (c == 2)
+	{
+		to_color(mlx, vec4_ini((long double[4]){coord.x, coord.y, 0,
+			rgb_color(0, 255 - coord.y + COLOR_OUTL, 0)}));
+		if (255 - coord.y + COLOR_OUTL == color.green)
+			to_color(mlx, vec4_ini((long double[4]){coord.x, coord.y, 0,
+				rgb_color(0, 255 - color.green, 0)}));
+	}
+	else if (c == 3)
+	{
+		to_color(mlx, vec4_ini((long double[4]){coord.x, coord.y, 0,
+			rgb_color(0, 0, 255 - coord.y + COLOR_OUTL)}));
+		if (255 - coord.y + COLOR_OUTL == color.blue)
+			to_color(mlx, vec4_ini((long double[4]){coord.x, coord.y, 0,
+				rgb_color(0, 0, 255 - color.blue)}));
+	}
+}
+
 static void		color_show(t_mlx *mlx)
 {
 	t_rgb	color;
 	t_dot	coord;
+	int		loop;
 
 	color = rgb_conv(mlx->color[mlx->colort - 1]);
-	coord.x = COLOR_OUTL - 1;
-	while (++coord.x < COLOR_OUTL * 1 + COLOR_WID * 1)
+	loop = 0;
+	coord.x = 0;
+	while (++loop <= 3)
 	{
-		coord.y = COLOR_OUTL - 1;
-		while (++coord.y <= 255 + COLOR_OUTL)
+		coord.x += COLOR_OUTL - 1;
+		while (++coord.x < COLOR_OUTL * loop + COLOR_WID * loop)
 		{
-			to_color(mlx, vec4_ini((long double[4]){coord.x, coord.y, 0, rgb_color(255 - coord.y + COLOR_OUTL, 0, 0)}));
-			if (255 - coord.y + COLOR_OUTL == color.red)
-				to_color(mlx, vec4_ini((long double[4]){coord.x, coord.y, 0, rgb_color(255 - color.red, 0, 0)}));
-		}	
-	}
-	coord.x += COLOR_OUTL - 1;
-	while (++coord.x < COLOR_OUTL * 2 + COLOR_WID * 2)
-	{
-		coord.y = COLOR_OUTL - 1;
-		while (++coord.y <= 255 + COLOR_OUTL)
-		{
-			to_color(mlx, vec4_ini((long double[4]){coord.x, coord.y, 0, rgb_color(0, 255 - coord.y + COLOR_OUTL, 0)}));
-			if (255 - coord.y + COLOR_OUTL == color.green)
-				to_color(mlx, vec4_ini((long double[4]){coord.x, coord.y, 0, rgb_color(0, 255 - color.green, 0)}));
-		}
-	}
-	coord.x += COLOR_OUTL - 1;
-	while (++coord.x < COLOR_OUTL * 3 + COLOR_WID * 3)
-	{
-		coord.y = COLOR_OUTL - 1;
-		while (++coord.y <= 255 + COLOR_OUTL)
-		{
-			to_color(mlx, vec4_ini((long double[4]){coord.x, coord.y, 0, rgb_color(0, 0, 255 - coord.y + COLOR_OUTL)}));
-			if (255 - coord.y + COLOR_OUTL == color.blue)
-				to_color(mlx, vec4_ini((long double[4]){coord.x, coord.y, 0, rgb_color(0, 0, 255 - color.blue)}));
+			coord.y = COLOR_OUTL - 1;
+			while (++coord.y <= 255 + COLOR_OUTL)
+				color_spot(mlx, coord, color, loop);
 		}
 	}
 }
 
 
-
-// julia, base		x(s), y(s), r, cx, cy, (n)
-static double	julia(int iter, long double val[6], int width, int height) //double xs, double ys, double r)
+//					0		1			2	3	4	5
+// julia, base		x(s)	y(s)	||	r	cx	cy	(n)
+static double	julia(int iter, t_box box)//long double val[6], int width, int height)
 {
-	long double	xte;
-	double		i;
-	long double	last[2];
-
-	i = -1;
-	val[0] = normalize(val[0], (long double[4]){0, width, -(val[2]), val[2]});
-	val[1] = normalize(val[1], (long double[4]){0, height, -(val[2]), val[2]});
-	while (val[0] * val[0]  + val[1] * val[1] < val[2] * val[2] &&  ++i < iter)
+	box.i = -1;
+	box.x = map(box.x, (long double[4]){0, box.width,
+		-(box.jul.r), box.jul.r});
+	box.y = map(box.y, (long double[4]){0, box.height,
+		-(box.jul.r), box.jul.r});
+	while (box.x * box.x  + box.y * box.y <=
+		box.jul.r * box.jul.r &&  ++box.i < iter)
 	{
-		last[0] = val[0];
-		last[1] = val[1];
-		xte = val[0]  * val[0]  - val[1] * val[1];
-		val[1] = 2 * val[0] * val[1] + val[4];
-		val[0]  = xte + val[3];
-		if (last[0] == val[0] && last[1] == val[1]) // check for looping // add "too close to 0?"
+		box.last.x = box.x;
+		box.last.y = box.y;
+		box.xte = box.x  * box.x  - box.y * box.y;
+		box.y = 2 * box.x * box.y + box.jul.cy;
+		box.x  = box.xte + box.jul.cx;
+		if (box.last.x == box.x && box.last.y == box.y) // check for looping // add "too close to 0?"
 			return (iter);
 	}
-	return (i == -1 ? 0 : i);
+	return (box.i == -1 ? 0 : box.i);
 }
-
-// julia flex		x(s), y(s), r, cx, cy, n
-static double	julia_flex(int iter, long double val[6], int width, int height) //double xs, double ys, double r)
+//					0		1			2	3	4	5
+// julia flex		x(s)	y(s)	||	r	cx	cy	n
+static double	julia_flex(int iter, t_box box)//long double val[6], t_julia jul, int width, int height)
 {
-	long double	xte;
-	double		i;
-	long double	last[2];
-
-	if (val[5] == 0)
-		return (julia(iter, val, width, height));
-	i = -1;
-	val[0] = normalize(val[0], (long double[4]){0, width, -(val[2]), val[2]});
-	val[1] = normalize(val[1], (long double[4]){0, height, -(val[2]), val[2]});
-	while (val[0] * val[0]  + val[1] * val[1] < val[2] * val[2] &&  ++i < iter)
+	if (box.jul.n == 0)
+		return (julia(iter, box));
+	box.i = -1;
+	box.x = map(box.x, (long double[4]){0, box.width,
+		-(box.jul.r), box.jul.r});
+	box.y = map(box.y, (long double[4]){0, box.height,
+		-(box.jul.r), box.jul.r});
+	while (box.x * box.x + box.y * box.y <=
+		box.jul.r * box.jul.r &&  ++box.i < iter)
 	{
-		last[0] = val[0];
-		last[1] = val[1];
-		xte = pow(val[0]  * val[0]  - val[1] * val[1], val[5] / 2) * cos(val[5] * atan2(val[1], val[0])) + val[3];
-		val[1] = pow(2 * val[0] * val[1] + val[4], val[5] / 2) * sin(val[5] * atan2(val[1], val[0])) + val[4];
-		val[0]  = xte;// + val[3];
-		if (last[0] == val[0] && last[1] == val[1]) // check for looping // add "too close to 0?"
+		box.last.x = box.x;
+		box.last.y = box.y;
+		box.xte = pow(box.x * box.x - box.y * box.y, box.jul.n / 2) *
+			cos(box.jul.n * atan2(box.y, box.x)) + box.jul.cx;
+		box.y = pow(2 * box.x * box.y + box.jul.cy, box.jul.n / 2) *
+			sin(box.jul.n * atan2(box.y, box.x)) + box.jul.cy;
+		box.x  = box.xte;
+		if (box.last.x == box.x && box.last.y == box.y) // check for looping // add "too close to 0?"
 			return (iter);
 	}
-	return (i == -1 ? 0 : i);
+	return (box.i == -1 ? 0 : box.i);
 }
 
 static double	mandel(int iter, long double xs, long double ys)
 {
-	long double	x; 
-	long double	y;
-	long double	xte;
-	double		i;
-	long double	last[2];
+	t_box	box;
 
-	i = -1;
-	x = 0;
-	y = 0;
-	while (x * x + y * y <= 4 &&  ++i < iter)
+	box.i = -1;
+	box.x = 0;
+	box.y = 0;
+	while (box.x * box.x + box.y * box.y <= 4 &&  ++box.i < iter)
 	{
-		last[0] = x;
-		last[1] = y;
-		xte = x * x - y * y + xs;
-		y = 2 * x * y + ys;
-		x = xte;
-		if (last[0] == x && last[1] == y) // check for looping // add "too close to 0?"
+		box.last.x = box.x;
+		box.last.y = box.y;
+		box.xte = box.x * box.x - box.y * box.y + xs;
+		box.y = 2 * box.x * box.y + ys;
+		box.x = box.xte;
+		if (box.last.x == box.x && box.last.y == box.y) // check for looping // add "too close to 0?"
 			return (iter);
 	}
-	return (i == -1 ? 0 : i);
+	return (box.i == -1 ? 0 : box.i);
 }
 
-// val = x, y, xs, xy
-static double	multibrot_neg(int iter, long double val[4], long double n)//double x, double y, int n)
+// 			(0	1)	2	3
+// val =	x	y	xs	 ys
+static double	multibrot_neg(int iter, t_box box)//long double val[4], long double n)
 {
-	long double	x;
-	long double	y;
-	long double	xte;
-	double		i;
-	long double	last[2];
-	long double	d, in_n;
-
-	x = 0;
-	y = 0;
-	i = -1;
-	in_n = -(n);
-	d = pow(pow(val[2], 2) + pow(val[3], 2), in_n);
-	while (x * x + y * y <= n * n &&  ++i < iter)
+	box.xs = map(box.x, (long double[4]){0, box.width, MAN_MINX, MAN_MAXX});
+	box.ys = map(box.y, (long double[4]){0, box.height, MAN_MINY, MAN_MAXY});
+	box.x = 0;
+	box.y = 0;
+	box.i = -1;
+	box.nn = -(box.jul.n);
+	box.d = pow(pow(box.xs, 2) + pow(box.ys, 2), box.nn);
+	while (box.x * box.x + box.y * box.y <= box.jul.n * box.jul.n &&
+		++box.i < iter)
 	{
-		if (!d)
-			return (i);
-		xte = pow((x * x + y * y), (in_n / 2)) * cos(in_n * atan2(y, x)) / d + val[2];
-		y = -(pow((x * x + y * y), (in_n / 2))) * sin(in_n * atan2(y, x)) / d + val[3];
-		x = xte;
-		if ((last[0] == x && last[1] == y))
+		if (!box.d)
+			return (box.i);
+		box.xte = pow((box.x * box.x + box.y * box.y), (box.nn / 2)) *
+			cos(box.nn * atan2(box.y, box.x)) / box.d + box.xs;
+		box.y = -(pow((box.x * box.x + box.y * box.y), (box.nn / 2))) *
+			sin(box.nn * atan2(box.y, box.x)) / box.d + box.ys;
+		box.x = box.xte;
+		if ((box.last.x == box.x && box.last.y == box.y))
 			return (iter);
-		d = pow(pow(x, 2) + pow(y, 2), in_n);
+		box.d = pow(pow(box.x, 2) + pow(box.y, 2), box.nn);
 	}
-	return (i == -1 ? 0 : i);
+	return (box.i == -1 ? 0 : box.i);
 }
-
-// val = x, y, xs, xy
-static double	multibrot(int iter, long double val[4], long double n)//double x, double y, int n)
+// 			(0	1)	2	3
+// val =	x	y	xs	 ys
+static double	multibrot(int iter, t_box box)//long double val[4], long double n)
 {
-	long double	x;
-	long double	y;
-	long double	xte;
-	double		i;
-	long double	last[2];
-
-	if (n < 0)
-		return (multibrot_neg(iter, val, n));
-	x = 0;//val[0];
-	y = 0;//val[1];
-	i = -1;
-	while (x * x + y * y <= n * n &&  ++i < iter)
+	if (box.jul.n < 0)
+		return (multibrot_neg(iter, box));//val, n));
+	box.xs = map(box.x, (long double[4]){0, box.width, MAN_MINX, MAN_MAXX});
+	box.ys = map(box.y, (long double[4]){0, box.height, MAN_MINY, MAN_MAXY});
+	box.x = 0;
+	box.y = 0;
+	box.i = -1;
+	while (box.x * box.x + box.y * box.y <= box.jul.n * box.jul.n 
+		&& ++box.i < iter)
 	{
-		//printf("x %f y %f\n", x, y);
-		xte = pow((x * x + y * y), (n / 2)) * cos(n * atan2(y, x)) + val[2];
-		y = pow((x * x + y * y), (n / 2)) * sin(n * atan2(y, x)) + val[3];
-		x = xte;
-		if ((last[0] == x && last[1] == y))// || y == 0 || x == 0)
+		box.xte = pow((box.x * box.x + box.y * box.y), (box.jul.n / 2)) *
+			cos(box.jul.n * atan2(box.y, box.x)) + box.xs;
+		box.y = pow((box.x * box.x + box.y * box.y), (box.jul.n / 2)) *
+			sin(box.jul.n * atan2(box.y, box.x)) + box.ys;
+		box.x = box.xte;
+		if ((box.last.x == box.x && box.last.y == box.y))
 			return (iter);
 	}
-	return (i == -1 ? 0 : i);
+	return (box.i == -1 ? 0 : box.i);
 }
 
-void	barnsley(long double *val)
+t_ddot	barnsley(t_ddot val)
 {
-	long double	x;
-	long double	y;
-	long double	r;
+	t_box	box;
 
-	r = (long double)rand()/(long double)(RAND_MAX);
-	if (r < 0.01)
+	box.r = (long double)rand()/(long double)(RAND_MAX);
+	if (box.r < 0.01)
 	{
-		x = 0;
-		y = 0.16 * val[1];
+		box.x = 0;
+		val.y = 0.16 * val.y;
 	}
-	else if (r < 0.86)
+	else if (box.r < 0.86)
 	{
-		x = 0.85 * val[0] + 0.04 * val[1];
-		y = -0.04 * val[0] + 0.85 * val[1] + 1.6;
+		box.x = 0.85 * val.x + 0.04 * val.y;
+		val.y = -0.04 * val.x + 0.85 * val.y + 1.6;
 	}
-	else if (r < 0.93)
+	else if (box.r < 0.93)
 	{
-		x = 0.20 * val[0] - 0.26 * val[1];
-		y = 0.23 * val[0] + 0.22 * val[1] + 1.6;
+		box.x = 0.20 * val.x - 0.26 * val.y;
+		val.y = 0.23 * val.x + 0.22 * val.y + 1.6;
 	}
 	else
 	{
-		x = -0.15 * val[0] + 0.28 * val[1];
-		y = 0.26 * val[0] + 0.24 * val[1] + 0.44;
+		box.x = -0.15 * val.x + 0.28 * val.y;
+		val.y = 0.26 * val.x + 0.24 * val.y + 0.44;
 	}
-	val[0] = x;
-	val[1] = y;
-}
-/*
-void	fractal31(void *para)
-{
-	float	val[2]; // x, y
-	int		i, y;
-	t_frac	*frac;
-	t_vec4	point;
-
-	frac = para;
-	frac->off[0] += frac->width / 2 * frac->zoom - frac->width / 2;
-	frac->off[1] += frac->height / 2 * frac->zoom - frac->height / 2;
-	if (frac->thread == 1)
-		printf("offx = %f offy = %f\n", frac->off[0], frac->off[1]);
-	i = -1;
-	y = 0;
-	val[0] = 0;
-	val[1] = 0;
-	while (++i < frac->iter * 100)// && y < frac->iter)//frac->iter)
-	{
-		//if (frac->thread == 1)
-		//	printf("offx %f zoom %f x %f\nx_min %f x_max %f\n", 
-		//		frac->off[0], frac->zoom, val[0], BARN_X_MIN + (((BARN_X_MAX - BARN_X_MIN) * (frac->off[0] / frac->width)) * frac->zoom), BARN_X_MAX  + (((BARN_X_MAX - BARN_X_MIN) * (frac->off[0] / frac->width)) * frac->zoom));
-		point = vec4_ini((float[4]){normalize(val[0], (double[4])
-		{BARN_X_MIN - (((BARN_X_MAX - BARN_X_MIN) * (frac->off[0] / frac->width)) * frac->zoom), 
-		BARN_X_MAX  - (((BARN_X_MAX - BARN_X_MIN) * (frac->off[0] / frac->width)) * frac->zoom), 0, frac->width}) * frac->zoom,
-		normalize(val[1], (double[4])
-		{BARN_Y_MIN - (((BARN_Y_MAX - BARN_Y_MIN) * (frac->off[1] / frac->height)) * frac->zoom), 
-		BARN_Y_MAX - (((BARN_Y_MAX - BARN_Y_MIN) * (frac->off[1] / frac->height)) * frac->zoom), 0, frac->height}) * frac->zoom, 0, 1}); // not good with zoom
-		point.vec[0] -= frac->width / 2;
-		point.vec[1] -= frac->width / 2;
-		point = mat4_vec4(rot_matrix(frac->mlx->rot), point);
-		point.vec[0] += frac->width / 2;// + frac->off[0] * 2;
-		point.vec[1] += frac->height / 2;//  + frac->off[1] * 2;
-		point.vec[3] = 0x00ff00;
-		to_image(frac->mlx, point);
-		barnsley(val);
-
-	}
+	val.x = box.x;
+	return (val);
 }
 
-//julia
-void	fractal22(void *para)
-{
-	int		val[2]; // x, y
-	int		i;
-	t_frac	*frac;
-	t_vec4	point;
-
-	frac = para;
-	frac->off[0] += frac->width / 2 * frac->zoom - frac->width / 2;
-	frac->off[1] += frac->height / 2 * frac->zoom - frac->height / 2;
-	if (frac->thread == 1)
-		printf("offx = %f offy = %f\n", frac->off[0], frac->off[1]);
-	val[1] = frac->y;
-	i = 0;
-	while (--frac->lines >= 0)
-	{
-		val[0] = -1;
-		while (++val[0] < frac->width)
-		{
-			point =  vec4_ini((float[4]){val[0] * frac->zoom - frac->off[0],
-			 val[1] * frac->zoom - frac->off[1], 0, 1});
-			point.vec[0] -= frac->width / 2;
-			point.vec[1] -= frac->width / 2;
-			point = mat4_vec4(rot_matrix(frac->mlx->rot), point);
-			point.vec[0] += frac->width / 2;
-			point.vec[1] += frac->height / 2;
-			frac->num[i++] = julia_flex(frac->iter, (double[6]){val[0], val[1], frac->mlx->jul[2], frac->mlx->jul[0], frac->mlx->jul[1], frac->mlx->jul[3]}, frac->width, frac->height);
-			if (frac->mlx->rot[0] != ROT_X || frac->mlx->rot[1] != ROT_Y || frac->mlx->rot[2] != ROT_Z)
-				three_d(frac->mlx, vec4_ini((float[4]){val[0], val[1], frac->num[i - 1], 1}));
-		}
-		val[1]++;
-	}
-	frac->lines = frac->size / frac->width;
-	if (frac->mlx->rot[0] == ROT_X && frac->mlx->rot[1] == ROT_Y && frac->mlx->rot[2] == ROT_Z)
-		fractal_norm(frac);
-	else
-	{
-	//	three_d_two(frac->mlx, frac);
-	}
-}
-
-// mandel
-void	fractal11(void *para)
-{
-	int		val[2]; // x, y
-	int		i;
-	t_frac	*frac;
-	t_vec4	orig;
-	t_mat4	rot;
-
-	frac = para;
-	frac->off[0] += frac->width / 2 * frac->zoom - frac->width / 2;
-	frac->off[1] += frac->height / 2 * frac->zoom - frac->height / 2;
-	val[1] = frac->y;
-	i = 0;
-	rot = mat4_rot_inverse(rot_matrix(frac->mlx->rot));
-	while (--frac->lines >= 0)
-	{
-		val[0] = -1;
-		while (++val[0] < frac->width)
-		{
-			orig = mat4_vec4(rot, vec4_ini((float[4]){val[0] - frac->mlx->width / 2, val[1] - frac->mlx->height / 2, 0, 1}));
-			orig.vec[0] += frac->mlx->width / 2;
-			orig.vec[1] += frac->mlx->height / 2;
-			frac->num[i] = mandel(frac->iter, normalize((orig.vec[0] + frac->off[0]) / frac->zoom, (double[4]){0, frac->width, MAN_MINX,
-			MAN_MAXX}), normalize((orig.vec[1] + frac->off[1]) / frac->zoom, (double[4]){0, frac->height, MAN_MINY, MAN_MAXY}));
-			//frac->num[i++] = mandel(frac->iter, normalize(val[0] * frac->zoom - frac->off[0], (double[4]){0, frac->width, MAN_MINX,
-			//MAN_MAXX}), normalize(val[1] * frac->zoom - frac->off[1], (double[4]){0, frac->height, MAN_MINY, MAN_MAXY}));
-			if (frac->mlx->rot[0] != ROT_X || frac->mlx->rot[1] != ROT_Y || frac->mlx->rot[2] != ROT_Z) // why removing this segfaults??
-				three_d(frac->mlx, vec4_ini((float[4]){val[0], val[1], frac->num[i++], 1}));
-		}
-		val[1]++;
-	}
-	frac->lines = frac->size / frac->width;
-	if (frac->mlx->rot[0] == ROT_X && frac->mlx->rot[1] == ROT_Y && frac->mlx->rot[2] == ROT_Z)
-		fractal_norm(frac);
-	else
-	{
-	//	three_d_two(frac->mlx, frac);
-	}
-}
-void	fractal2(void *para)
-{
-	int		val[2]; // x, y
-	int		i;
-	t_frac	*frac;
-	t_vec4	point;
-
-	frac = para;
-	frac->off[0] += frac->width / 2 * frac->zoom - frac->width / 2;
-	frac->off[1] += frac->height / 2 * frac->zoom - frac->height / 2;
-	if (frac->thread == 1)
-		printf("offx = %f offy = %f\n", frac->off[0], frac->off[1]);
-	val[1] = frac->y;
-	i = 0;
-	while (--frac->lines >= 0)
-	{
-		val[0] = -1;
-		while (++val[0] < frac->width)
-		{
-			point =  vec4_ini((float[4]){val[0] * frac->zoom - frac->off[0],
-			 val[1] * frac->zoom - frac->off[1], 0, 1});
-			point.vec[0] -= frac->width / 2;
-			point.vec[1] -= frac->width / 2;
-			point = mat4_vec4(rot_matrix(frac->mlx->rot), point);
-			point.vec[0] += frac->width / 2;
-			point.vec[1] += frac->height / 2;
-			frac->num[i++] = mandel(frac->iter, normalize(point.vec[0], (double[4]){0, frac->width, MAN_MINX,
-			MAN_MAXX}), normalize(point.vec[1], (double[4]){0, frac->height, MAN_MINY, MAN_MAXY}));
-			if (frac->mlx->rot[0] != ROT_X || frac->mlx->rot[1] != ROT_Y || frac->mlx->rot[2] != ROT_Z)
-				three_d(frac->mlx, vec4_ini((float[4]){val[0], val[1], frac->num[i - 1], 1}));
-		}
-		val[1]++;
-	}
-	frac->lines = frac->size / frac->width;
-	if (frac->mlx->rot[0] == ROT_X && frac->mlx->rot[1] == ROT_Y && frac->mlx->rot[2] == ROT_Z)
-		fractal_norm(frac);
-	else
-	{
-	//	three_d_two(frac->mlx, frac);
-	}
-}
-
-void	fractal1(void *para)
-{
-	int		val[2]; // x, y
-	int		i;
-	t_frac	*frac;
-
-
-
-	frac = para;
-//	ft_putstr("thread start ");
-//	ft_putnbr(frac->thread);
-//	ft_putchar('\n');
-//	ft_putpointer(frac->num);
-//	ft_putchar('\n');
-	frac->off[0] += frac->width / 2 * frac->zoom - frac->width / 2;
-	frac->off[1] += frac->height / 2 * frac->zoom - frac->height / 2;
-	if (frac->thread == 1)
-		printf("offx = %f offy = %f\n", frac->off[0], frac->off[1]);
-	val[1] = frac->y;
-	i = 0;
-	while (--frac->lines >= 0)
-	{
-		val[0] = -1;
-		while (++val[0] < frac->width)
-		{
-			frac->num[i++] = mandel(frac->iter, normalize(val[0] * frac->zoom - frac->off[0], (double[4]){0, frac->width, MAN_MINX,
-			MAN_MAXX}), normalize(val[1] * frac->zoom - frac->off[1], (double[4]){0, frac->height, MAN_MINY, MAN_MAXY}));
-			if (frac->mlx->rot[0] != ROT_X || frac->mlx->rot[1] != ROT_Y || frac->mlx->rot[2] != ROT_Z)
-				three_d(frac->mlx, vec4_ini((float[4]){val[0], val[1], frac->num[i - 1], 1}));
-		}
-		val[1]++;
-	}
-	frac->lines = frac->size / frac->width;
-	if (frac->mlx->rot[0] == ROT_X && frac->mlx->rot[1] == ROT_Y && frac->mlx->rot[2] == ROT_Z)
-		fractal_norm(frac);
-	else
-	{
-	//	three_d_two(frac->mlx, frac);
-	}
-	
-//	mlx_put_image_to_window(frac->mlx->mlx_ptr, frac->mlx->mlx_win, frac->mlx->mlx_img[frac->thread], 0, frac->y);
-//	ft_putstr("thread end ");
-//	ft_putnbr(frac->thread);
-//	ft_putchar('\n');
-//	printf("[0] = %d\n", frac->num[0]);
-	//pthread_exit(NULL);
-}
-
-*/
 // barnsley
 void	fractal_barn(void *para)
 {
-	long double	val[2]; // x, y
-	int		i, y;
+	t_ddot	dot;//long double	val[2]; // x, y
+	int		i;
 	t_frac	*frac;
 	t_vec4	point;
 
 	frac = para;
 	if (frac->thread == 1)
-		printf("offx = %Lf offy = %Lf\n", frac->off[0], frac->off[1]);
+		printf("offx = %Lf offy = %Lf\n", frac->off.x, frac->off.y);
 	i = -1;
-	y = 0;
-	val[0] = 0;
-	val[1] = 0;
+	dot.x = 0;
+	dot.y = 0;
 	while (++i < frac->iter * 100)
 	{
-		point = vec4_ini((long double[4]){normalize(val[0], (long double[4]){BARN_X_MIN, BARN_X_MAX , -(frac->width / 2), frac->width / 2}),
-		normalize(val[1], (long double[4]){BARN_Y_MIN, BARN_Y_MAX, -(frac->height / 2), frac->height / 2}), i / 100 - frac->iter * 50 / 100, 1});
+		point = vec4_ini((long double[4]){map(dot.x, (long double[4])
+			{BARN_X_MIN, BARN_X_MAX , -(frac->w), frac->w}),
+		map(dot.y, (long double[4]){BARN_Y_MIN, BARN_Y_MAX,
+			-(frac->h), frac->h}), i / 100 - frac->iter * 50 / 100, 1});
 		point = mat4_vec4(rot_matrix(frac->mlx->rot), point);
-		point.vec[0] = (point.vec[0] + frac->off[0]) / frac->zoom + frac->width / 2;
-		point.vec[1] = (point.vec[1] + frac->off[1]) / frac->zoom + frac->height / 2;
+		point.vec[0] = (point.vec[0] + frac->off.x) / frac->zoom + frac->w;
+		point.vec[1] = (point.vec[1] + frac->off.y) / frac->zoom + frac->h;
 		point.vec[2] += frac->iter * 50 / 100;
-		point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr,  (int)frac->mlx->clr_func(frac->iter - point.vec[2], (long double[4]){0, frac->iter, frac->mlx->color[0], frac->mlx->color[1]}));
-		//point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr, BARN_COLOR);
+		// UNDO THIS?
+		//point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr, (int)frac->mlx->clr_func(THREADS - frac->thread, (long double[4]){0, THREADS, frac->mlx->color[0], frac->mlx->color[1]}));
+		point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr, BARN_COLOR);
 		to_image(frac->mlx, point);
-		barnsley(val);
+		dot = barnsley(dot);
 	}
 }
 
 // julia
 void	fractal_jul(void *para)
 {
-	int		val[2]; // x, y
+	t_dot	dot;//int		val[2]; // x, y
 	t_frac	*frac;
 	t_vec4	point;
+	t_box	box;
 
 	frac = para;
-	if (frac->thread == 1)
-		printf("offx = %Lf offy = %Lf\n", frac->off[0], frac->off[1]);
-	val[1] = frac->y;
+	dot.y = frac->y;
+	box.width = frac->width;
+	box.height = frac->height;
+	box.jul = frac->mlx->jul;
 	while (--frac->lines >= 0)
 	{
-		val[0] = -1;
-		while (++val[0] < frac->width)
+		dot.x = -(frac->mlx->extra) * EXTRA - 1;//-1;
+		while (++dot.x < frac->width + frac->mlx->extra * EXTRA)
 		{
-			//point = mat4_vec4(rot_matrix(frac->mlx->rot), vec4_ini((long double[4]){(val[0] - frac->mlx->width / 2), (val[1] - frac->mlx->height / 2), 0, 1}));
-			point = vec4_ini((long double[4]){(val[0] - frac->mlx->width / 2), (val[1] - frac->mlx->height / 2), 0, 1});
-			point.vec[0] = point.vec[0] * frac->zoom + frac->width / 2 - frac->off[0];// * 2;
-			point.vec[1] = point.vec[1] * frac->zoom + frac->height / 2 - frac->off[1];// * 2;
-			point.vec[2] = julia_flex(frac->iter, (long double[6]){point.vec[0], point.vec[1], frac->mlx->jul[2], frac->mlx->jul[0], frac->mlx->jul[1], frac->mlx->jul[3]}, frac->width, frac->height);
-			point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr,  (int)frac->mlx->clr_func(frac->iter - point.vec[2], (long double[4]){0, frac->iter, frac->mlx->color[0], frac->mlx->color[1]}));
-			//map_color(frac->iter - point.vec[3], (double[4]){0, frac->iter, frac->mlx->color[0], frac->mlx->color[1]}));
-			point.vec[0] = val[0];
-			point.vec[1] = val[1];
+			point = vec4_ini((long double[4]){dot.x - frac->w,
+				dot.y - frac->h, 0, 1});
+			box.x = point.vec[0] * frac->zoom + frac->w - frac->off.x;
+			box.y = point.vec[1] * frac->zoom + frac->h - frac->off.y;
+			point.vec[2] = julia_flex(frac->iter, box);
+			point.vec[3] = iter_color(frac, point);
+			point.vec[0] = dot.x;
+			point.vec[1] = dot.y;
 			to_image(frac->mlx, point);
 		}
-		val[1]++;
+		dot.y++;
 	}
 	frac->lines = frac->size / frac->width;
 }
@@ -490,38 +287,36 @@ void	fractal_jul(void *para)
 // multibrot
 void	fractal_mult(void *para)
 {
-	int		val[2]; // x, y
+	t_dot	dot;
 	t_frac	*frac;
 	t_vec4	point;
-	//t_mat4	rot;
+	t_box	box;
 
 	frac = para;
-	val[1] = frac->y;
-	//rot = rot_matrix(frac->mlx->rot);
+	dot.y = frac->y;
+	box.jul = frac->mlx->jul;
+	box.width = frac->width;
+	box.height = frac->height;
 	while (--frac->lines >= 0)
 	{
-		val[0] = -1;
-		while (++val[0] < frac->width)
+		dot.x = -(frac->mlx->extra) * EXTRA - 1;//-1;
+		while (++dot.x < frac->width + frac->mlx->extra * EXTRA)
 		{
-			/*
-			point = vec4_ini((float[4]){val[0], val[1], 0, 1});
-			point.vec[3] = multibrot(frac->iter, (double[4]){point.vec[0], point.vec[1], normalize(point.vec[0], (double[4]){0, frac->width, MAN_MINX,
-			MAN_MAXX}), normalize(point.vec[1], (double[4]){0, frac->height, MAN_MINY, MAN_MAXY})}, frac->mlx->jul[2]);
-			point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr, (int)frac->mlx->clr_func(frac->iter - point.vec[3], (double[4]){0, frac->iter, frac->mlx->color[0], frac->mlx->color[1]}));
-			*/
-			
-			//point = mat4_vec4(rot, vec4_ini((long double[4]){val[0] - frac->mlx->width / 2, val[1] - frac->mlx->height / 2, 0, 1}));
-			point = vec4_ini((long double[4]){val[0] - frac->mlx->width / 2, val[1] - frac->mlx->height / 2, 0, 1});
-			point.vec[0] = point.vec[0] * frac->zoom + frac->width / 2 - frac->off[0];
-			point.vec[1] = point.vec[1] * frac->zoom + frac->height / 2 - frac->off[1];
-			point.vec[2] = multibrot(frac->iter, (long double[4]){point.vec[0], point.vec[1], normalize(point.vec[0], (long double[4]){0, frac->width, MAN_MINX,
-			MAN_MAXX}), normalize(point.vec[1], (long double[4]){0, frac->height, MAN_MINY, MAN_MAXY})}, frac->mlx->jul[2]);
-			point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr, (int)frac->mlx->clr_func(frac->iter - point.vec[2], (long double[4]){0, frac->iter, frac->mlx->color[0], frac->mlx->color[1]}));
-			point.vec[0] = val[0];
-			point.vec[1] = val[1];
+			point = vec4_ini((long double[4]){dot.x - frac->w,
+				dot.y - frac->h, 0, 1});
+			box.x = point.vec[0] * frac->zoom + frac->w - frac->off.x;
+			box.y = point.vec[1] * frac->zoom + frac->h - frac->off.y;
+			point.vec[2] = multibrot(frac->iter, box);/*(long double[4]){
+				point.vec[0], point.vec[1], map(point.vec[0], (long double[4]){
+				0, frac->width, MAN_MINX, MAN_MAXX}), map(point.vec[1],
+				(long double[4]){0, frac->height, MAN_MINY, MAN_MAXY})},
+				frac->mlx->jul.r);*/
+			point.vec[3] = iter_color(frac, point);
+			point.vec[0] = dot.x;
+			point.vec[1] = dot.y;
 			to_image(frac->mlx, point);
 		}
-		val[1]++;
+		dot.y++;
 	}
 	frac->lines = frac->size / frac->width;
 }
@@ -529,36 +324,29 @@ void	fractal_mult(void *para)
 // mandel
 void	fractal_man(void *para)
 {
-	int		val[2]; // x, y
+	t_dot	dot;
 	t_frac	*frac;
 	t_vec4	point;
-	t_mat4	rot;
 
 	frac = para;
-	val[1] = frac->y;
-	rot = rot_matrix(frac->mlx->rot);
+	dot.y = frac->y;
 	while (--frac->lines >= 0)
 	{
-		val[0] = -1;
-		while (++val[0] < frac->width)
+		dot.x = -(frac->mlx->extra) * EXTRA - 1;//-1;
+		while (++dot.x < frac->width + frac->mlx->extra * EXTRA)
 		{
-			//point = mat4_vec4(rot, vec4_ini((long double[4]){val[0] - frac->mlx->width / 2, val[1] - frac->mlx->height / 2, 0, 1}));
-				//point.vec[0] = (point.vec[0]) - frac->off[0] * 2 + frac->width / 2;
-				//point.vec[1] = (point.vec[1]) - frac->off[1] * 2 + frac->height / 2;
-					//point.vec[0] = (point.vec[0]) / frac->zoom - frac->off[0] * 2 + frac->width / 2;
-					//point.vec[1] = (point.vec[1]) / frac->zoom - frac->off[1] * 2 + frac->height / 2;
-			point = vec4_ini((long double[4]){val[0] - frac->mlx->width / 2, val[1] - frac->mlx->height / 2, 0, 1});
-			point.vec[0] = point.vec[0] * frac->zoom + frac->width / 2 - frac->off[0];// * 2;
-			point.vec[1] = point.vec[1] * frac->zoom + frac->height / 2 - frac->off[1];// * 2;
-			point.vec[2] = mandel(frac->iter, normalize(/*val[0]*/point.vec[0], (long double[4]){0, frac->width, MAN_MINX,
-			MAN_MAXX}), normalize(/*val[1]*/point.vec[1], (long double[4]){0, frac->height, MAN_MINY, MAN_MAXY}));
-			point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr, (int)frac->mlx->clr_func(frac->iter - point.vec[2], (long double[4]){0, frac->iter, frac->mlx->color[0], frac->mlx->color[1]}));
-			//map_color(frac->iter - point.vec[3], (long double[4]){0, frac->iter, frac->mlx->color[0], frac->mlx->color[1]}));
-			point.vec[0] = val[0];
-			point.vec[1] = val[1];
+			point = vec4_ini((long double[4]){dot.x - frac->w, dot.y - frac->h, 0, 1});
+			point.vec[0] = point.vec[0] * frac->zoom + frac->w - frac->off.x;
+			point.vec[1] = point.vec[1] * frac->zoom + frac->h - frac->off.y;
+			point.vec[2] = mandel(frac->iter, map(point.vec[0], (long double[4]
+				){0, frac->width, MAN_MINX, MAN_MAXX}), map(point.vec[1],
+				(long double[4]){0, frac->height, MAN_MINY, MAN_MAXY}));
+			point.vec[3] = iter_color(frac, point);
+			point.vec[0] = dot.x;
+			point.vec[1] = dot.y;
 			to_image(frac->mlx, point);
 		}
-		val[1]++;
+		dot.y++;
 	}
 	frac->lines = frac->size / frac->width;
 }
@@ -569,17 +357,19 @@ static t_frac	slice_ini(t_mlx *mlx, int i, int y)
 	t_frac	ret;
 
 	ret.mlx = mlx;
-	ret.y = mlx->height % THREADS - i > 0 ? 1 : 0;
-	ret.lines  = ((int)(mlx->height / THREADS) + ret.y);// this block y size
+	ret.y = (mlx->height + mlx->extra * EXTRA * 2) % THREADS - i > 0 ? 1 : 0;
+	ret.lines  = ((int)((mlx->height + mlx->extra * EXTRA * 2) / THREADS) + ret.y);// this block y size
 	ret.width = mlx->width;
 	ret.height = mlx->height;
+	ret.w = mlx->width / 2;
+	ret.h = mlx->height / 2;
 	ret.size = ret.lines * mlx->width;// save the size
 	ret.y = y; // add to total Y done so far
 	ret.iter = mlx->iter;
 	ret.thread = i;
 	ret.zoom = mlx->zoom;
-	ret.off[0] = mlx->offx;
-	ret.off[1] = mlx->offy;
+	ret.off.x = mlx->offx;
+	ret.off.y = mlx->offy;
 	return (ret);
 }
 // new draw
@@ -596,8 +386,9 @@ clock_t t = clock();
 	if (mlx->height_map)
 		height_reset(mlx->height_map, -1000000000000, mlx->width, mlx->height);
 	//mlx_image_wipe(mlx, 0, mlx->width, mlx->height);
+	printf("'screen' size width %d height %d\n", mlx->width + mlx->extra * EXTRA * 2, mlx->height + mlx->extra * EXTRA * 2);
 	i = -1;
-	y = 0;
+	y = -(mlx->extra) * EXTRA;
 	while (++i < THREADS)
 	{
 		slice[i] = slice_ini(mlx, i + 1 ,y);

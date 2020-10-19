@@ -93,11 +93,13 @@
 # define MAX_ITER 20000
 # define WINDOWS 10
 # define DEF_BG 0xffffff
+# define EXTRA 100
 
 # define NAME_MAN "mandelbrot"
 # define NAME_JULIA "julia"
 # define NAME_BARN "barnsley"
 # define NAME_MULT "multibrot"
+# define NAMES NAME_MAN "|" NAME_JULIA "|" NAME_BARN "|" NAME_MULT
 
 # define MAN_MINX -2.5	// x 0
 # define MAN_MAXX 1 	// x = width
@@ -137,6 +139,14 @@
 # define ERR_THREAD_VAL 2
 # define ESC_EXIT 0
 
+typedef struct		s_julia
+{
+	double	cx;
+	double	cy;
+	double	r;
+	double	n;
+}					t_julia;
+
 typedef struct		s_mlx
 {
 	void		*mlx_ptr;
@@ -149,6 +159,7 @@ typedef struct		s_mlx
 	long double *height_map;
 	int			width;
 	int			height;
+	int			extra;
 	int			mode;
 	int			verbose;
 	int			iter;
@@ -162,7 +173,7 @@ typedef struct		s_mlx
 	char		jupt;
 	char		jur;
 	int			mouse_pos[2];
-	double		jul[4]; // cx, cy, r, n
+	t_julia		jul; // cx, cy, r, n
 	void		(*func)(void*);
 	int			*windows;
 	int			color[2];
@@ -173,18 +184,45 @@ typedef struct		s_mlx
 	long double	(*clr_func)(long double, long double[4]);
 }					t_mlx;
 
+typedef struct		s_ddot
+{
+	long double	x;
+	long double	y;
+}					t_ddot;
+
+typedef struct		s_box
+{
+	long double	x;
+	long double	y;
+	long double xs;
+	long double	ys;
+	long double xte;
+	long double r;
+	long double d;
+	long double nn;
+	long double	w;
+	long double	h;
+	double		i;
+	int			width;
+	int			height;
+	t_julia		jul;
+	t_ddot		last;
+}					t_box;
+
 typedef struct		s_frac
 {
 	long double	zoom;
 	int			iter;
 	int			width;
 	int			height;
+	long double	w;
+	long double	h;
 	int			thread;
 	int			y;
 	int			lines;
 	int			size;
-	long double	off[2];
-	t_mlx	*mlx;
+	t_ddot		off;
+	t_mlx		*mlx;
 }					t_frac;
 
 typedef struct		s_params
@@ -208,8 +246,6 @@ void				fractal_cpy(t_mlx *mlx, int *img_dat, int *arr, size_t n);
 ///void				fractal_norm(void *param);
 void				mlx_image_create(t_mlx *mlx, int width, int height);
 void				mlx_image_wipe(t_mlx *mlx, int width, int height);
-void				three_d(t_mlx *mlx, t_vec4 spot);
-void				three_d_two(t_mlx *mlx, t_frac *frac);
 void				draw_line(t_mlx *mlx, t_vec4 start, t_vec4 end);
 void				height_reset(long double *arr, long double val, int width,
 						int height);
@@ -228,7 +264,7 @@ t_mlx				*mlx_start(int arr[2], char **argv, void *mlx_ptr, int *windows);
 
 t_mat4				rot_matrix(long double rot[3]);
 
-long double			normalize(long double p, long double arr[4]);
+long double			map(long double p, long double arr[4]);
 long double			map_color(long double p, long double arr[4]);
 
 void	mlx_print(t_mlx *mlx);//
