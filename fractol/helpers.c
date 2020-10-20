@@ -12,63 +12,70 @@
 
 #include "header.h"
 
-void	aim_rec(t_mlx *mlx)
-{
-	int	w;
-	int h;
+/*
+** Set mlx image data to a value;
+*/
 
-	w = mlx->width / 2;
-	h = mlx->height / 2;
-	mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, w - 2, h, 0xffffff);
-	mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, w - 1, h, 0xffffff);
-	mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, w, h, 0xffffff);
-	mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, w + 1, h, 0xffffff);
-	mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, w + 2, h, 0xffffff);
-	mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, w, h - 2, 0xffffff);
-	mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, w, h - 1, 0xffffff);
-	mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, w, h + 1, 0xffffff);
-	mlx_pixel_put(mlx->mlx_ptr, mlx->mlx_win, w, h + 2, 0xffffff);
+void		mlx_image_set(int *img_dat, int width, int height, int color)
+{
+	int	i;
+
+	if (!img_dat)
+		return ;
+	i = -1;
+	while (++i <= width * height)
+		img_dat[i] = color;
 }
 
-void	height_reset(long double *arr, long double val, int width, int height)
+/*
+** Return color based on iter position
+*/
+
+int			iter_color(t_frac *frac, t_vec4 point)
+{
+	return (mlx_get_color_value(frac->mlx->mlx_ptr, (int)frac->mlx->clr_func(
+		frac->iter - point.vec[2], (long double[4]){0, frac->iter,
+		frac->mlx->color[0], frac->mlx->color[1]})));
+}
+
+/*
+** Calculate current rotation matrix
+*/
+
+t_mat4			rot_matrix(long double rot[3])
+{
+	t_mat4	trans;
+
+	trans = mat4_iden();
+	trans = mat4_mat4(trans, mat4_rotx(rot[0]));
+	trans = mat4_mat4(trans, mat4_roty(rot[1]));
+	trans = mat4_mat4(trans, mat4_rotz(rot[2]));
+	return (trans);
+}
+
+/*
+** Set heigh_map to set value
+*/
+
+void		height_reset(long double *arr, long double val, int w, int h)
 {
 	int	i;
 
 	i = -1;
-	while (++i <= width * height)
+	while (++i <= w * h)
 		arr[i] = val;
 }
 
-void	fractal_cpy(t_mlx *mlx, int *img_dat, int *arr, size_t n)
-{
-	size_t	i;
-
-	i = -1;
-	while (++i < n)
-	{
-		img_dat[i] = mlx_get_color_value(mlx->mlx_ptr, (int)map(mlx->iter - arr[i], (long double[4]){0, mlx->iter, 0x000000, 0xff0000}));
-	}
-}
-/*
-void	fractal_norm(void *param)
-{
-	int		i;
-	t_frac	*frac;
-
-	i = -1;
-	frac = param;
-	while (++i < frac->size)
-	{
-		frac->num[i] = mlx_get_color_value(frac->mlx->mlx_ptr, (int)normalize(frac->mlx->iter - frac->num[i], (double[4]){0, frac->mlx->iter, 0x000000, 0xff0000}));
-	}
-}
-*/
 long double	map(long double p, long double arr[4])
 {
-	p = (p - arr[0])/(arr[1] - arr[0]);
+	p = (p - arr[0]) / (arr[1] - arr[0]);
 	p = (arr[3] - arr[2]) * p + arr[2];
 	return (p);
 }
+
+/*
+** map() but proper color flow
+*/
 
 long double	map_color(long double p, long double arr[4])
 {
@@ -76,9 +83,10 @@ long double	map_color(long double p, long double arr[4])
 
 	colors[0] = rgb_conv((long)arr[2]);
 	colors[1] = rgb_conv((long)arr[3]);
-	p = (p - arr[0])/(arr[1] - arr[0]);
-	colors[0].red = (colors[1].red  - colors[0].red ) * p + colors[0].red;
-	colors[0].green = (colors[1].green  - colors[0].green ) * p + colors[0].green;
-	colors[0].blue = (colors[1].blue  - colors[0].blue ) * p + colors[0].blue;
+	p = (p - arr[0]) / (arr[1] - arr[0]);
+	colors[0].red = (colors[1].red - colors[0].red) * p + colors[0].red;
+	colors[0].green = (colors[1].green - colors[0].green) * p +
+		colors[0].green;
+	colors[0].blue = (colors[1].blue - colors[0].blue) * p + colors[0].blue;
 	return (trgb_conv(colors[0]));
 }

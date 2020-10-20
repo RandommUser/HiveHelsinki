@@ -22,7 +22,7 @@
 # include <fcntl.h>
 # include <pthread.h>
 
-	# include <stdio.h>
+	# include <stdio.h>//
 
 # define ESC_KEY 53
 # define PG_UP 116
@@ -48,6 +48,7 @@
 # define K_S 1
 # define K_D 2
 # define K_B 11
+# define K_V 9
 # define K_LCN 256
 # define K_1 18
 # define K_2 19
@@ -75,9 +76,9 @@
 # define MOU_S_U 5
 # define MOU_S_D 4
 
-# define ROT_X -90//-180//-90
-# define ROT_Y 270//180//-90
-# define ROT_Z -180//-180
+# define ROT_X -90
+# define ROT_Y 270
+# define ROT_Z -180
 # define ROTA_STEP 5
 
 # define WIN_WIDTH 800
@@ -87,13 +88,15 @@
 # define MAX_WIDTH 2560
 # define MAX_HEIGHT 1440
 
-# define THREADS 16
-# define ITER 100
+# define THREADS 8
+# define ITER 50
+# define ITER_STEP 50
 # define MIN_ITER 10
 # define MAX_ITER 20000
 # define WINDOWS 10
 # define DEF_BG 0xffffff
 # define EXTRA 100
+# define OFF_STEP 5
 
 # define NAME_MAN "mandelbrot"
 # define NAME_JULIA "julia"
@@ -138,6 +141,7 @@
 # define USAGE 1
 # define ERR_THREAD_VAL 2
 # define ESC_EXIT 0
+# define X_EXIT 6
 
 typedef struct		s_julia
 {
@@ -217,10 +221,8 @@ typedef struct		s_frac
 	int			height;
 	long double	w;
 	long double	h;
-	int			thread;
 	int			y;
 	int			lines;
-	int			size;
 	t_ddot		off;
 	t_mlx		*mlx;
 }					t_frac;
@@ -242,32 +244,43 @@ typedef struct		s_dot
 
 void				run_exit(int code, char *spot);
 void				draw(t_mlx *mlx);
-void				fractal_cpy(t_mlx *mlx, int *img_dat, int *arr, size_t n);
-///void				fractal_norm(void *param);
-void				mlx_image_create(t_mlx *mlx, int width, int height);
-void				mlx_image_wipe(t_mlx *mlx, int width, int height);
 void				draw_line(t_mlx *mlx, t_vec4 start, t_vec4 end);
-void				height_reset(long double *arr, long double val, int width,
-						int height);
+void				height_reset(long double *arr, long double val, int w,
+						int h);
 void				to_image(t_mlx *mlx, t_vec4 spot);
 void				aim_rec(t_mlx *mlx);
-void				to_color(t_mlx *mlx, t_vec4 spot);
 void				mlx_image_set(int *img_dat, int width, int height, int color);
+void				color_show(t_mlx *mlx);
+void				color_pick(t_mlx *mlx, int x, int y);
 
 void				fractal_man(void *para);
 void				fractal_jul(void *para);
 void				fractal_barn(void *para);
 void				fractal_mult(void *para);
 
+t_ddot				barnsley(t_ddot val);
+double				multibrot(int iter, t_box box);
+double				mandel(int iter, t_box box);
+double				julia_flex(int iter, t_box box);
 
 t_mlx				*mlx_start(int arr[2], char **argv, void *mlx_ptr, int *windows);
+void				mlx_def_value(t_mlx *mlx);
 
 t_mat4				rot_matrix(long double rot[3]);
 
 long double			map(long double p, long double arr[4]);
 long double			map_color(long double p, long double arr[4]);
+int					iter_color(t_frac *frac, t_vec4 point);
+
+int					iter_anim(void *param);
+int					draw_leaf(void *param);
+int					window_close(void *param);
+int					input(int key, void *param);
+int					mouse(int button, int x, int y, void *param);
+//int					mouse_live(int x, int y, void *param);
+
+void				zoom(t_mlx *mlx, char c);
 
 void	mlx_print(t_mlx *mlx);//
-void	mat4_put(t_mat4 mat4);//
 
 #endif

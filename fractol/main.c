@@ -17,81 +17,12 @@ void	run_exit(int code, char *spot)
 	if (!code)
 		exit(0);
 	if (code == USAGE)
-		ft_putstr("usage: ./fractol "NAMES" (height)\n");// "NAME_MAN"|"NAME_JULIA"|"NAME_BARN"|"NAME_MULT"
+		ft_putstr("usage: ./fractol "
+			NAMES" (height)\n");
 	else if (code == ERR_THREAD_VAL)
 		ft_putstr("Invalid THREAD value. Min 1, max 8, int only\n");
 	ft_putstr(spot);
 	exit(code);
-}
-
-void	color_pick(t_mlx *mlx, int x, int y)
-{
-	t_rgb color;
-
-	color = rgb_conv(mlx->color[mlx->colort - 1]);
-	if (x >= mlx->width / 2 - (3 * COLOR_WID + 2 * COLOR_OUTL) / 2 &&
-	x <= mlx->width / 2 + (3 * COLOR_WID + 2 * COLOR_OUTL) / 2 &&
-	y >= mlx->height / 2 - (255) / 2 &&
-	y <= mlx->height / 2 + (255) / 2 + 1)
-	{
-		x -= mlx->width / 2 - (3 * COLOR_WID + 2 * COLOR_OUTL) / 2;
-		y -= mlx->height / 2 - (255) / 2;
-		printf("color pressed at x %d y %d\n", x, y);
-		if (x < COLOR_WID * 1 + COLOR_OUTL * 0)
-			mlx->color[mlx->colort - 1] = rgb_color(255 - y, color.green, color.blue);
-		else if (x > COLOR_WID * 1 + COLOR_OUTL * 1 && x < COLOR_WID * 2 + COLOR_OUTL * 1)
-			mlx->color[mlx->colort - 1] = rgb_color(color.red, 255 - y, color.blue);
-		else if (x > COLOR_WID * 2 + COLOR_OUTL * 2 &&x < COLOR_WID * 3 + COLOR_OUTL * 2)
-			mlx->color[mlx->colort - 1] = rgb_color(color.red, color.green, 255 - y);
-		if (trgb_conv(color) != mlx->color[mlx->colort - 1])
-			draw(mlx);
-	}
-}
-
-void	close_window(t_mlx *mlx)
-{
-	mlx_destroy_image(mlx->mlx_ptr, mlx->mlx_img);
-	mlx_destroy_window(mlx->mlx_ptr, mlx->mlx_win);
-	(*mlx->windows)--;
-	if (!(*mlx->windows))
-		run_exit(ESC_EXIT, "main.c close_window() last window\n");
-	free(mlx);
-	mlx = NULL;
-}
-
-static int		iter_anim(void *param)
-{
-	t_mlx	*mlx;
-	int		iter;
-
-	mlx = param;
-	iter = mlx->iter;
-	if (!mlx->colort && ++mlx->anim_iter <= mlx->iter)
-	{
-		mlx->iter = mlx->anim_iter;
-		draw(mlx);
-		mlx->iter = iter;
-	}
-	return (0);
-}
-
-static int		window_close(void *param)
-{
-	t_mlx	*mlx;
-
-	mlx = param;
-	close_window(mlx);
-	return (0);
-}
-
-static int		draw_leaf(void *param)
-{
-	t_mlx	*mlx;
-
-	mlx = param;
-	if (mlx->jupt)
-		draw(mlx);
-	return (0);
 }
 
 static int		mouse_live(int x, int y, void *param)
@@ -102,9 +33,9 @@ static int		mouse_live(int x, int y, void *param)
 	if (!(x >= 0 && x < mlx->width && y >= 0 && y < mlx->height))
 		return (-1);
 	mlx->anim_iter = mlx->iter;
-	if (mlx->jupt)
+	if (mlx->jupt && mlx->func != &fractal_barn)
 	{
-		mlx_image_wipe(mlx, mlx->width, mlx->height);
+		mlx_image_set(mlx->img_dat, mlx->width, mlx->height, DEF_BG);
 		printf("x %d y %d\n", x, y);
 		if (!mlx->jur)
 		{
@@ -127,242 +58,6 @@ static int		mouse_live(int x, int y, void *param)
 		draw(mlx);
 		printf("n %f r %f cx %f cy %f\n", mlx->jul.n, mlx->jul.r, mlx->jul.cx, mlx->jul.cy);
 	}
-	else
-	{
-		//draw(mlx);
-	}
-	
-	return (0);
-}
-
-static int		mouse(int button, int x, int y, void *param)
-{
-	t_mlx		*mlx;
-	
-
-	mlx = param;
-	mlx_image_wipe(mlx, mlx->width, mlx->height);
-	mlx->anim_iter = mlx->iter;
-	if (mlx->verbose)
-	{
-		ft_putstr("pressed ");
-		ft_putnbr(button);
-		ft_putstr(" at x ");
-		ft_putnbr(x);
-		ft_putstr(" y ");
-		ft_putnbr(y);
-		ft_putchar('\n');
-	}
-	if (mlx->colort)
-	{
-		if (button == MOU_L)
-			color_pick(mlx, x, y);
-		return (0);
-	}
-	if (button == MOU_L)
-	{
-		mlx->offx += (mlx->width / 2 - x) * mlx->zoom;
-		mlx->offy += (mlx->height / 2 - y) * mlx->zoom;
-		draw(mlx);
-		printf("offx %Lf offy %Lf\n", mlx->offx, mlx->offy);
-	}
-	if (button == MOU_R)
-	{
-		mlx->offx = (x - mlx->width / 2) * mlx->zoom;
-		mlx->offy = (y - mlx->height / 2) * mlx->zoom;
-		draw(mlx);
-		printf("offx %Lf offy %Lf\n", mlx->offx, mlx->offy);
-	}
-	if (button == MOU_S_U)
-	{
-		mlx->offx += (mlx->width / 2 - x) * mlx->zoom;
-		mlx->offy += (mlx->height / 2 - y) * mlx->zoom;
-		mlx->zoom = mlx->zoom < 0.1 ? mlx->zoom * 10 : mlx->zoom * 1.1;//+ 0.1;
-		draw(mlx);
-		printf("zoom %Lf offx %Lf off y %Lf\n", mlx->zoom, mlx->offx, mlx->offy);
-	}
-	if (button == MOU_S_D)
-	{
-		mlx->offx += (mlx->width / 2 - x) * mlx->zoom;
-		mlx->offy += (mlx->height / 2 - y) * mlx->zoom;
-		mlx->zoom = mlx->zoom < 0.2 ? mlx->zoom / 10 : mlx->zoom * 0.9;//- 0.1;
-		draw(mlx);
-		printf("zoom %Lf offx %Lf offy %Lf\n", mlx->zoom, mlx->offx, mlx->offy);
-	}
-	aim_rec(mlx);
-	return (0);
-}
-
-static int		input(int key, void *param)
-{
-	t_mlx	*mlx;
-
-	printf("key %d\n", key);
-	mlx = param;
-	mlx_image_wipe(mlx, mlx->width, mlx->height);
-	mlx->anim_iter = mlx->iter;
-	if (key == ESC_KEY)
-		run_exit(0, "");
-	if (key == K_ENT)
-		draw(mlx);
-	if (key == K_R)
-	{
-		mlx->iter = ITER;
-		mlx->anim_iter = mlx->iter;
-		mlx->offx = 0;
-		mlx->offy = 0;
-		mlx->zoom = 1;
-		mlx->jul.cx = 1;
-		mlx->jul.cy = 1;
-		mlx->jul.r = JULIA_MAX_R;
-		mlx->jul.n = 0;
-		mlx->rot[0] = ROT_X;
-		mlx->rot[1] = ROT_Y;
-		mlx->rot[2] = ROT_Z;
-		mlx->color[0] = COLOR_START;
-		mlx->color[1] = COLOR_END;
-		mlx->colort = 0;
-		mlx->clr_func = &map_color;
-		mlx->extra = 0;
-		draw(mlx);
-	}
-	if (key == NUM_P)
-	{
-		mlx->iter += 50;
-		mlx->iter = mlx->iter > MAX_ITER ? MAX_ITER : mlx->iter;
-		mlx->anim_iter = mlx->iter;
-		draw(mlx);
-		printf("iter++ %d\n", mlx->iter);
-	}
-	if (key == NUM_M)
-	{
-		mlx->iter -= 50;
-		mlx->iter = mlx->iter <= 0 ? MIN_ITER : mlx->iter;
-		mlx->anim_iter = mlx->iter;
-		draw(mlx);
-		printf("iter-- %d\n", mlx->iter);
-	}
-	if (key == PG_UP)
-	{
-		mlx->zoom = mlx->zoom < 0.1 ? mlx->zoom * 2 : mlx->zoom * 1.1;//+ 0.1;
-		draw(mlx);
-		printf("zoom++ %.30Lf\n", mlx->zoom);
-	}
-	if (key == PG_DW)
-	{
-		mlx->zoom = mlx->zoom < 0.2 ? mlx->zoom / 2 : mlx->zoom * 0.9;//- 0.1;
-		//mlx->zoom = mlx->zoom < 0.000001 ? mlx->zoom = 0.000001 : mlx->zoom; // make it not reach 0 | not needed(?)
-		draw(mlx);
-		printf("zoom-- %.30Lf\n", mlx->zoom);
-	}
-	if (key == AR_DW)
-	{
-		mlx->offy += 5 * mlx->zoom;
-		draw(mlx);
-		printf("offy++ %Lf\n", mlx->offy);
-	}
-	if (key == AR_UP)
-	{
-		mlx->offy -= 5 * mlx->zoom;
-		draw(mlx);
-		printf("offy-- %Lf\n", mlx->offy);
-	}
-	if (key == AR_RG)
-	{
-		mlx->offx += 5 * mlx->zoom;
-		draw(mlx);
-		printf("offx++ %Lf\n", mlx->offx);
-	}
-	if (key == AR_LF)
-	{
-		mlx->offx -= 5 * mlx->zoom;
-		draw(mlx);
-		printf("offx-- %Lf\n", mlx->offx);
-	}
-
-
-	if (key == NUM_4)
-	{
-		mlx->rot[1] += ROTA_STEP;
-		mlx->rot[1] -= mlx->rot[1] >= 360 ? 360 : 0;
-		draw(mlx);
-	}
-	if (key == NUM_6)
-	{
-		mlx->rot[1] -= ROTA_STEP;
-		mlx->rot[1] += mlx->rot[1] <= -360 ? 360 : 0;
-		draw(mlx);
-	}
-	if (key == NUM_2)
-	{
-		mlx->rot[0] += ROTA_STEP;
-		mlx->rot[0] -= mlx->rot[0] >= 360 ? 360 : 0;
-		draw(mlx);
-	}
-	if (key == NUM_8)
-	{
-		mlx->rot[0] -= ROTA_STEP;
-		mlx->rot[0] += mlx->rot[0] <= -360 ? 360 : 0;
-		draw(mlx);
-	}
-	if (key == NUM_9)
-	{
-		mlx->rot[2] += ROTA_STEP;
-		mlx->rot[2] -= mlx->rot[2] >= 360 ? 360 : 0;
-		draw(mlx);
-	}
-	if (key == NUM_1)
-	{
-		mlx->rot[2] -= ROTA_STEP;
-		mlx->rot[2] += mlx->rot[2] <= -360 ? 360 : 0;
-		draw(mlx);
-	}
-	if (key == K_SPB)
-		mlx->jupt = mlx->jupt ? 0 : 1;
-	if (key == K_LCN)
-		mlx->jur = mlx->jur ? 0 : 1;
-	if (key == K_COM)
-	{
-		if (mlx->func == &fractal_jul)
-			mlx->jul.n -= JULIA_STEP;
-		else if (mlx->func == &fractal_mult)
-			mlx->jul.r -= MULT_STEP;
-		draw(mlx);
-	}
-	if (key == K_DOT)
-	{
-		if (mlx->func == &fractal_jul)
-			mlx->jul.n += JULIA_STEP;
-		else if (mlx->func == &fractal_mult)
-			mlx->jul.r += MULT_STEP;
-		draw(mlx);
-	}
-	if (key == K_T)
-	{
-		mlx->colort = mlx->colort == 2 ? 0 : mlx->colort + 1;
-		draw(mlx);
-	}
-	if (key == K_C)
-	{
-		mlx->clr_func = mlx->clr_func == &map_color ? &map : &map_color;
-		draw(mlx);
-	}
-	if (key == K_P)
-	{
-		mlx->anim_iter = ANIM_IT_START;
-	}
-	if (key == K_SBS)
-	{
-		mlx->extra--;
-		draw(mlx);
-	}
-	if (key == K_SBC)
-	{
-		mlx->extra++;
-		draw(mlx);
-	}
-	printf("rot x %Lf y %Lf z %Lf\n", mlx->rot[0], mlx->rot[1], mlx->rot[2]);
-	mat4_put(rot_matrix(mlx->rot));
 	return (0);
 }
 
@@ -406,22 +101,10 @@ printf("starting mlx hook %p\n", para);
 printf("action hooks done\n");
 }
 
-void	mlx_print(t_mlx *mlx)
-{
-	printf("mlx *p %p\n", mlx);
-	printf("mlx_ptr %p\n", mlx->mlx_ptr);
-	printf("mlx_win %p\n", mlx->mlx_win);
-	printf("mlx_img %p\n", mlx->mlx_img);
-	printf("img_dat %p\n", mlx->img_dat);
-	printf("windows # %p = %d\n", mlx->windows, (*mlx->windows));
-}
-
 int	main(int argc, char **argv)
 {
-	//t_mlx		*mlx;
 	int			windows;
 	int			i;
-//	pthread_t	threads[THREADS];
 	t_params	param[WINDOWS];
 	t_mlx		*mlxs[WINDOWS + 1];
 	void		*mlx_ptr;
@@ -445,22 +128,10 @@ int	main(int argc, char **argv)
 		printf("new param argc %d argv %s windows %p i %d\n", param[i].argc, param[i].argv[i + 1], param->windows, param->i);
 		mlxs[i] = mlx_start((int[2]){argc, i + 1}, argv, mlx_ptr, &windows);
 		printf("starting a thread for mlx %p\n", mlxs[i]);
-		//mlx_print(mlxs[i]);
 		mlx_tloops(mlxs[i]);
-		//pthread_create(&threads[i], NULL, (void*)mlx_start_loop, &param[i]);
-		//pthread_create(&threads[i], NULL, (void*)mlx_tloops, mlxs[i]);
 		i += i + 2 < argc && ft_strcont(argv[i + 2], "0123456789") ? 2 : 1;
 	}
 	mlxs[i] = NULL;
-
 	mlx_loop(mlx_ptr);
-//pthread_join(threads[0], NULL);
-	//mlx = mlx_start(argc, argv);
-	//mlx_key_hook(mlx->mlx_win, input, mlx);
-	//mlx_mouse_hook(mlx->mlx_win, mouse, mlx);
-	//mlx_hook(mlx->mlx_win, 6, 0 , mouse_live, mlx);
-	//mlx_hook(mlx->mlx_win, 17, 0 , window_close, mlx);
-//mlx_loop_hook(mlx->mlx_ptr, draw_leaf, mlx);
-	//mlx_loop(mlx->mlx_ptr);
 	return (0);
 }
