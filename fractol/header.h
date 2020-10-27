@@ -16,13 +16,9 @@
 # include "mlx.h"
 # include "libft.h"
 
-# include <unistd.h>
 # include <math.h>
 # include <stdlib.h>
-# include <fcntl.h>
 # include <pthread.h>
-
-	# include <stdio.h>//
 
 # define ESC_KEY 53
 # define PG_UP 116
@@ -55,6 +51,7 @@
 # define K_3 20
 # define K_4 21
 # define K_5 23
+# define K_O 31
 # define K_MI 27
 # define K_PL 24
 # define K_P 35
@@ -97,6 +94,7 @@
 # define DEF_BG 0xffffff
 # define EXTRA 100
 # define OFF_STEP 5
+# define ZOOM_STEP 0.2
 
 # define NAME_MAN "mandelbrot"
 # define NAME_JULIA "julia"
@@ -104,26 +102,26 @@
 # define NAME_MULT "multibrot"
 # define NAMES NAME_MAN "|" NAME_JULIA "|" NAME_BARN "|" NAME_MULT
 
-# define MAN_MINX -2.5	// x 0
-# define MAN_MAXX 1 	// x = width
-# define MAN_MINY 1		// y = 0
-# define MAN_MAXY -1	// y = height
-# define MAN_HEIGHT 400 // width = (int)(height * 1.75)
+# define MAN_MINX -2.5
+# define MAN_MAXX 1
+# define MAN_MINY 1
+# define MAN_MAXY -1
+# define MAN_HEIGHT 400
 
 # define JULIA_MAX_R 4
 # define JULIA_STEP 2
-# define JULIA_HEIGHT 400 // width = height
+# define JULIA_HEIGHT 400
 
 # define BARN_X_MIN -2.1820
 # define BARN_X_MAX 2.6558
 # define BARN_Y_MIN 9.9983
 # define BARN_Y_MAX 0
 # define BARN_COLOR 0x00ff00
-# define BARN_HEIGHT 400 // width = height
+# define BARN_HEIGHT 400
 
 # define MULT_HEIGHT 400
 # define MULT_STEP 0.1
-# define MULT_MIN -4//0.5
+# define MULT_MIN -4
 # define MULT_MAX 20
 
 # define ANIM_IT_START 0
@@ -151,8 +149,23 @@ typedef struct		s_julia
 	double	n;
 }					t_julia;
 
+typedef struct		s_dot
+{
+	int	x;
+	int	y;
+}					t_dot;
+
+typedef struct		s_ddot
+{
+	long double	x;
+	long double	y;
+}					t_ddot;
+
+typedef struct		s_mlx t_mlx;
+
 typedef struct		s_mlx
 {
+	t_mlx		**mlxs;
 	void		*mlx_ptr;
 	void		*mlx_win;
 	void		*mlx_img;
@@ -164,35 +177,26 @@ typedef struct		s_mlx
 	int			width;
 	int			height;
 	int			extra;
-	int			mode;
 	int			verbose;
 	int			iter;
 	int			anim_iter;
 	long double	zoom;
-	int			cmin;
-	int			cmax;
-	long double	offx;
-	long double	offy;
+	int			zo;
+	t_ddot		off;
 	long double	rot[3];
 	char		jupt;
 	char		jur;
-	int			mouse_pos[2];
-	t_julia		jul; // cx, cy, r, n
+	t_dot		mouse_pos;
+	t_julia		jul;
 	void		(*func)(void*);
 	int			*windows;
 	int			color[2];
-	char		colort; // 0 off, 1 start, 2 end
+	char		colort;
 	void		*clr_swat;
 	int			clr_line;
 	int			*clr_dat;
 	long double	(*clr_func)(long double, long double[4]);
 }					t_mlx;
-
-typedef struct		s_ddot
-{
-	long double	x;
-	long double	y;
-}					t_ddot;
 
 typedef struct		s_box
 {
@@ -203,10 +207,12 @@ typedef struct		s_box
 	long double xte;
 	long double r;
 	long double d;
-	long double nn;
+	long double pr;
 	long double	w;
 	long double	h;
 	double		i;
+	int			j;
+	int			k;
 	int			width;
 	int			height;
 	t_julia		jul;
@@ -227,29 +233,14 @@ typedef struct		s_frac
 	t_mlx		*mlx;
 }					t_frac;
 
-typedef struct		s_params
-{
-	int		argc;
-	char	**argv;
-	int		i;
-	int		*windows;
-}					t_params;
-
-typedef struct		s_dot
-{
-	int	x;
-	int	y;
-}					t_dot;
-
-
 void				run_exit(int code, char *spot);
-void				draw(t_mlx *mlx);
+int					draw(t_mlx *mlx);
 void				draw_line(t_mlx *mlx, t_vec4 start, t_vec4 end);
 void				height_reset(long double *arr, long double val, int w,
 						int h);
 void				to_image(t_mlx *mlx, t_vec4 spot);
-void				aim_rec(t_mlx *mlx);
-void				mlx_image_set(int *img_dat, int width, int height, int color);
+void				mlx_image_set(int *img_dat, int width, int height,
+						int color);
 void				color_show(t_mlx *mlx);
 void				color_pick(t_mlx *mlx, int x, int y);
 
@@ -263,7 +254,8 @@ double				multibrot(int iter, t_box box);
 double				mandel(int iter, t_box box);
 double				julia_flex(int iter, t_box box);
 
-t_mlx				*mlx_start(int arr[2], char **argv, void *mlx_ptr, int *windows);
+t_mlx				*mlx_start(int arr[2], char **argv, void *mlx_ptr,
+						int *windows);
 void				mlx_def_value(t_mlx *mlx);
 
 t_mat4				rot_matrix(long double rot[3]);
@@ -273,14 +265,14 @@ long double			map_color(long double p, long double arr[4]);
 int					iter_color(t_frac *frac, t_vec4 point);
 
 int					iter_anim(void *param);
-int					draw_leaf(void *param);
 int					window_close(void *param);
 int					input(int key, void *param);
 int					mouse(int button, int x, int y, void *param);
-//int					mouse_live(int x, int y, void *param);
+int					mouse_live(int x, int y, void *param);
 
 void				zoom(t_mlx *mlx, char c);
-
-void	mlx_print(t_mlx *mlx);//
+void				iter(t_mlx *mlx, char c);
+t_mlx				*loop_start(void *param, int key, int x, int y);
+void				julia_manual(t_mlx *mlx, char a, char c);
 
 #endif

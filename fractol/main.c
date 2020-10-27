@@ -12,7 +12,11 @@
 
 #include "header.h"
 
-void	run_exit(int code, char *spot)
+/*
+** Exit function
+*/
+
+void		run_exit(int code, char *spot)
 {
 	if (!code)
 		exit(0);
@@ -25,43 +29,11 @@ void	run_exit(int code, char *spot)
 	exit(code);
 }
 
-static int		mouse_live(int x, int y, void *param)
-{
-	t_mlx	*mlx;
+/*
+** Validate args
+*/
 
-	mlx = param;
-	if (!(x >= 0 && x < mlx->width && y >= 0 && y < mlx->height))
-		return (-1);
-	mlx->anim_iter = mlx->iter;
-	if (mlx->jupt && mlx->func != &fractal_barn)
-	{
-		mlx_image_set(mlx->img_dat, mlx->width, mlx->height, DEF_BG);
-		printf("x %d y %d\n", x, y);
-		if (!mlx->jur)
-		{
-			mlx->mouse_pos[0] = x;
-			mlx->mouse_pos[1] = y;
-		}
-		else
-		{
-			if (mlx->func == &fractal_jul)
-			{
-				mlx->jul.r = map(x, (long double[4]){0, mlx->width, 1, sqrt(JULIA_MAX_R)});
-				mlx->jul.r *= map(y, (long double[4]){0, mlx->height, 1, sqrt(JULIA_MAX_R)});
-			}
-			else if (mlx->func == &fractal_mult)
-				mlx->jul.r = map(x, (long double[4]){0, mlx->width, MULT_MIN, MULT_MAX});
-		}
-
-		mlx->jul.cx = map(mlx->mouse_pos[0] - mlx->width / 2, (long double[4]){-(mlx->width / 2), mlx->width / 2, -(mlx->jul.r), mlx->jul.r});
-		mlx->jul.cy = map(mlx->mouse_pos[1] - mlx->height / 2, (long double[4]){-(mlx->height / 2), mlx->height / 2, -(mlx->jul.r), mlx->jul.r});
-		draw(mlx);
-		printf("n %f r %f cx %f cy %f\n", mlx->jul.n, mlx->jul.r, mlx->jul.cx, mlx->jul.cy);
-	}
-	return (0);
-}
-
-int	valid_params(int argc, char **argv)
+static int	valid_params(int argc, char **argv)
 {
 	int	i;
 	int	frac;
@@ -72,7 +44,8 @@ int	valid_params(int argc, char **argv)
 	frac = 0;
 	while (++i < argc)
 	{
-		if (!ft_strcmp(argv[i], NAME_MAN) || !ft_strcmp(argv[i], NAME_JULIA) || !ft_strcmp(argv[i], NAME_BARN) || !ft_strcmp(argv[i], NAME_MULT))
+		if (!ft_strcmp(argv[i], NAME_MAN) || !ft_strcmp(argv[i], NAME_JULIA) ||
+			!ft_strcmp(argv[i], NAME_BARN) || !ft_strcmp(argv[i], NAME_MULT))
 		{
 			name = 1;
 			frac++;
@@ -85,49 +58,45 @@ int	valid_params(int argc, char **argv)
 	return (frac);
 }
 
-void	mlx_tloops(void *para)
-{
-	t_mlx	*mlx;
+/*
+** Initiate mlx loops
+*/
 
-	mlx = para;
-printf("starting mlx hook %p\n", para);
+static void	mlx_tloops(t_mlx *mlx)
+{
 	mlx_key_hook(mlx->mlx_win, input, mlx);
 	mlx_mouse_hook(mlx->mlx_win, mouse, mlx);
-	mlx_hook(mlx->mlx_win, 6, 0 , mouse_live, mlx);
-	mlx_hook(mlx->mlx_win, 17, 0 , window_close, mlx);
-	if (mlx->func == &fractal_barn)
-		mlx_loop_hook(mlx->mlx_ptr, draw_leaf, mlx);
-	mlx_loop_hook(mlx->mlx_ptr, iter_anim, mlx);
-printf("action hooks done\n");
+	mlx_hook(mlx->mlx_win, 6, 0, mouse_live, mlx);
+	mlx_hook(mlx->mlx_win, 17, 0, window_close, mlx);
+	mlx_loop_hook(mlx->mlx_ptr, iter_anim, mlx->mlxs);
+	draw(mlx);
 }
 
-int	main(int argc, char **argv)
+/*
+** Main func
+** Test args, create windows
+*/
+
+int			main(int argc, char **argv)
 {
 	int			windows;
 	int			i;
-	t_params	param[WINDOWS];
 	t_mlx		*mlxs[WINDOWS + 1];
 	void		*mlx_ptr;
 
 	if (argc < 2)
 		run_exit(USAGE, "main.c main() arg amount\n");
-	else if (THREADS < 0 || THREADS > 64 || THREADS != (int)THREADS)
+	else if (THREADS < 0 || THREADS > 8 || THREADS != (int)THREADS)
 		run_exit(ERR_THREAD_VAL, "main main() THREAD check\n");
 	if ((windows = valid_params(argc, argv)) > WINDOWS)
 		run_exit(ERR_PARA, "main.c main() too many fractals\n");
 	if (!(mlx_ptr = mlx_init()))
 		run_exit(ERR_MLX, "main main() mlx_init failed\n");
 	i = 0;
-	printf("mlx_ptr %p\n", mlx_ptr);
 	while (i + 1 < argc)
 	{
-		param[i].argc = argc;
-		param[i].argv = argv;
-		param[i].windows = &windows;
-		param[i].i = i + 1;
-		printf("new param argc %d argv %s windows %p i %d\n", param[i].argc, param[i].argv[i + 1], param->windows, param->i);
 		mlxs[i] = mlx_start((int[2]){argc, i + 1}, argv, mlx_ptr, &windows);
-		printf("starting a thread for mlx %p\n", mlxs[i]);
+		mlxs[i]->mlxs = mlxs;
 		mlx_tloops(mlxs[i]);
 		i += i + 2 < argc && ft_strcont(argv[i + 2], "0123456789") ? 2 : 1;
 	}

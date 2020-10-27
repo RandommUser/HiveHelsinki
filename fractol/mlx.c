@@ -22,8 +22,9 @@ void			mlx_def_value(t_mlx *mlx)
 	mlx->anim_iter = ITER;
 	mlx->extra = 0;
 	mlx->zoom = 1;
-	mlx->offx = 0;
-	mlx->offy = 0;
+	mlx->zo = 0;
+	mlx->off.x = 0;
+	mlx->off.y = 0;
 	mlx->rot[0] = ROT_X;
 	mlx->rot[1] = ROT_Y;
 	mlx->rot[2] = ROT_Z;
@@ -51,8 +52,7 @@ static void		mlx_color_create(t_mlx *mlx)
 
 	width = 3 * COLOR_WID + 4 * COLOR_OUTL;
 	height = 255 + 2 * COLOR_OUTL;
-	mlx->clr_swat = mlx_new_image(mlx->mlx_ptr, width, height);
-	if (!mlx->clr_swat)
+	if (!(mlx->clr_swat = mlx_new_image(mlx->mlx_ptr, width, height)))
 		run_exit(ERR_MLX, "mlx.c mlx_color_create clr_swat alloc error\n");
 	mlx->clr_dat = (int*)mlx_get_data_addr(mlx->clr_swat, &mlx->bpp,
 		&mlx->clr_line, &mlx->endian);
@@ -65,8 +65,7 @@ static void		mlx_color_create(t_mlx *mlx)
 
 static void		mlx_image_create(t_mlx *mlx, int width, int height)
 {
-	mlx->mlx_img = mlx_new_image(mlx->mlx_ptr, width, height);
-	if (!mlx->mlx_img)
+	if (!(mlx->mlx_img = mlx_new_image(mlx->mlx_ptr, width, height)))
 		run_exit(ERR_MLX, "mlx.c mlx_image_create mlx_img alloc error\n");
 	mlx->img_dat = (int*)mlx_get_data_addr(mlx->mlx_img, &mlx->bpp,
 		&mlx->size_line, &mlx->endian);
@@ -122,7 +121,7 @@ t_mlx			*mlx_start(int arr[2], char **argv, void *mlx_ptr, int *windows)
 	y = !ft_strcmp(argv[arr[1]], NAME_BARN) ? 3 : y;
 	y = !ft_strcmp(argv[arr[1]], NAME_MULT) ? 4 : y;
 	if (arr[1] + 1 < arr[0] && ft_strcont(argv[arr[1] + 1], "0123456789"))
-		height = ft_atoi(argv[arr[1] + 1]);
+		height = ft_atoi_base(argv[arr[1] + 1], 10);
 	else
 	{
 		height = y == 1 ? MAN_HEIGHT : 0;

@@ -12,6 +12,25 @@
 
 #include "header.h"
 
+/*
+** Set mlx image data to a value;
+*/
+
+void			mlx_image_set(int *img_dat, int width, int height, int color)
+{
+	int	i;
+
+	if (!img_dat)
+		return ;
+	i = -1;
+	while (++i <= width * height)
+		img_dat[i] = color;
+}
+
+/*
+** Rotate coordinates
+*/
+
 static t_vec4	do_rot(t_mlx *mlx, t_vec4 spot)
 {
 	t_box	box;
@@ -29,6 +48,11 @@ static t_vec4	do_rot(t_mlx *mlx, t_vec4 spot)
 		spot.vec[1]++;
 	return (spot);
 }
+
+/*
+** Write pixel to the main image
+** Do rotation if not default values && not Barnsley fractal
+*/
 
 void			to_image(t_mlx *mlx, t_vec4 spot)
 {

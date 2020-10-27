@@ -13,21 +13,6 @@
 #include "header.h"
 
 /*
-** Set mlx image data to a value;
-*/
-
-void		mlx_image_set(int *img_dat, int width, int height, int color)
-{
-	int	i;
-
-	if (!img_dat)
-		return ;
-	i = -1;
-	while (++i <= width * height)
-		img_dat[i] = color;
-}
-
-/*
 ** Return color based on iter position
 */
 
@@ -42,7 +27,7 @@ int			iter_color(t_frac *frac, t_vec4 point)
 ** Calculate current rotation matrix
 */
 
-t_mat4			rot_matrix(long double rot[3])
+t_mat4		rot_matrix(long double rot[3])
 {
 	t_mat4	trans;
 

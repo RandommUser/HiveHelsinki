@@ -102,7 +102,6 @@ void			color_pick(t_mlx *mlx, int x, int y)
 	{
 		x -= mlx->width / 2 - (3 * COLOR_WID + 2 * COLOR_OUTL) / 2;
 		y -= mlx->height / 2 - (255) / 2;
-		printf("color pressed at x %d y %d\n", x, y);
 		if (x < COLOR_WID * 1 + COLOR_OUTL * 0)
 			mlx->color[mlx->colort - 1] = rgb_color(255 - y, color.green,
 				color.blue);
@@ -114,7 +113,5 @@ void			color_pick(t_mlx *mlx, int x, int y)
 			COLOR_OUTL * 2)
 			mlx->color[mlx->colort - 1] = rgb_color(color.red, color.green,
 				255 - y);
-		if (trgb_conv(color) != mlx->color[mlx->colort - 1])
-			draw(mlx);
 	}
 }

@@ -17,28 +17,28 @@
 ** does not work properly for N > -2
 */
 
-static double	multibrot_neg(int iter, t_box box)
+static double	multibrot_nega(int iter, t_box box)
 {
 	box.xs = map(box.x, (long double[4]){0, box.width, MAN_MINX, MAN_MAXX});
 	box.ys = map(box.y, (long double[4]){0, box.height, MAN_MINY, MAN_MAXY});
 	box.x = 0;
 	box.y = 0;
 	box.i = -1;
-	box.nn = -(box.jul.n);
-	box.d = pow(pow(box.xs, 2) + pow(box.ys, 2), box.nn);
-	while (box.x * box.x + box.y * box.y <= box.jul.n * box.jul.n &&
+	box.pr = -(box.jul.r);
+	box.d = pow(pow(box.xs, 2) + pow(box.ys, 2), box.pr);
+	while (box.x * box.x + box.y * box.y <= box.jul.r * box.jul.r &&
 		++box.i < iter)
 	{
 		if (!box.d)
 			return (box.i);
-		box.xte = pow((box.x * box.x + box.y * box.y), (box.nn / 2)) *
-			cos(box.nn * atan2(box.y, box.x)) / box.d + box.xs;
-		box.y = -(pow((box.x * box.x + box.y * box.y), (box.nn / 2))) *
-			sin(box.nn * atan2(box.y, box.x)) / box.d + box.ys;
+		box.xte = pow((box.x * box.x + box.y * box.y), (box.pr / 2)) *
+			cos(box.pr * atan2(box.y, box.x)) / box.d + box.xs;
+		box.y = -(pow((box.x * box.x + box.y * box.y), (box.pr / 2))) *
+			sin(box.pr * atan2(box.y, box.x)) / box.d + box.ys;
 		box.x = box.xte;
 		if ((box.last.x == box.x && box.last.y == box.y))
 			return (iter);
-		box.d = pow(pow(box.x, 2) + pow(box.y, 2), box.nn);
+		box.d = pow(pow(box.x, 2) + pow(box.y, 2), box.pr);
 	}
 	return (box.i == -1 ? 0 : box.i);
 }
@@ -49,20 +49,20 @@ static double	multibrot_neg(int iter, t_box box)
 
 double			multibrot(int iter, t_box box)
 {
-	if (box.jul.n < 0)
-		return (multibrot_neg(iter, box));
+	if (box.jul.r < 0)
+		return (multibrot_nega(iter, box));
 	box.xs = map(box.x, (long double[4]){0, box.width, MAN_MINX, MAN_MAXX});
 	box.ys = map(box.y, (long double[4]){0, box.height, MAN_MINY, MAN_MAXY});
 	box.x = 0;
 	box.y = 0;
 	box.i = -1;
-	while (box.x * box.x + box.y * box.y <= box.jul.n * box.jul.n
+	while (box.x * box.x + box.y * box.y <= box.jul.r * box.jul.r
 		&& ++box.i < iter)
 	{
-		box.xte = pow((box.x * box.x + box.y * box.y), (box.jul.n / 2)) *
-			cos(box.jul.n * atan2(box.y, box.x)) + box.xs;
-		box.y = pow((box.x * box.x + box.y * box.y), (box.jul.n / 2)) *
-			sin(box.jul.n * atan2(box.y, box.x)) + box.ys;
+		box.xte = pow((box.x * box.x + box.y * box.y), (box.jul.r / 2)) *
+			cos(box.jul.r * atan2(box.y, box.x)) + box.xs;
+		box.y = pow((box.x * box.x + box.y * box.y), (box.jul.r / 2)) *
+			sin(box.jul.r * atan2(box.y, box.x)) + box.ys;
 		box.x = box.xte;
 		if ((box.last.x == box.x && box.last.y == box.y))
 			return (iter);
