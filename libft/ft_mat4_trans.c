@@ -63,7 +63,7 @@ t_mat4	mat4_roty(double theta)
 
 t_mat4	mat4_rotz(double theta)
 {
-	t_mat4		rota;
+	t_mat4	rota;
 	double	sint;
 	double	cost;
 

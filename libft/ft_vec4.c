@@ -27,7 +27,7 @@
 ** }
 */
 
-long double		vec4_ccw(t_vec4 vec1, t_vec4 vec2, t_vec4 vec3)
+long double	vec4_ccw(t_vec4 vec1, t_vec4 vec2, t_vec4 vec3)
 {
 	long double	ret;
 

@@ -39,7 +39,7 @@ t_mat4	mat4_pro(void)
 
 t_mat4	mat4_perps2(t_vec4 vec, long double ar)
 {
-	t_mat4	proj;
+	t_mat4		proj;
 	long double	tant;
 	long double	range;
 
