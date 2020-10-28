@@ -6,7 +6,7 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/07/25 17:01:25 by phakakos          #+#    #+#              #
-#    Updated: 2020/02/14 16:55:38 by phakakos         ###   ########.fr        #
+#    Updated: 2020/10/28 14:32:28 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,7 +19,7 @@ clear
 # Wait for norm test
 echo "Initializing"
 
-NORM=$(norminette | grep "Error\|Warning" | grep -v "valid")
+NORM=$(norminette * | grep "Error\|Warning" | grep -v " valid")
 start
 }
 
@@ -52,7 +52,7 @@ echo ''
 	if [[ $NORM == "" ]]
 	then echo "No norm errors";
 	else 
-	norminette
+	norminette *
 	fi
 echo ''
 }
