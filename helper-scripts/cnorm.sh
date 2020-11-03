@@ -113,11 +113,14 @@ printf "%s" "$OUTPUT"
 
 # if only script is called, print usage
 # -v to not skip invalid files
-if [[ ${@:1} == "" ]]
+START=1
+if [[ $1 == "-v" ]]
+then START=2; VERBOSE="TRUE"
+fi
+
+if [[ ${@:$START} == "" ]]
 then printf "%s\n" "${NAMEC}usage:${NORMAL} $0 [${BRIGHT}-v ${NORMAL}'print full output']${BRIGHT} norminette input${NORMAL}"; exit;
-elif [[ $1 == "-v" ]]
-then NORM=$(norminette ${@:2}); VERBOSE="TRUE"
-else NORM=$(norminette ${@:1})
+else NORM=$(norminette ${@:$START})
 fi
 main
 exit
