@@ -42,7 +42,6 @@ NAMEC=$BLUE$BRIGHT
 NORM=""
 VERBOSE=""
 
-main(){
 # Parts of the norminette output to differenciate the different outputs
 NORME="Norme: "
 COMP_MSG="may not compile"
@@ -52,15 +51,15 @@ ERR_MSG="Error ("
 # in case of "file may not compile" the norminette will not print out norm errors.
 WARN_MESSAGE="THIS MAY RESULT IN NORM-ERRORS BEING IGNORED, CHECK MANUALLY"
 
-OUTPUT=""
-STATE=""
-NEXT=""
-
 # different states
 NEWFILE="NEWFILE"
 WARNING="WARNING"
 ERROR="ERROR"
 INVALID="INVALID"
+
+main(){
+STATE=""
+NEXT=""
 
 while IFS= read -r line
 do 
@@ -72,7 +71,7 @@ do
 	INVA=$(echo "$line" | grep "$INVA_MSG");
 	if [[ $NORM_FILE != "" ]] # line is the name
 	then 
-	OUTPUT+=$NEXT; NEXT=""
+	printf "%s" "$NEXT"; NEXT=""
 		if [[ $STATE == $NEWFILE ]] # back to back names == no errors
 		then printf -v append "\t%s\n" "${GOOD}All OK${NORMAL}";
 		NEXT+=$append
@@ -106,9 +105,8 @@ if [[ $STATE == $NEWFILE && $NEXT != "" ]]
 	then printf -v append "\t%s\n" "${GOOD}All OK${NORMAL}";
 	NEXT+=$append;
 fi
-OUTPUT+=$NEXT;
 # Print out the formatted output
-printf "%s" "$OUTPUT"
+printf "%s" "$NEXT";
 }
 
 # if only script is called, print usage
@@ -120,7 +118,13 @@ fi
 
 if [[ ${@:$START} == "" ]]
 then printf "%s\n" "${NAMEC}usage:${NORMAL} $0 [${BRIGHT}-v ${NORMAL}'print full output']${BRIGHT} norminette input${NORMAL}"; exit;
-else NORM=$(norminette ${@:$START})
+else NORM=$(norminette ${@:$START}); main; exit
 fi
-main
-exit
+
+# alternative method to call norminette one by one. Seriously slower due to norminette taking the same time to reply regardless of file amount tested
+for arg in "${@:$START}"
+do
+	NORM=$(norminette $arg)
+	main
+done
+
