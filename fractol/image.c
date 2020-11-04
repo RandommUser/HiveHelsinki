@@ -23,7 +23,7 @@ void			mlx_image_set(int *img_dat, int width, int height, int color)
 	if (!img_dat)
 		return ;
 	i = -1;
-	while (++i <= width * height)
+	while (++i < width * height)
 		img_dat[i] = color;
 }
 

@@ -30,7 +30,7 @@ void			mlx_def_value(t_mlx *mlx)
 	mlx->rot[2] = ROT_Z;
 	mlx->jupt = mlx->func == &fractal_jul ? 1 : 0;
 	mlx->jur = 0;
-	mlx->color[0] = COLOR_START;
+	mlx->color[0] = mlx->func == &fractal_barn ? BARN_COLOR : COLOR_START;
 	mlx->color[1] = COLOR_END;
 	mlx->jul.cx = 0;
 	mlx->jul.cy = 0;
@@ -67,8 +67,9 @@ static void		mlx_image_create(t_mlx *mlx, int width, int height)
 {
 	if (!(mlx->mlx_img = mlx_new_image(mlx->mlx_ptr, width, height)))
 		run_exit(ERR_MLX, "mlx.c mlx_image_create mlx_img alloc error\n");
-	mlx->img_dat = (int*)mlx_get_data_addr(mlx->mlx_img, &mlx->bpp,
-		&mlx->size_line, &mlx->endian);
+	if (!(mlx->img_dat = (int*)mlx_get_data_addr(mlx->mlx_img, &mlx->bpp,
+		&mlx->size_line, &mlx->endian)))
+		run_exit(ERR_MLX, "mlx.c mlx_image_create img_dat alloc error\n");
 	mlx_image_set(mlx->img_dat, mlx->width, mlx->height, DEF_BG);
 }
 

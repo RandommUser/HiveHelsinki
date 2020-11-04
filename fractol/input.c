@@ -86,9 +86,9 @@ static int	input_c(int key, t_mlx *mlx)
 	else if (key == NUM_8)
 		rot(mlx, 0, '-');
 	else if (key == NUM_4)
-		rot(mlx, 1, '+');
-	else if (key == NUM_6)
 		rot(mlx, 1, '-');
+	else if (key == NUM_6)
+		rot(mlx, 1, '+');
 	else if (key == NUM_9)
 		rot(mlx, 2, '+');
 	else if (key == NUM_1)

@@ -20,7 +20,7 @@ int			iter_color(t_frac *frac, t_vec4 point)
 {
 	return (mlx_get_color_value(frac->mlx->mlx_ptr, (int)frac->mlx->clr_func(
 		frac->iter - point.vec[2], (long double[4]){0, frac->iter,
-		frac->mlx->color[0], frac->mlx->color[1]})));
+		frac->mlx->color[1], frac->mlx->color[0]})));
 }
 
 /*
@@ -47,7 +47,7 @@ void		height_reset(long double *arr, long double val, int w, int h)
 	int	i;
 
 	i = -1;
-	while (++i <= w * h)
+	while (++i < w * h)
 		arr[i] = val;
 }
 

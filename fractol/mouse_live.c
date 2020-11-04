@@ -50,19 +50,19 @@ int			mouse_live(int x, int y, void *param)
 		return (-1);
 	mlx = loop_start(param, -1, x, y);
 	if (!mlx->jur)
-		mouse_pos(mlx, x, y);
-	else
 	{
-		if (mlx->func == &fractal_jul)
-		{
-			mlx->jul.r = map(x, (long double[4]){0, mlx->width, 1,
-				sqrt(JULIA_MAX_R)});
-			mlx->jul.r *= map(y, (long double[4]){0, mlx->height, 1,
-				sqrt(JULIA_MAX_R)});
-		}
-		else if (mlx->func == &fractal_mult)
+		if (mlx->func == &fractal_mult)
 			mlx->jul.r = map(x, (long double[4]){0, mlx->width, MULT_MIN,
 				MULT_MAX});
+		else
+			mouse_pos(mlx, x, y);
+	}
+	else if (mlx->func == &fractal_jul)
+	{
+		mlx->jul.r = map(x, (long double[4]){0, mlx->width, 1,
+			sqrt(JULIA_MAX_R)});
+		mlx->jul.r *= map(y, (long double[4]){0, mlx->height, 1,
+			sqrt(JULIA_MAX_R)});
 	}
 	julia_num(mlx);
 	return (draw(mlx));

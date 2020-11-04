@@ -47,7 +47,7 @@ t_mlx		*loop_start(void *param, int key, int x, int y)
 	t_mlx		*mlx;
 
 	mlx = param;
-	if (!(key == K_SPB && mlx->func == &fractal_barn && mlx->jupt))
+	if (!(key == K_SPB && mlx->func == &fractal_barn && !mlx->jupt))
 		mlx_image_set(mlx->img_dat, mlx->width, mlx->height, DEF_BG);
 	mlx->anim_iter = mlx->iter;
 	mlx->zo = 0;

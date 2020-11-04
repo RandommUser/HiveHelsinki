@@ -32,14 +32,12 @@ void		fractal_barn(void *para)
 		point = vec4_ini((long double[4]){map(dot.x, (long double[4])
 			{BARN_X_MIN, BARN_X_MAX, -(frac->w), frac->w}),
 		map(dot.y, (long double[4]){BARN_Y_MIN, BARN_Y_MAX,
-			-(frac->h), frac->h}), i / 100 - frac->iter * 50 / 100, 1});
+			-(frac->h), frac->h}), 0, 1});
 		point = mat4_vec4(rot_matrix(frac->mlx->rot), point);
 		point.vec[0] = (point.vec[0] + frac->off.x) / frac->zoom + frac->w;
 		point.vec[1] = (point.vec[1] + frac->off.y) / frac->zoom + frac->h;
-		point.vec[2] += frac->iter * 50 / 100;
-		// UNDO THIS?
-		//point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr, (int)frac->mlx->clr_func(THREADS - frac->thread, (long double[4]){0, THREADS, frac->mlx->color[0], frac->mlx->color[1]}));
-		point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr, BARN_COLOR);
+		point.vec[3] = mlx_get_color_value(frac->mlx->mlx_ptr,
+			frac->mlx->color[0]);
 		to_image(frac->mlx, point);
 		dot = barnsley(dot);
 	}

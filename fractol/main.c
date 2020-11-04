@@ -25,7 +25,14 @@ void		run_exit(int code, char *spot)
 			NAMES" (height)\n");
 	else if (code == ERR_THREAD_VAL)
 		ft_putstr("Invalid THREAD value. Min 1, max 8, int only\n");
-	ft_putstr(spot);
+	else if (code == ERR_PARA)
+	{
+		ft_putstr("Too many parameters, max is ");
+		ft_putnbr(WINDOWS);
+		ft_putchar('\n');
+	}
+	else
+		ft_putstr(spot);
 	exit(code);
 }
 

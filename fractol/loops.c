@@ -40,16 +40,6 @@ static int	window_anim(t_mlx *mlx)
 }
 
 /*
-** Calculate more points for Barnsley
-*/
-
-static void	draw_leaf(t_mlx *mlx)
-{
-	if (mlx->jupt)
-		draw(mlx);
-}
-
-/*
 ** Animate increasing iteration
 */
 
@@ -66,13 +56,11 @@ int			iter_anim(void *param)
 		if (mlx->colort)
 			return (0);
 		if (!window_anim(mlx))
-			if (mlx->func == &fractal_barn)
-				draw_leaf(mlx);
+			if (mlx->func == &fractal_barn && !mlx->jupt)
+				draw(mlx);
 	}
 	return (0);
 }
-
-
 
 /*
 ** Close window (in loop, by pressing X)
