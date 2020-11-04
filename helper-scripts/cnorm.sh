@@ -21,6 +21,7 @@ RED=$(tput setaf 1)
 GREEN=$(tput setaf 2)
 YELLOW=$(tput setaf 3)
 LIME_YELLOW=$(tput setaf 190)
+LIGHT_YELLOW=$(tput setaf 228)
 POWDER_BLUE=$(tput setaf 153)
 BLUE=$(tput setaf 4)
 MAGENTA=$(tput setaf 5)
@@ -38,9 +39,11 @@ WARNC=$YELLOW
 INVAC=$CYAN
 GOOD=$GREEN
 NAMEC=$BLUE$BRIGHT
+ERRORPC=$LIGHT_YELLOW
 
 NORM=""
 VERBOSE=""
+PRINT=""
 
 # Parts of the norminette output to differenciate the different outputs
 NORME="Norme: "
@@ -60,7 +63,10 @@ INVALID="INVALID"
 main(){
 STATE=""
 NEXT=""
-
+FILE_NAME=""
+CLINE=""
+CCOL=""
+FILE_LINE=""
 while IFS= read -r line
 do 
 	# check norminette output
@@ -69,9 +75,19 @@ do
 	WARNING=$(echo "$line"  | grep "$COMP_MSG");
 	ERROR=$(echo "$line" | grep "$ERR_MSG");
 	INVA=$(echo "$line" | grep "$INVA_MSG");
+	if [[ $PRINT == "TRUE" ]]
+	then
+		LINES=$(echo "$ERROR" | sed -e 's/^Error (line \([0-9]\{1,\}\)): .*$/\1/');
+		LINEN=$(echo "$ERROR" | sed -e 's/^Error (line \([0-9]\{1,\}\)[, col [0-9]\{1,\}]\{0,\}): .*$/\1/');
+		COL=$(echo "$ERROR" | sed -e 's/^Error (line [0-9]\{1,\}, col \([0-9]\{1,\}\)): .*$/\1/');
+			if [[ $COL == $ERROR ]]
+			then COL=""
+			fi
+	fi
+
 	if [[ $NORM_FILE != "" ]] # line is the name
-	then 
-	printf "%s" "$NEXT"; NEXT=""
+	then FILE_NAME=$NORM_FILE; CCOL=""; CLINE=""; NEXT+=$FILE_LINE; FILE_LINE=""
+	printf "%s" "$NEXT"; NEXT="" # print out the current file and wipe it for the next one
 		if [[ $STATE == $NEWFILE ]] # back to back names == no errors
 		then printf -v append "\t%s\n" "${GOOD}All OK${NORMAL}";
 		NEXT+=$append
@@ -79,7 +95,22 @@ do
 	printf -v append "%s\n" "${NAMEC}>>  $NORM_FILE${NORMAL}";
 	STATE=$NEWFILE; NEXT+=$append;
 	elif [[ $ERROR != "" ]] # Error line
-	then append=$(echo " $line" | sed "s/$ERR_MSG//" | sed -e 's/\(line [0-9]\{1,\}\)): /\1'$'\t\t''/' | sed $'s/, /\t/' | sed $'s/): /\t/')
+	then 
+		if [[ $PRINT == "TRUE" ]]
+		then # print the error line
+			if [[ $COL != "" && ( $COL != $CCOL || $LINEN != $CLINE) ]]
+			then NEXT+=$FILE_LINE; FILE_LINE=""; CCOL=$COL; CLINE=$LINEN
+			append=$(awk "FNR==$CLINE" $FILE_NAME)
+			printf -v add "\t\t%s\n" " |${ERRORPC}${append:0:$CCOL}${REVERSE}${append:$CCOL}${NORMAL}"
+			FILE_LINE+=$add
+			elif [[ $LINES != "" && $LINES != $ERROR && $LINES != $CLINE ]]
+			then NEXT+=$FILE_LINE; FILE_LINE=""; CLINE=$LINES; CCOL=""
+			append=$(awk "FNR==$CLINE" $FILE_NAME)
+			printf -v add "\t\t%s\n" " |${ERRORPC}${REVERSE}$append${NORMAL}"
+			FILE_LINE+=$add
+			fi
+		fi
+	append=$(echo " $line" | sed "s/$ERR_MSG//" | sed -e 's/\(line [0-9]\{1,\}\)): /\1'$'\t\t''/' | sed $'s/, /\t/' | sed $'s/): /\t/')
 	printf -v add "\t%s\t%s\n" "${BRIGHT}${ERRORC}Error${NORMAL}" "$append"
 	NEXT+=$add
 	STATE=$ERROR
@@ -104,6 +135,8 @@ done <<< "$NORM"
 if [[ $STATE == $NEWFILE && $NEXT != "" ]]
 	then printf -v append "\t%s\n" "${GOOD}All OK${NORMAL}";
 	NEXT+=$append;
+elif [[ $FILE_LINE != "" ]]
+then NEXT+=$FILE_LINE
 fi
 # Print out the formatted output
 printf "%s" "$NEXT";
@@ -114,14 +147,25 @@ printf "%s" "$NEXT";
 START=1
 if [[ $1 == "-v" ]]
 then START=2; VERBOSE="TRUE"
+elif [[ $1 == "-p" ]]
+then START=2; PRINT="TRUE"
+fi
+
+if [[ $1 == "-vp" || $1 == "-pv" ]]
+then START=2; VERBOSE="TRUE"; PRINT="TRUE"
+elif [[ $START == 2 && $2 == "-v" ]]
+then START=3; VERBOSE="TRUE"
+elif [[ $START == 2 && $2 == "-p" ]]
+then START=3; PRINT="TRUE"
 fi
 
 if [[ ${@:$START} == "" ]]
-then printf "%s\n" "${NAMEC}usage:${NORMAL} $0 [${BRIGHT}-v ${NORMAL}'print full output']${BRIGHT} norminette input${NORMAL}"; exit;
+then printf "%s\n\t\t%s\n\t\t%s\n" "${NAMEC}usage:${NORMAL} $0 [${BRIGHT}-vp${NORMAL}]${BRIGHT} norminette input${NORMAL}" "-v 'Show invalid file output'" "-p 'Print out the marked error'"; exit;
 else NORM=$(norminette ${@:$START}); main; exit
 fi
 
-# alternative method to call norminette one by one. Seriously slower due to norminette taking the same time to reply regardless of file amount tested
+# Alternative method to call norminette one by one
+# Seriously slower due to Norminette being the slowdown
 for arg in "${@:$START}"
 do
 	NORM=$(norminette $arg)
