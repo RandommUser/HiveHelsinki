@@ -11,7 +11,7 @@
 # **************************************************************************** #
 
 # A formatting wrapper for Norminette 2.0
-# Inspired by -- on 42 Slack
+# Inspired by github.com/VictorTennekes on 42 Slack
 # Recommended to be added to alias or root to be called easily
 # Tested to work on zsh 5.3, bash 3.2.57 on iMac 10.14.6
 # Made by phakakos, Hive Helsinki 2020
