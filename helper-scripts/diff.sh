@@ -39,7 +39,7 @@ test_line()
 }
 
 if [[ -z $1 ]]
-then echo "usage: $0 'file'"; exit
+then echo "usage: ${0##*/} 'file'"; exit
 elif [[ ! -f $1 ]]
 then echo "File does not exist"; exit
 fi

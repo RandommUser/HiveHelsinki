@@ -14,6 +14,30 @@
 # Should be added as alias or placed to the root for easy use
 # Made by phakakos @ Hive Helsinki, 2019
 
+# WORK IN PROGRESS
+# not working because alias returns nothing
+
+find_alias(){
+	HOME_DIR=$(echo ~)
+	echo "HOME_DIR $HOME_DIR"
+	FILE=$(echo "$1" | grep "$HOME_DIR")
+	echo "FILE $FILE"
+	HOME_DIR=$(echo "$HOME_DIR" | sed -e 's/\//\\\//g')
+	echo "$HOME_DIR"
+	if [[ $FILE != "" ]]
+	then FILE=$(echo "$1" | sed -e "s/$HOME_DIR//")
+	fi
+	echo "FILE1 $FILE"
+	#$(alias) # | grep $FILE
+	ALIAS=$(alias | grep "$FILE")
+	echo "alias found '$ALIAS'"
+	if [[ $ALIAS == "" ]]
+	then echo "$1"
+	else ALIAS=$(echo $ALIAS | sed -e 's/^\(.*\)=.*$/\1/')
+	echo "$ALIAS"
+	fi
+}
+
 init(){
 clear
 # Wait for norm test
@@ -144,7 +168,10 @@ then start; makefile; rules; exit;
 elif [[ $1 == "-a" ]]
 then init; gitcheck; auth; norm; makefile; rules; exit;
 else
-	echo "usage $0 [ -a -g -n -m -r -u ]"; 
+	#ALIAS=$(find_alias $0 )
+	#find_alias $0
+	alias
+	echo "usage ${0##*/} [ -a -g -n -m -r -u ]"; 
 	echo "\t\t-a 'all'";
 	echo "\t\t-g 'git status'"
 	echo "\t\t-n 'norminette'"

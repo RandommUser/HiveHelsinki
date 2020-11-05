@@ -127,7 +127,7 @@ then write_author
 elif [[ $1 == "-l" ]]
 then copy_lib
 elif [[ $1 != "" ]]
-	then echo "usage $0 [-a (author file)| -l (library)]"
+	then echo "usage ${0##*/} [-a (author file)| -l (library)]"
 else
 	main
 fi

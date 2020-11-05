@@ -161,7 +161,7 @@ then START=3; PRINT="TRUE"
 fi
 
 if [[ ${@:$START} == "" ]]
-then printf "%s\n\t\t%s\n\t\t%s\n" "${NAMEC}usage:${NORMAL} $0 [${BRIGHT}-vp${NORMAL}]${BRIGHT} norminette input${NORMAL}" "-v 'Show invalid file output'" "-p 'Print out the marked error'"; exit;
+then printf "%s\n\t\t%s\n\t\t%s\n" "${NAMEC}usage:${NORMAL} ${0##*/} [${BRIGHT}-vp${NORMAL}]${BRIGHT} norminette input${NORMAL}" "-v 'Show invalid file output'" "-p 'Print out the marked error'"; exit;
 else NORM=$(norminette ${@:$START}); main; exit
 fi
 

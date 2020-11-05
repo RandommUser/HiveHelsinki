@@ -93,7 +93,7 @@ echo "Makefile created"; exit
 
 # usage
 if [[ ${@:1} == "" ]]
-then echo "usage $0 'program name' source_file.c/a source_folder"
+then echo "usage ${0##*/} 'program name' source_file.c/a source_folder"
 	echo "Support direct link to .a library or just the folder. Include folders will be included with just a folder"
 	exit
 fi
