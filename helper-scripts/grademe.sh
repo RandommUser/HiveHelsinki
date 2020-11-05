@@ -11,7 +11,7 @@
 # **************************************************************************** #
 
 # Script made to test the folder's status before turning in the project.
-# Should be placed in root and called with ~./grademe.sh or make an alias
+# Should be added as alias or placed to the root for easy use
 # Made by phakakos @ Hive Helsinki, 2019
 
 init(){
@@ -142,7 +142,14 @@ then start; auth; exit;
 elif [[ $1 == "-r" ]]
 then start; makefile; rules; exit;
 elif [[ $1 == "-a" ]]
-then init; gitcheck; auth; norm; auth; makefile; rules; exit;
+then init; gitcheck; auth; norm; makefile; rules; exit;
 else
-	echo "usage $0 [ -a (all) | -g (git status) | -n (norminette) | -m (makefile rules) | -r (makefile functions) | -u (author file) ]"; exit;
+	echo "usage $0 [ -a -g -n -m -r -u ]"; 
+	echo "\t\t-a 'all'";
+	echo "\t\t-g 'git status'"
+	echo "\t\t-n 'norminette'"
+	echo "\t\t-m 'makefile rules'"
+	echo "\t\t-r 'makefile functions'"
+	echo "\t\t-u 'author file'"
+	exit;
 fi
