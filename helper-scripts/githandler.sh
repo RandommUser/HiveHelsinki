@@ -11,6 +11,7 @@
 # **************************************************************************** #
 
 # Shell script to handle multiple git commands in a single line
+# Should be added as alias or placed to the root for easy use
 # does not edit commit message for already committed files
 # can handle multiple different different adds, commits and pushes
 # Made by phakakos @ Hive Helsinki, 2020
@@ -25,8 +26,8 @@ then echo "Not in a git folder"; exit;
 fi
 }
 
-if [[ $1 == "" ]]
-then echo "usage $0 [-s (status)] | (files to add) [-m ("'"'"commit message"'"'")] [-p (push)]"; exit
+if [[ ${@:1} == "" ]]
+then echo "usage: $0 [-s 'status'] || (files to add) [-m "'"'"commit message"'"'"] [-p 'push']"; exit
 fi
 gitcheck;
 mess="no";
@@ -46,6 +47,6 @@ do
 	elif [[ $arg == "-s" ]]
 	then git status; exit
 	else
-	echo "input '$arg' was not valid file/folder/flag";
+	echo "input '$arg' was not valid file/folder/flag"; exit;
 	fi
 done
