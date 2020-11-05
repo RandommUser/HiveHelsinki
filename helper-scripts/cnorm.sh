@@ -12,7 +12,7 @@
 
 # A formatting wrapper for Norminette 2.0
 # Inspired by github.com/VictorTennekes on 42 Slack
-# Recommended to be added to alias or root to be called easily
+# Should be added as alias or placed to the root for easy use
 # Tested to work on zsh 5.3, bash 3.2.57 on iMac 10.14.6
 # Made by phakakos, Hive Helsinki 2020
 
@@ -75,17 +75,18 @@ do
 	WARNING=$(echo "$line"  | grep "$COMP_MSG");
 	ERROR=$(echo "$line" | grep "$ERR_MSG");
 	INVA=$(echo "$line" | grep "$INVA_MSG");
-	if [[ $PRINT == "TRUE" ]]
-	then
+	if [[ $PRINT == "TRUE" && $ERROR != "" ]]
+	then # A different sed for with and without the col 'cause regex would ignore the last number for some reason
 		LINES=$(echo "$ERROR" | sed -e 's/^Error (line \([0-9]\{1,\}\)): .*$/\1/');
-		LINEN=$(echo "$ERROR" | sed -e 's/^Error (line \([0-9]\{1,\}\)[, col [0-9]\{1,\}]\{0,\}): .*$/\1/');
-		COL=$(echo "$ERROR" | sed -e 's/^Error (line [0-9]\{1,\}, col \([0-9]\{1,\}\)): .*$/\1/');
-			if [[ $COL == $ERROR ]]
-			then COL=""
+			if [[ $LINES == $ERROR ]]
+			then 
+			LINES=$(echo "$ERROR" | sed -e 's/^Error (line \([0-9]\{1,\}\)[, col [0-9]\{1,\}]\{0,\}): .*$/\1/');
+			COL=$(echo "$ERROR" | sed -e 's/^Error (line [0-9]\{1,\}, col \([0-9]\{1,\}\)): .*$/\1/');
+			else COL=""
 			fi
 	fi
 
-	if [[ $NORM_FILE != "" ]] # line is the name
+	if [[ $NORM_FILE != "" ]] # Line is the name
 	then FILE_NAME=$NORM_FILE; CCOL=""; CLINE=""; NEXT+=$FILE_LINE; FILE_LINE=""
 	printf "%s" "$NEXT"; NEXT="" # print out the current file and wipe it for the next one
 		if [[ $STATE == $NEWFILE ]] # back to back names == no errors
@@ -96,10 +97,10 @@ do
 	STATE=$NEWFILE; NEXT+=$append;
 	elif [[ $ERROR != "" ]] # Error line
 	then 
-		if [[ $PRINT == "TRUE" ]]
-		then # print the error line
-			if [[ $COL != "" && ( $COL != $CCOL || $LINEN != $CLINE) ]]
-			then NEXT+=$FILE_LINE; FILE_LINE=""; CCOL=$COL; CLINE=$LINEN
+		if [[ $PRINT == "TRUE" ]] # Print, -p, needs to have been called to print out the error line
+		then 
+			if [[ $COL != "" && ( $COL != $CCOL || $LINES != $CLINE) ]]
+			then NEXT+=$FILE_LINE; FILE_LINE=""; CCOL=$COL; CLINE=$LINES
 			append=$(awk "FNR==$CLINE" $FILE_NAME)
 			printf -v add "\t\t%s\n" " |${ERRORPC}${append:0:$CCOL}${REVERSE}${append:$CCOL}${NORMAL}"
 			FILE_LINE+=$add
@@ -121,7 +122,7 @@ do
 	STATE=$WARNING
 	elif [[ $INVA != "" ]] # Invalid file
 	then 
-		if [[ $VERBOSE != "" ]]
+		if [[ $VERBOSE == "TRUE" ]] # Verbos, -v, needs to have been called to print
 		then append=$(echo " $line" | sed 's/Warning: //')
 			printf -v add "\t%s\t\t%s\n" "${INVAC}Warning${NORMAL}" "$append"
 			NEXT+=$add
@@ -138,7 +139,7 @@ if [[ $STATE == $NEWFILE && $NEXT != "" ]]
 elif [[ $FILE_LINE != "" ]]
 then NEXT+=$FILE_LINE
 fi
-# Print out the formatted output
+# Print out the last output
 printf "%s" "$NEXT";
 }
 
