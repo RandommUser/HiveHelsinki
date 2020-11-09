@@ -17,12 +17,13 @@
 
 
 # Set the names of the different variables in the Makefile
-CNAME="SRCS"				# all the .c files
-ONAME="BIGO"				# all the .o files
-INCNAME="INC"				# include folders
-LIBNAME="LIB"				# library folders
-FRAMEWORKNAM="FRAMEWORK"	# framework name
-FLAGSNAME="FLAGS"			# compile flags
+CNAME="SRCS"						# all the .c files
+ONAME="BIGO"						# all the .o files
+INCNAME="INC"						# include folders
+LIBNAME="LIB"						# library folders
+FRAMEWORKNAM="FRAMEWORK"			# framework name
+PREFRAMEWORKNAM="PREFRAMEWORK"		# pre-framework name
+FLAGSNAME="FLAGS"					# compile flags
 
 # Parse parameters
 FLAGS="-Wall -Wextra -Werror"		# flags
@@ -33,6 +34,11 @@ LIB=""								# libraries
 INCLUDES=""							# included folders
 EMAKE=()							# list of libraries folders to run 'make' in
 FRAMEWORK=""						# mlx framework flags
+PRE_FRAMEWORK=""					# Flags before gcc -o call. Mainly for pthread
+
+# Booleans
+MLX_TAG="FALSE"
+PTHREAD_TAG="FALSE"
 
 
 # Create the makefile
@@ -49,6 +55,7 @@ echo "$INCNAME=$INCLUDES" >> Makefile
 echo "$LIBNAME=$LIB" >> Makefile
 echo "$FLAGSNAME=$FLAGS" >> Makefile
 echo "$FRAMEWORKNAM=$FRAMEWORK" >> Makefile
+echo "$PREFRAMEWORKNAM=$PRE_FRAMEWORK" >> Makefile
 echo "\n\nall : \$(NAME)" >> Makefile
 echo "" >> Makefile
 echo "\$(NAME) :" >> Makefile
@@ -62,7 +69,7 @@ fi
 echo "\tgcc -c \$($FLAGSNAME) \$($CNAME) \$($INCNAME)" >> Makefile
 TEST=$(echo "$NAME" | grep "\.a$")
 if [[ $TEST == "" ]]							# if the desired output file is an .a file, change the final compilation
-then echo "\tgcc \$($FLAGSNAME) -o \$(NAME) \$($ONAME) \$($LIBNAME) \$($FRAMEWORKNAM)" >> Makefile
+then echo "\tgcc \$($FLAGSNAME) \$($PREFRAMEWORKNAM) -o \$(NAME) \$($ONAME) \$($LIBNAME) \$($FRAMEWORKNAM)" >> Makefile
 else 
 	echo "\tar rc \$(NAME) \$($ONAME)" >> Makefile; echo "\tranlib \$(NAME)" >> Makefile
 fi
@@ -93,8 +100,15 @@ echo "Makefile created"; exit
 
 # usage
 if [[ ${@:1} == "" ]]
-then echo "usage ${0##*/} 'program name' source_file.c/a source_folder"
-	echo "Support direct link to .a library or just the folder. Include folders will be included with just a folder"
+then echo "usage: ${0##*/} 'output name(.a)' Makefile file.c/.a folder [-mlx -pthread]"
+	echo "\t\tName\t\t\tName for the program or library to be compiled"
+	echo "\t\t*.c files\t\tGive as a parameter"
+	echo "\t\tHeader includes\t\tGive as a folder"
+	echo "\t\tCompilable library\tGive as a folder or the Makefile"
+	echo "\t\tStatic library \t\tGive the .a as a parameter"
+	echo "\t\t-mlx\t\t\tAdd iMac flags"
+	echo "\t\t-pthread\t\tAdd pthread flags"
+	echo "\t\tName first, input order doesn't matter"
 	exit
 fi
 
@@ -105,8 +119,10 @@ do
 	if [[ $NAME == "" ]]
 	then NAME="$arg"; continue;
 	fi
-	if [[ $arg == "-mlx" ]]						# mlx framework tag
-	then FRAMEWORK+="-framework OpenGL -framework AppKit "; continue;
+	if [[ $arg == "-mlx" && $MLX_TAG != "TRUE" ]]						# mlx framework tag
+	then FRAMEWORK+="-framework OpenGL -framework AppKit "; MLX_TAG="TRUE"; continue;
+	elif [[ $arg == "-pthread" && $PTHREAD_TAG != "TRUE" ]]				# pthread framework tag
+	then PRE_FRAMEWORK+="-lpthread -pthread "; PTHREAD_TAG="TRUE"; continue;
 	fi
 	TEST=$(echo "$arg" | grep ".c")
 	if [[ $TEST	!= "" ]] 						# Input is a .c file
@@ -117,7 +133,6 @@ do
 				then printf -v add "%s\n\t" "\\"
 				CFILES+=$add;
 				fi
-			#printf -v add "%s" "$arg"
 			CFILES+=$arg; continue
 			else echo "$arg is not an existing .c file"; continue
 		fi
@@ -129,7 +144,7 @@ do
 			if [[ $TEST  != "" ]]							# The Makefile compiles an .a file, add it to EMAKE to make before compling
 			then
 				TEST=$(echo "$arg" | grep "^[\.]\{1,2\}\/\|^~\/")
-				if [[ $TEST != "" ]]						# if the arg has './' , '../'  or '~/' at the of the argument, otherwise add "./"
+				if [[ $TEST != "" ]]						# if the arg has './' , '../'  or '~/' at the end of the argument, otherwise add "./"
 				then LIB+="-L $arg "; EMAKE+=( "$arg" );
 				else
 					LIB+="-L ./$arg "; EMAKE+=( "./$arg" );
@@ -142,7 +157,7 @@ do
 	continue
 	fi
 	TEST=$(echo "$arg" | grep "\.a")
-	if [[ $TEST != "" ]]						# Input is an a file
+	if [[ $TEST != "" ]]						# Input is an a-file
 	then
 		if [[ -f $arg ]]						# it exists
 		then 
@@ -158,6 +173,23 @@ do
 		else echo "$arg is not an existing .a file"
 		fi
 		continue
+	fi
+	TEST=$(echo "$arg" | grep "Makefile$")
+	if [[ $TEST != "" && -f $arg ]]							# Input is a Makefile
+	then TEST=$(cat $arg | grep "NAME" | grep "\.a$")
+		if [[ $TEST  != "" ]]								# The Makefile compiles an .a file, add it to EMAKE to make before compling
+		then
+			TEST=$(echo "$arg" | grep "^[\.]\{1,2\}\/\|^~\/");
+			ADD=$(echo "$arg" | sed 's/\/Makefile$//');		# Remove the 'Makefile'
+			if [[ $TEST != "" ]]							# if the arg has './' , '../'  or '~/' at the end of the argument, otherwise add "./"
+			then LIB+="-L $ADD "; EMAKE+=( "$ADD" ); INCLUDES+="-I $ADD "
+			else
+				LIB+="-L ./$ADD "; EMAKE+=( "./$ADD" ); INCLUDES+="-I ./$ADD "
+			fi
+			TEST=$(cat $arg | grep "\.a$" | sed -E "s/^.*=(.*)\.a/\1/g" | sed 's/ //g' | sed 's/^lib//g') # get the library name
+			LIB+="-l$TEST "
+			continue
+		fi
 	fi
 done
 print_make
