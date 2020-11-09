@@ -6,7 +6,7 @@
 #    By: phakakos <phakakos@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/12 18:10:52 by phakakos          #+#    #+#              #
-#    Updated: 2020/02/14 13:14:38 by phakakos         ###   ########.fr        #
+#    Updated: 2020/11/09 14:04:55 by phakakos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,7 +17,7 @@
 
 PWD=$(pwd)
 # change to your own libft folder 
-LIBFT=~/42/HiveHelsinki/libft
+LIBFT=~/libft
 # By default $USER is used for the author file
 # Change this if your user does not match your intra login
 MY_USER=""
